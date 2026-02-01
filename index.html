@@ -15,7 +15,7 @@
             transition: transform 0.1s ease-out;
         }
 
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 2; }
 
         #content-wrapper { 
             position: relative; z-index: 3; text-align: center; width: 90%; max-width: 900px; 
@@ -26,6 +26,13 @@
         #main-title { font-size: 2.2rem; margin-bottom: 10px; text-transform: uppercase; min-height: 2.5rem; }
         #sub-title { font-size: 1rem; opacity: 0.9; min-height: 1.5rem; }
 
+        #enter-btn {
+            padding: 20px 40px; font-size: 1.2rem; background: rgba(0,0,0,0.7);
+            border: 2px solid #00ff00; color: #00ff00; cursor: pointer;
+            font-family: 'Orbitron', sans-serif; box-shadow: 0 0 20px rgba(0,255,0,0.5);
+            z-index: 10; text-transform: uppercase;
+        }
+
         #video-wrapper, #gallery-wrapper { display: none; margin-top: 20px; width: 100%; }
         iframe { width: 100%; max-width: 560px; height: 315px; border: 2px solid #00ff00; border-radius: 8px; }
 
@@ -33,18 +40,20 @@
         .gallery-container { position: relative; width: 100%; max-width: 500px; margin: auto; }
         .nav-btn {
             position: absolute; top: 50%; transform: translateY(-50%);
-            background: rgba(0,255,0,0.4); border: none; color: white;
-            font-size: 2rem; cursor: pointer; padding: 10px; z-index: 10;
+            background: rgba(0,255,0,0.5); border: none; color: white;
+            font-size: 2rem; cursor: pointer; padding: 15px; z-index: 11;
         }
-        .prev { left: -50px; } .next { right: -50px; }
+        .prev { left: -60px; } .next { right: -60px; }
     </style>
 </head>
-<body onclick="startMedia()">
+<body>
 
     <div id="bg-layer"></div>
     <div id="overlay"></div>
 
     <div id="content-wrapper">
+        <button id="enter-btn" onclick="initializeSystem()">KATTINTS RÁM</button>
+        
         <h1 id="main-title"></h1>
         <div id="sub-title"></div>
 
@@ -52,8 +61,8 @@
 
         <div id="gallery-wrapper">
             <div class="gallery-container" id="gallery">
-                <button class="nav-btn prev" onclick="event.stopPropagation(); changeSlide(-1)">❮</button>
-                <button class="nav-btn next" onclick="event.stopPropagation(); changeSlide(1)">❯</button>
+                <button class="nav-btn prev" onclick="changeSlide(-1)">❮</button>
+                <button class="nav-btn next" onclick="changeSlide(1)">❯</button>
             </div>
             <div id="bg-audio-player" style="display:none;"></div>
         </div>
@@ -66,7 +75,11 @@
         const pZene = urlParams.get('zene') || ""; 
         const pMode = urlParams.get('mode') || "zene"; 
         const pBg = urlParams.get('bg') || "000000";
+        const pGomb = urlParams.get('gomb') || "KATTINTS RÁM";
         const pKepek = urlParams.get('kepek') ? urlParams.get('kepek').split(',') : [];
+
+        // Gomb felirat beállítása
+        document.getElementById('enter-btn').innerText = pGomb;
 
         // Háttér beállítása
         const bgLayer = document.getElementById('bg-layer');
@@ -76,7 +89,7 @@
             bgLayer.style.backgroundColor = `#${pBg}`;
         }
 
-        // Parallaxis giroszkóppal
+        // Giroszkóp
         if (window.DeviceOrientationEvent) {
             window.addEventListener('deviceorientation', (e) => {
                 const moveX = e.gamma / 2;
@@ -85,11 +98,9 @@
             });
         }
 
-        // Írógép
         function typeWriter(text, elementId, speed, callback) {
             let i = 0;
             const element = document.getElementById(elementId);
-            element.innerHTML = "";
             function type() {
                 if (i < text.length) {
                     element.innerHTML += text.charAt(i);
@@ -99,17 +110,6 @@
             }
             type();
         }
-
-        window.onload = () => {
-            typeWriter(pCim, "main-title", 60, () => {
-                if(pAlcim) typeWriter(pAlcim, "sub-title", 40);
-            });
-            if (pMode === 'video') document.getElementById('video-wrapper').style.display = 'block';
-            if (pMode === 'kep') {
-                document.getElementById('gallery-wrapper').style.display = 'block';
-                setupGallery();
-            }
-        };
 
         // YouTube API
         var tag = document.createElement('script');
@@ -125,13 +125,27 @@
                 height: (pMode === 'video' ? '315' : '0'),
                 width: (pMode === 'video' ? '560' : '0'),
                 videoId: pZene,
-                playerVars: { 'autoplay': 1, 'controls': (pMode === 'video' ? 1 : 0), 'mute': 1 }
+                playerVars: { 'autoplay': 0, 'controls': (pMode === 'video' ? 1 : 0) }
             });
         }
 
-        function startMedia() {
+        function initializeSystem() {
+            document.getElementById('enter-btn').style.display = 'none';
+            
+            // Szövegek indítása
+            typeWriter(pCim, "main-title", 60, () => {
+                if(pAlcim) typeWriter(pAlcim, "sub-title", 40);
+            });
+
+            // Média indítása
+            if (pMode === 'video') {
+                document.getElementById('video-wrapper').style.display = 'block';
+            } else if (pMode === 'kep') {
+                document.getElementById('gallery-wrapper').style.display = 'block';
+                setupGallery();
+            }
+
             if(player && player.playVideo) {
-                player.unMute();
                 player.playVideo();
             }
         }
