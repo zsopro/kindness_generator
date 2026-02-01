@@ -8,171 +8,90 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; color: #00ff00; }
-        
-        #bg-layer {
-            position: fixed; top: -10%; left: -10%; width: 120%; height: 120%;
-            background-size: cover; background-position: center; z-index: 1;
-            transition: transform 0.1s ease-out;
-        }
-
+        #bg-layer { position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; background-size: cover; background-position: center; z-index: 1; transition: transform 0.1s ease-out; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 2; }
-
-        #content-wrapper { 
-            position: relative; z-index: 3; text-align: center; width: 90%; max-width: 900px; 
-            margin: auto; height: 100vh; display: none; /* Alapból rejtve, amíg nincs paraméter */
-            flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 10px #00ff00;
-        }
-        
+        #content-wrapper { position: relative; z-index: 3; text-align: center; width: 90%; max-width: 900px; margin: auto; height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 10px #00ff00; }
         #main-title { font-size: 2.2rem; margin-bottom: 10px; text-transform: uppercase; min-height: 2.5rem; }
         #sub-title { font-size: 1rem; opacity: 0.9; min-height: 1.5rem; }
-
-        #enter-btn {
-            padding: 20px 40px; font-size: 1.2rem; background: rgba(0,0,0,0.7);
-            border: 2px solid #00ff00; color: #00ff00; cursor: pointer;
-            font-family: 'Orbitron', sans-serif; box-shadow: 0 0 20px rgba(0,255,0,0.5);
-            z-index: 10; text-transform: uppercase;
-        }
-
+        #enter-btn { padding: 20px 40px; font-size: 1.2rem; background: rgba(0,0,0,0.7); border: 2px solid #00ff00; color: #00ff00; cursor: pointer; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 20px rgba(0,255,0,0.5); z-index: 10; text-transform: uppercase; }
         #video-wrapper, #gallery-wrapper { display: none; margin-top: 20px; width: 100%; }
         iframe { width: 100%; max-width: 560px; height: 315px; border: 2px solid #00ff00; border-radius: 8px; }
-
         .slide { display: none; width: 100%; border: 2px solid #00ff00; border-radius: 10px; max-height: 50vh; object-fit: contain; margin: auto; }
         .gallery-container { position: relative; width: 100%; max-width: 500px; margin: auto; }
-        .nav-btn {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            background: rgba(0,255,0,0.5); border: none; color: white;
-            font-size: 2rem; cursor: pointer; padding: 15px; z-index: 11;
-        }
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,255,0,0.5); border: none; color: white; font-size: 2rem; cursor: pointer; padding: 15px; z-index: 11; }
         .prev { left: -60px; } .next { right: -60px; }
     </style>
 </head>
 <body>
-
     <div id="bg-layer"></div>
     <div id="overlay"></div>
-
     <div id="content-wrapper">
         <button id="enter-btn" onclick="initializeSystem()">KATTINTS RÁM</button>
         <h1 id="main-title"></h1>
         <div id="sub-title"></div>
         <div id="video-wrapper"><div id="player"></div></div>
-        <div id="gallery-wrapper">
-            <div class="gallery-container" id="gallery">
-                <button class="nav-btn prev" onclick="changeSlide(-1)">❮</button>
-                <button class="nav-btn next" onclick="changeSlide(1)">❯</button>
-            </div>
-            <div id="bg-audio-player" style="display:none;"></div>
-        </div>
+        <div id="gallery-wrapper"><div class="gallery-container" id="gallery"><button class="nav-btn prev" onclick="changeSlide(-1)">❮</button><button class="nav-btn next" onclick="changeSlide(1)">❯</button></div><div id="bg-audio-player" style="display:none;"></div></div>
     </div>
 
     <script>
-        /* --- PARAMÉTEREK DEKLARÁLÁSA --- */
         const urlParams = new URLSearchParams(window.location.search);
-        
-        const pCim   = urlParams.get('cim');      // Főcím (írógép)
-        const pAlcim = urlParams.get('alcim');    // Alcím (írógép)
-        const pZene  = urlParams.get('zene');     // YouTube ID
-        const pMode  = urlParams.get('mode')  || "zene"; // zene / video / kep
-        const pBg    = urlParams.get('bg')    || "000000"; // Háttér szín vagy URL
-        const pGomb  = urlParams.get('gomb')  || "KATTINTS RÁM"; // Gomb felirata
+        const pCim   = urlParams.get('cim');
+        const pAlcim = urlParams.get('alcim');
+        const pZene  = urlParams.get('zene');
+        const pMode  = urlParams.get('mode')  || "zene";
+        const pBg    = urlParams.get('bg')    || "000000";
+        const pGomb  = urlParams.get('gomb')  || "KATTINTS RÁM";
         const pKepek = urlParams.get('kepek') ? urlParams.get('kepek').split(',') : [];
 
-        /* --- ELLENŐRZÉS: HA NINCS PARAMÉTER, SEMMI SE TÖRTÉNJEN --- */
-        if (pCim || pAlcim || urlParams.has('zene')) {
+        if (pCim || pAlcim || pZene) {
             document.getElementById('content-wrapper').style.display = 'flex';
-            setupInterface();
-        }
-
-        function setupInterface() {
-            // Gomb és háttér beállítása
             document.getElementById('enter-btn').innerText = pGomb;
             const bgLayer = document.getElementById('bg-layer');
-            if (pBg.startsWith('http')) {
-                bgLayer.style.backgroundImage = `url('${pBg}')`;
-            } else {
-                bgLayer.style.backgroundColor = `#${pBg}`;
-            }
-
-            // Giroszkóp aktiválása
-            if (window.DeviceOrientationEvent) {
-                window.addEventListener('deviceorientation', (e) => {
-                    const moveX = e.gamma / 2;
-                    const moveY = e.beta / 2;
-                    bgLayer.style.transform = `translate(${moveX}px, ${moveY}px)`;
-                });
-            }
-
-            // YouTube API betöltése
+            if (pBg.startsWith('http')) bgLayer.style.backgroundImage = `url('${pBg}')`;
+            else bgLayer.style.backgroundColor = `#${pBg}`;
+            
             var tag = document.createElement('script');
             tag.src = "https://www.youtube.com/iframe_api";
-            var firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            document.head.appendChild(tag);
         }
 
-        /* --- RENDSZER INDÍTÁSA GOMBNYOMÁSRA --- */
         var player;
         function onYouTubeIframeAPIReady() {
             if(!pZene) return;
-            let target = (pMode === 'video' ? 'player' : 'bg-audio-player');
-            player = new YT.Player(target, {
+            player = new YT.Player((pMode === 'video' ? 'player' : 'bg-audio-player'), {
                 height: (pMode === 'video' ? '315' : '0'),
                 width: (pMode === 'video' ? '560' : '0'),
                 videoId: pZene,
-                playerVars: { 'autoplay': 0, 'controls': (pMode === 'video' ? 1 : 0) }
+                playerVars: { 'autoplay': 0, 'controls': (pMode === 'video' ? 1 : 0), 'rel': 0, 'origin': window.location.origin }
             });
         }
 
         function initializeSystem() {
             document.getElementById('enter-btn').style.display = 'none';
-            
-            typeWriter(pCim || "", "main-title", 60, () => {
-                if(pAlcim) typeWriter(pAlcim, "sub-title", 40);
-            });
-
-            if (pMode === 'video') {
-                document.getElementById('video-wrapper').style.display = 'block';
-            } else if (pMode === 'kep') {
-                document.getElementById('gallery-wrapper').style.display = 'block';
-                setupGallery();
-            }
-
+            typeWriter(pCim || "", "main-title", 60, () => { if(pAlcim) typeWriter(pAlcim, "sub-title", 40); });
+            if (pMode === 'video') document.getElementById('video-wrapper').style.display = 'block';
+            else if (pMode === 'kep') { document.getElementById('gallery-wrapper').style.display = 'block'; setupGallery(); }
             if(player && player.playVideo) player.playVideo();
         }
 
-        /* --- SEGÉDFÜGGVÉNYEK (Írógép, Galéria) --- */
         function typeWriter(text, elementId, speed, callback) {
-            let i = 0;
-            const element = document.getElementById(elementId);
-            function type() {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i);
-                    i++;
-                    setTimeout(type, speed);
-                } else if (callback) callback();
-            }
-            type();
+            let i = 0; const el = document.getElementById(elementId);
+            function t() { if (i < text.length) { el.innerHTML += text.charAt(i); i++; setTimeout(t, speed); } else if (callback) callback(); }
+            t();
         }
 
         let slideIndex = 1;
         function setupGallery() {
-            const container = document.getElementById('gallery');
-            pKepek.forEach((url) => {
-                let img = document.createElement('img');
-                img.src = url; img.className = 'slide';
-                container.insertBefore(img, container.firstChild);
-            });
+            const c = document.getElementById('gallery');
+            pKepek.forEach((u) => { let img = document.createElement('img'); img.src = u; img.className = 'slide'; c.insertBefore(img, c.firstChild); });
             showSlides(slideIndex);
         }
-
         function showSlides(n) {
-            let slides = document.getElementsByClassName("slide");
-            if (slides.length === 0) return;
-            if (n > slides.length) slideIndex = 1;
-            if (n < 1) slideIndex = slides.length;
-            for (let i = 0; i < slides.length; i++) slides[i].style.display = "none";
-            slides[slideIndex-1].style.display = "block";
+            let s = document.getElementsByClassName("slide"); if (!s.length) return;
+            if (n > s.length) slideIndex = 1; if (n < 1) slideIndex = s.length;
+            for (let i = 0; i < s.length; i++) s[i].style.display = "none";
+            s[slideIndex-1].style.display = "block";
         }
-
         function changeSlide(n) { showSlides(slideIndex += n); }
     </script>
 </body>
