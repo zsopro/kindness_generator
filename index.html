@@ -19,8 +19,8 @@
 
         #content-wrapper { 
             position: relative; z-index: 3; text-align: center; width: 90%; max-width: 900px; 
-            margin: auto; height: 100vh; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; text-shadow: 0 0 10px #00ff00;
+            margin: auto; height: 100vh; display: none; /* Alapból rejtve, amíg nincs paraméter */
+            flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 10px #00ff00;
         }
         
         #main-title { font-size: 2.2rem; margin-bottom: 10px; text-transform: uppercase; min-height: 2.5rem; }
@@ -53,12 +53,9 @@
 
     <div id="content-wrapper">
         <button id="enter-btn" onclick="initializeSystem()">KATTINTS RÁM</button>
-        
         <h1 id="main-title"></h1>
         <div id="sub-title"></div>
-
         <div id="video-wrapper"><div id="player"></div></div>
-
         <div id="gallery-wrapper">
             <div class="gallery-container" id="gallery">
                 <button class="nav-btn prev" onclick="changeSlide(-1)">❮</button>
@@ -69,54 +66,50 @@
     </div>
 
     <script>
+        /* --- PARAMÉTEREK DEKLARÁLÁSA --- */
         const urlParams = new URLSearchParams(window.location.search);
-        const pCim = urlParams.get('cim') || "RENDSZER ÜZENET";
-        const pAlcim = urlParams.get('alcim') || "";
-        const pZene = urlParams.get('zene') || ""; 
-        const pMode = urlParams.get('mode') || "zene"; 
-        const pBg = urlParams.get('bg') || "000000";
-        const pGomb = urlParams.get('gomb') || "KATTINTS RÁM";
+        
+        const pCim   = urlParams.get('cim');      // Főcím (írógép)
+        const pAlcim = urlParams.get('alcim');    // Alcím (írógép)
+        const pZene  = urlParams.get('zene');     // YouTube ID
+        const pMode  = urlParams.get('mode')  || "zene"; // zene / video / kep
+        const pBg    = urlParams.get('bg')    || "000000"; // Háttér szín vagy URL
+        const pGomb  = urlParams.get('gomb')  || "KATTINTS RÁM"; // Gomb felirata
         const pKepek = urlParams.get('kepek') ? urlParams.get('kepek').split(',') : [];
 
-        // Gomb felirat beállítása
-        document.getElementById('enter-btn').innerText = pGomb;
-
-        // Háttér beállítása
-        const bgLayer = document.getElementById('bg-layer');
-        if (pBg.startsWith('http')) {
-            bgLayer.style.backgroundImage = `url('${pBg}')`;
-        } else {
-            bgLayer.style.backgroundColor = `#${pBg}`;
+        /* --- ELLENŐRZÉS: HA NINCS PARAMÉTER, SEMMI SE TÖRTÉNJEN --- */
+        if (pCim || pAlcim || urlParams.has('zene')) {
+            document.getElementById('content-wrapper').style.display = 'flex';
+            setupInterface();
         }
 
-        // Giroszkóp
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', (e) => {
-                const moveX = e.gamma / 2;
-                const moveY = e.beta / 2;
-                bgLayer.style.transform = `translate(${moveX}px, ${moveY}px)`;
-            });
-        }
-
-        function typeWriter(text, elementId, speed, callback) {
-            let i = 0;
-            const element = document.getElementById(elementId);
-            function type() {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i);
-                    i++;
-                    setTimeout(type, speed);
-                } else if (callback) callback();
+        function setupInterface() {
+            // Gomb és háttér beállítása
+            document.getElementById('enter-btn').innerText = pGomb;
+            const bgLayer = document.getElementById('bg-layer');
+            if (pBg.startsWith('http')) {
+                bgLayer.style.backgroundImage = `url('${pBg}')`;
+            } else {
+                bgLayer.style.backgroundColor = `#${pBg}`;
             }
-            type();
+
+            // Giroszkóp aktiválása
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', (e) => {
+                    const moveX = e.gamma / 2;
+                    const moveY = e.beta / 2;
+                    bgLayer.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                });
+            }
+
+            // YouTube API betöltése
+            var tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         }
 
-        // YouTube API
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
+        /* --- RENDSZER INDÍTÁSA GOMBNYOMÁSRA --- */
         var player;
         function onYouTubeIframeAPIReady() {
             if(!pZene) return;
@@ -132,12 +125,10 @@
         function initializeSystem() {
             document.getElementById('enter-btn').style.display = 'none';
             
-            // Szövegek indítása
-            typeWriter(pCim, "main-title", 60, () => {
+            typeWriter(pCim || "", "main-title", 60, () => {
                 if(pAlcim) typeWriter(pAlcim, "sub-title", 40);
             });
 
-            // Média indítása
             if (pMode === 'video') {
                 document.getElementById('video-wrapper').style.display = 'block';
             } else if (pMode === 'kep') {
@@ -145,12 +136,23 @@
                 setupGallery();
             }
 
-            if(player && player.playVideo) {
-                player.playVideo();
-            }
+            if(player && player.playVideo) player.playVideo();
         }
 
-        // Galéria
+        /* --- SEGÉDFÜGGVÉNYEK (Írógép, Galéria) --- */
+        function typeWriter(text, elementId, speed, callback) {
+            let i = 0;
+            const element = document.getElementById(elementId);
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else if (callback) callback();
+            }
+            type();
+        }
+
         let slideIndex = 1;
         function setupGallery() {
             const container = document.getElementById('gallery');
