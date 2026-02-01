@@ -37,7 +37,7 @@
         const pMode = params.get('mode') || "zene";
         const pBg = params.get('bg') || "000000";
 
-        // Háttér azonnali beállítása
+        // Háttér azonnali beállítása.
         const bg = document.getElementById('bg-layer');
         if (pBg.startsWith('http')) bg.style.backgroundImage = `url('${pBg}')`;
         else bg.style.backgroundColor = `#${pBg}`;
