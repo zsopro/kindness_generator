@@ -7,155 +7,66 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; }
-        
-        #bg-layer {
-            position: fixed; top: -10%; left: -10%; width: 120%; height: 120%;
-            background-size: cover; background-position: center; z-index: 1;
-            transition: transform 0.1s ease-out;
-        }
-
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2; }
-
-        #content-wrapper { 
-            position: relative; z-index: 3; text-align: center; width: 90%; max-width: 900px; 
-            margin: auto; height: 100vh; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; color: #00ff00; text-shadow: 0 0 10px #00ff00;
-        }
-        
-        #main-title { font-size: 2.2rem; margin-bottom: 10px; text-transform: uppercase; min-height: 2.5rem; }
-        #sub-title { font-size: 1rem; opacity: 0.9; min-height: 1.5rem; }
-
+        body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; color: #00ff00; }
+        #bg-layer { position: fixed; top: -10%; left: -10%; width: 120%; height: 120%; background-size: cover; background-position: center; z-index: 1; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 2; }
+        #content-wrapper { position: relative; z-index: 3; text-align: center; width: 90%; margin: auto; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 10px #00ff00; }
+        #main-title { font-size: 2rem; margin-bottom: 10px; text-transform: uppercase; }
+        #sub-title { font-size: 1rem; opacity: 0.8; }
         #video-wrapper, #gallery-wrapper { display: none; margin-top: 20px; width: 100%; }
-        iframe { width: 100%; max-width: 560px; height: 315px; border: 2px solid #00ff00; border-radius: 8px; }
-
-        .slide { display: none; width: 100%; border: 2px solid #00ff00; border-radius: 10px; max-height: 50vh; object-fit: contain; }
-        .gallery-container { position: relative; width: 100%; max-width: 500px; margin: auto; }
-        .nav-btn {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            background: rgba(0,255,0,0.4); border: none; color: white;
-            font-size: 2rem; cursor: pointer; padding: 10px; z-index: 10;
-        }
-        .prev { left: -50px; } .next { right: -50px; }
+        iframe { width: 100%; max-width: 560px; height: 315px; border: 2px solid #00ff00; }
+        .slide { display: none; width: 100%; border: 2px solid #00ff00; max-height: 50vh; object-fit: contain; }
     </style>
 </head>
 <body onclick="startMedia()">
-
     <div id="bg-layer"></div>
     <div id="overlay"></div>
-
     <div id="content-wrapper">
         <h1 id="main-title"></h1>
         <div id="sub-title"></div>
-
         <div id="video-wrapper"><div id="player"></div></div>
-
-        <div id="gallery-wrapper">
-            <div class="gallery-container" id="gallery">
-                <button class="nav-btn prev" onclick="event.stopPropagation(); changeSlide(-1)">❮</button>
-                <button class="nav-btn next" onclick="event.stopPropagation(); changeSlide(1)">❯</button>
-            </div>
-            <div id="bg-audio-player" style="display:none;"></div>
-        </div>
+        <div id="gallery-wrapper"><div id="gallery"></div><div id="bg-audio-player" style="display:none;"></div></div>
     </div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const pCim = urlParams.get('cim') || "ÜZENET ÉRKEZETT";
-        const pAlcim = urlParams.get('alcim') || "";
-        const pZene = urlParams.get('zene') || ""; 
-        const pMode = urlParams.get('mode') || "zene"; 
-        const pBg = urlParams.get('bg') || "000000";
-        const pKepek = urlParams.get('kepek') ? urlParams.get('kepek').split(',') : [];
+        // Kényszerített paraméter kinyerés
+        const params = new URLSearchParams(window.location.search);
+        const pCim = params.get('cim') || "ÜZENET";
+        const pAlcim = params.get('alcim') || "";
+        const pZene = params.get('zene') || "";
+        const pMode = params.get('mode') || "zene";
+        const pBg = params.get('bg') || "000000";
 
-        // Háttér beállítása
-        const bgLayer = document.getElementById('bg-layer');
-        if (pBg.startsWith('http')) {
-            bgLayer.style.backgroundImage = `url('${pBg}')`;
-        } else {
-            bgLayer.style.backgroundColor = `#${pBg}`;
-        }
+        // Háttér azonnali beállítása
+        const bg = document.getElementById('bg-layer');
+        if (pBg.startsWith('http')) bg.style.backgroundImage = `url('${pBg}')`;
+        else bg.style.backgroundColor = `#${pBg}`;
 
-        // Parallaxis
-        document.addEventListener('mousemove', (e) => {
-            const moveX = (e.clientX - window.innerWidth / 2) / 50;
-            const moveY = (e.clientY - window.innerHeight / 2) / 50;
-            bgLayer.style.transform = `translate(${moveX}px, ${moveY}px)`;
-        });
-
-        // Írógép indítása azonnal
-        function typeWriter(text, elementId, speed, callback) {
-            let i = 0;
-            const element = document.getElementById(elementId);
-            element.innerHTML = "";
-            function type() {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i);
-                    i++;
-                    setTimeout(type, speed);
-                } else if (callback) callback();
-            }
-            type();
+        // Írógép
+        function type(txt, id, speed, cb) {
+            let i = 0; const el = document.getElementById(id);
+            function run() { if (i < txt.length) { el.innerHTML += txt.charAt(i); i++; setTimeout(run, speed); } else if (cb) cb(); }
+            run();
         }
 
         window.onload = () => {
-            typeWriter(pCim, "main-title", 60, () => {
-                if(pAlcim) typeWriter(pAlcim, "sub-title", 40);
-            });
+            type(pCim, "main-title", 60, () => { if(pAlcim) type(pAlcim, "sub-title", 40); });
             if (pMode === 'video') document.getElementById('video-wrapper').style.display = 'block';
-            if (pMode === 'kep') {
-                document.getElementById('gallery-wrapper').style.display = 'block';
-                setupGallery();
-            }
+            if (pMode === 'kep') document.getElementById('gallery-wrapper').style.display = 'block';
         };
 
         // YouTube
-        var tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        var firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
+        var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
         var player;
         function onYouTubeIframeAPIReady() {
             if(!pZene) return;
-            let target = (pMode === 'video' ? 'player' : 'bg-audio-player');
-            player = new YT.Player(target, {
-                height: (pMode === 'video' ? '315' : '0'),
-                width: (pMode === 'video' ? '560' : '0'),
-                videoId: pZene,
-                playerVars: { 'autoplay': 1, 'controls': (pMode === 'video' ? 1 : 0), 'mute': 1 }
+            player = new YT.Player((pMode==='video'?'player':'bg-audio-player'), {
+                height: (pMode==='video'?'315':'0'), width: (pMode==='video'?'560':'0'),
+                videoId: pZene, playerVars: { 'autoplay': 1, 'mute': 1 }
             });
         }
-
-        function startMedia() {
-            if(player && player.playVideo) {
-                player.unMute();
-                player.playVideo();
-            }
-        }
-
-        // Galéria
-        let slideIndex = 1;
-        function setupGallery() {
-            const container = document.getElementById('gallery');
-            pKepek.forEach((url) => {
-                let img = document.createElement('img');
-                img.src = url; img.className = 'slide';
-                container.insertBefore(img, container.firstChild);
-            });
-            showSlides(slideIndex);
-        }
-
-        function showSlides(n) {
-            let slides = document.getElementsByClassName("slide");
-            if (slides.length === 0) return;
-            if (n > slides.length) slideIndex = 1;
-            if (n < 1) slideIndex = slides.length;
-            for (let i = 0; i < slides.length; i++) slides[i].style.display = "none";
-            slides[slideIndex-1].style.display = "block";
-        }
-
-        function changeSlide(n) { showSlides(slideIndex += n); }
+        function startMedia() { if(player) { player.unMute(); player.playVideo(); } }
     </script>
 </body>
 </html>
