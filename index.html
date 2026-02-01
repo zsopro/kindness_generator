@@ -7,71 +7,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; }
         
-        body, html { 
-            height: 100%; 
-            width: 100%; 
-            overflow: hidden; 
-            background-color: #000;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        /* Dinamikus Háttér Réteg */
         #bg-layer {
-            position: fixed;
-            top: -10%; left: -10%;
-            width: 120%; height: 120%;
-            background-size: cover;
-            background-position: center;
-            z-index: 1;
-            transition: transform 0.1s ease-out; /* A giroszkóp mozgáshoz */
+            position: fixed; top: -10%; left: -10%; width: 120%; height: 120%;
+            background-size: cover; background-position: center; z-index: 1;
+            transition: transform 0.1s ease-out;
         }
 
-        #overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4); /* Sötétítés a jobb olvashatóságért */
-            z-index: 2;
-        }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2; }
 
         #content-wrapper { 
-            position: relative;
-            z-index: 3;
-            text-align: center; 
-            width: 90%; 
-            max-width: 900px; 
-            margin: auto;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #00ff00;
-            text-shadow: 0 0 10px #00ff00;
+            position: relative; z-index: 3; text-align: center; width: 90%; max-width: 900px; 
+            margin: auto; height: 100vh; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; color: #00ff00; text-shadow: 0 0 10px #00ff00;
         }
         
-        #typewriter-container { min-height: 120px; margin-bottom: 20px; }
-        #main-title { font-size: 2.5rem; margin: 0; text-transform: uppercase; }
-        #sub-title { font-size: 1.1rem; opacity: 0.9; margin-top: 15px; }
+        #main-title { font-size: 2.2rem; margin-bottom: 10px; text-transform: uppercase; min-height: 2.5rem; }
+        #sub-title { font-size: 1rem; opacity: 0.9; min-height: 1.5rem; }
 
-        #enter-btn {
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            background: rgba(0,0,0,0.6);
-            border: 2px solid #00ff00;
-            color: #00ff00;
-            cursor: pointer;
-            font-family: 'Orbitron', sans-serif;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
-            backdrop-filter: blur(5px);
-        }
-
-        #video-wrapper, #gallery-wrapper { display: none; margin-top: 30px; width: 100%; }
+        #video-wrapper, #gallery-wrapper { display: none; margin-top: 20px; width: 100%; }
         iframe { width: 100%; max-width: 560px; height: 315px; border: 2px solid #00ff00; border-radius: 8px; }
 
-        .slide { display: none; width: 100%; border: 2px solid #00ff00; border-radius: 10px; max-height: 60vh; object-fit: contain; }
-        .gallery-container { position: relative; width: 100%; max-width: 500px; }
+        .slide { display: none; width: 100%; border: 2px solid #00ff00; border-radius: 10px; max-height: 50vh; object-fit: contain; }
+        .gallery-container { position: relative; width: 100%; max-width: 500px; margin: auto; }
         .nav-btn {
             position: absolute; top: 50%; transform: translateY(-50%);
             background: rgba(0,255,0,0.4); border: none; color: white;
@@ -80,25 +39,21 @@
         .prev { left: -50px; } .next { right: -50px; }
     </style>
 </head>
-<body>
+<body onclick="startMedia()">
 
     <div id="bg-layer"></div>
     <div id="overlay"></div>
 
     <div id="content-wrapper">
-        <div id="typewriter-container">
-            <h1 id="main-title"></h1>
-            <div id="sub-title"></div>
-        </div>
-        
-        <button id="enter-btn">INITIALIZE SYSTEM</button>
+        <h1 id="main-title"></h1>
+        <div id="sub-title"></div>
 
         <div id="video-wrapper"><div id="player"></div></div>
 
         <div id="gallery-wrapper">
             <div class="gallery-container" id="gallery">
-                <button class="nav-btn prev" onclick="changeSlide(-1)">❮</button>
-                <button class="nav-btn next" onclick="changeSlide(1)">❯</button>
+                <button class="nav-btn prev" onclick="event.stopPropagation(); changeSlide(-1)">❮</button>
+                <button class="nav-btn next" onclick="event.stopPropagation(); changeSlide(1)">❯</button>
             </div>
             <div id="bg-audio-player" style="display:none;"></div>
         </div>
@@ -106,14 +61,14 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const pCim = urlParams.get('cim') || "SYSTEM ACCESS";
-        const pAlcim = urlParams.get('alcim') || "AUTHENTICATION GRANTED";
-        const pZene = urlParams.get('zene') || "dQw4w9WgXcQ"; 
+        const pCim = urlParams.get('cim') || "ÜZENET ÉRKEZETT";
+        const pAlcim = urlParams.get('alcim') || "";
+        const pZene = urlParams.get('zene') || ""; 
         const pMode = urlParams.get('mode') || "zene"; 
-        const pBg = urlParams.get('bg') || "000000"; // Lehet szín kód vagy URL
+        const pBg = urlParams.get('bg') || "000000";
         const pKepek = urlParams.get('kepek') ? urlParams.get('kepek').split(',') : [];
 
-        // Háttér beállítása (Szín vagy Kép/GIF)
+        // Háttér beállítása
         const bgLayer = document.getElementById('bg-layer');
         if (pBg.startsWith('http')) {
             bgLayer.style.backgroundImage = `url('${pBg}')`;
@@ -121,24 +76,18 @@
             bgLayer.style.backgroundColor = `#${pBg}`;
         }
 
-        // Giroszkóp / Parallaxis effekt
+        // Parallaxis
         document.addEventListener('mousemove', (e) => {
             const moveX = (e.clientX - window.innerWidth / 2) / 50;
             const moveY = (e.clientY - window.innerHeight / 2) / 50;
             bgLayer.style.transform = `translate(${moveX}px, ${moveY}px)`;
         });
 
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', (e) => {
-                const moveX = e.gamma / 2; // bal-jobb döntés
-                const moveY = e.beta / 2;  // előre-hátra döntés
-                bgLayer.style.transform = `translate(${moveX}px, ${moveY}px)`;
-            });
-        }
-
+        // Írógép indítása azonnal
         function typeWriter(text, elementId, speed, callback) {
             let i = 0;
             const element = document.getElementById(elementId);
+            element.innerHTML = "";
             function type() {
                 if (i < text.length) {
                     element.innerHTML += text.charAt(i);
@@ -149,6 +98,18 @@
             type();
         }
 
+        window.onload = () => {
+            typeWriter(pCim, "main-title", 60, () => {
+                if(pAlcim) typeWriter(pAlcim, "sub-title", 40);
+            });
+            if (pMode === 'video') document.getElementById('video-wrapper').style.display = 'block';
+            if (pMode === 'kep') {
+                document.getElementById('gallery-wrapper').style.display = 'block';
+                setupGallery();
+            }
+        };
+
+        // YouTube
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -156,15 +117,24 @@
 
         var player;
         function onYouTubeIframeAPIReady() {
+            if(!pZene) return;
             let target = (pMode === 'video' ? 'player' : 'bg-audio-player');
             player = new YT.Player(target, {
                 height: (pMode === 'video' ? '315' : '0'),
                 width: (pMode === 'video' ? '560' : '0'),
                 videoId: pZene,
-                playerVars: { 'autoplay': 0, 'controls': (pMode === 'video' ? 1 : 0) }
+                playerVars: { 'autoplay': 1, 'controls': (pMode === 'video' ? 1 : 0), 'mute': 1 }
             });
         }
 
+        function startMedia() {
+            if(player && player.playVideo) {
+                player.unMute();
+                player.playVideo();
+            }
+        }
+
+        // Galéria
         let slideIndex = 1;
         function setupGallery() {
             const container = document.getElementById('gallery');
@@ -186,24 +156,6 @@
         }
 
         function changeSlide(n) { showSlides(slideIndex += n); }
-
-        document.getElementById('enter-btn').addEventListener('click', function() {
-            this.style.display = 'none';
-            typeWriter(pCim, "main-title", 60, () => {
-                typeWriter(pAlcim, "sub-title", 30);
-            });
-
-            if (pMode === 'video') {
-                document.getElementById('video-wrapper').style.display = 'block';
-                player.playVideo();
-            } else if (pMode === 'zene') {
-                player.playVideo();
-            } else if (pMode === 'kep') {
-                document.getElementById('gallery-wrapper').style.display = 'block';
-                setupGallery();
-                player.playVideo();
-            }
-        });
     </script>
 </body>
 </html>
