@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kindness_generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #00ff00; /* Klasszikus terminál zöld */
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        #content-wrapper { text-align: center; width: 90%; max-width: 800px; }
+        
+        #welcome-text { font-size: 1.5rem; min-height: 3rem; margin-bottom: 2rem; }
+
+        #enter-btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            transition: 0.3s;
+        }
+
+        #enter-btn:hover { background: #00ff00; color: #000; }
+
+        /* Videó és Galéria konténerek */
+        #media-container { margin-top: 20px; display: none; width: 100%; }
+        iframe { width: 100%; max-width: 560px; height: 315px; border: 2px solid #00ff00; }
+
+        /* Galéria stílus */
+        #gallery { display: none; position: relative; width: 100%; max-width: 500px; margin: auto; }
+        .slide { display: none; width: 100%; border: 2px solid #00ff00; border-radius: 10px; }
+        .nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(0,255,0,0.2); border: none; color: white;
+            font-size: 2rem; cursor: pointer; padding: 10px;
+        }
+        .prev { left: -50px; }
+        .next { right: -50px; }
+    </style>
+</head>
+<body>
+
+    <div id="content-wrapper">
+        <h1 id="welcome-text"></h1>
+        <button id="enter-btn">RENDSZER INDÍTÁSA</button>
+
+        <div id="media-container">
+            <div id="player"></div> <div id="gallery">
+                <img class="slide" src="" id="img1">
+                <img class="slide" src="" id="img2">
+                <img class="slide" src="" id="img3">
+                <button class="nav-btn prev" onclick="changeSlide(-1)">❮</button>
+                <button class="nav-btn next" onclick="changeSlide(1)">❯</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const nev = urlParams.get('nev') || "Ismeretlen";
+        const zeneId = urlParams.get('zene') || "dQw4w9WgXcQ"; 
+        const mode = urlParams.get('mode') || "zene"; // zene, video, kep
+        const szin = urlParams.get('szin') || "000000";
+        const kepek = urlParams.get('kepek') ? urlParams.get('kepek').split(',') : [];
+
+        document.body.style.backgroundColor = "#" + szin;
+
+        // Írógép effektus
+        const welcomeElement = document.getElementById("welcome-text");
+        const fullText = "ÜDVÖZÖLLEK, " + nev.toUpperCase() + ". AZONOSÍTÁS SIKERES. HOZZÁFÉRÉS ENGEDÉLYEZVE...";
+        let charIndex = 0;
+
+        function typeWriter() {
+            if (charIndex < fullText.length) {
+                welcomeElement.innerHTML += fullText.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 50);
+            }
+        }
+
+        // YouTube API betöltése
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: (mode === 'video' ? '315' : '0'),
+                width: (mode === 'video' ? '560' : '0'),
+                videoId: zeneId,
+                playerVars: { 'autoplay': 0, 'controls': (mode === 'video' ? 1 : 0) }
+            });
+        }
+
+        // Galéria kezelés
+        let slideIndex = 0;
+        function showSlides() {
+            let i;
+            let slides = document.getElementsByClassName("slide");
+            for (i = 0; i < slides.length; i++) slides[i].style.display = "none";
+            slideIndex++;
+            if (slideIndex > slides.length) slideIndex = 1;
+            slides[slideIndex-1].style.display = "block";
+            setTimeout(showSlides, 3000); // 3 mp-enként vált automatán
+        }
+
+        function changeSlide(n) {
+            slideIndex += n;
+            let slides = document.getElementsByClassName("slide");
+            if (slideIndex > slides.length) slideIndex = 1;
+            if (slideIndex < 1) slideIndex = slides.length;
+            for (let i = 0; i < slides.length; i++) slides[i].style.display = "none";
+            slides[slideIndex-1].style.display = "block";
+        }
+
+        // Indító gomb esemény
+        document.getElementById('enter-btn').addEventListener('click', function() {
+            this.style.display = 'none';
+            typeWriter();
+            document.getElementById('media-container').style.display = 'block';
+
+            if (mode === 'zene' || mode === 'video') {
+                player.playVideo();
+            } else if (mode === 'kep') {
+                document.getElementById('gallery').style.display = 'block';
+                for(let i=0; i<kepek.length && i<3; i++) {
+                    document.getElementById('img' + (i+1)).src = kepek[i];
+                }
+                showSlides();
+            }
+        });
+    </script>
+</body>
+</html>
