@@ -141,13 +141,16 @@
                 decorationImg.style.display = 'block';
                 let imageUrl = '';
                 if (pDeco === 'advent') {
-                    imageUrl = 'https://i.imgur.com/your_advent_wreath_image.png'; // CSERÉLD KI EGY VALÓDI KÉPLINKRE
+                    //imageUrl = 'https://i.imgur.com/your_advent_wreath_image.png'; // CSERÉLD KI EGY VALÓDI KÉPLINKRE
+                    imageUrl = '';
+                    
                     decorationImg.style.maxWidth = '200px'; // Kisebb adventi koszorú
                     decorationImg.style.bottom = '10px';
                     decorationImg.style.left = '10px'; // Bal alsó sarokba
                     decorationImg.style.right = 'auto'; // Ne legyen jobb pozíció
                 } else if (pDeco === 'halloween') {
-                    imageUrl = 'https://i.imgur.com/your_halloween_pumpkin_image.png'; // CSERÉLD KI EGY VALÓDI KÉPLINKRE
+                    //imageUrl = 'https://i.imgur.com/your_halloween_pumpkin_image.png'; // CSERÉLD KI EGY VALÓDI KÉPLINKRE
+                    imageUrl = 'https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fwww.freepik.com%2Fpremium-psd%2Fpsd-3d-witch-pumpkin-icon-halloween-png-download_47007913.htm&ved=0CBYQjRxqFwoTCMi1-tP0uZIDFQAAAAAdAAAAABAI&opi=89978449';
                     decorationImg.classList.add('decoration-rotate'); // Forgó tök
                 } else if (pDeco.startsWith('http')) {
                     imageUrl = pDeco; // Egyedi kép linkje
