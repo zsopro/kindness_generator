@@ -58,7 +58,8 @@
         const pEffect = urlParams.get('effect'); // snow, heart, matrix
         const pIntens = parseInt(urlParams.get('intensity')) || 5;
         const pKepek  = urlParams.get('kepek')  ? urlParams.get('kepek').split(',') : [];
-
+        const pSize = parseInt(urlParams.get('psize')) || 0;
+        
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -75,7 +76,7 @@
                 particles.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    size: Math.random() * (pEffect === 'snow' ? 4 : 20) + 2,
+                    size: (Math.random() * (pEffect === 'snow' ? 4 : 20) + 2) + pSize,
                     speed: Math.random() * 3 + 1,
                     opacity: Math.random(),
                     char: pEffect === 'matrix' ? String.fromCharCode(0x30A0 + Math.random() * 96) : (pEffect === 'heart' ? '❤' : '●')
