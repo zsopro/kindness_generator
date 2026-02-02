@@ -67,11 +67,33 @@
         }
 
         function initializeSystem() {
-            document.getElementById('enter-btn').style.display = 'none';
+            /*document.getElementById('enter-btn').style.display = 'none';
             typeWriter(pCim || "", "main-title", 60, () => { if(pAlcim) typeWriter(pAlcim, "sub-title", 40); });
             if (pMode === 'video') document.getElementById('video-wrapper').style.display = 'block';
             else if (pMode === 'kep') { document.getElementById('gallery-wrapper').style.display = 'block'; setupGallery(); }
             if(player && player.playVideo) player.playVideo();
+            */
+            
+            document.getElementById('enter-btn').style.display = 'none';
+            
+            typeWriter(pCim || "", "main-title", 60, () => { 
+                if(pAlcim) typeWriter(pAlcim, "sub-title", 40); 
+            });
+
+            if (pMode === 'video') {
+                document.getElementById('video-wrapper').style.display = 'block';
+            } else if (pMode === 'kep') {
+                document.getElementById('gallery-wrapper').style.display = 'block';
+                setupGallery();
+            }
+
+            // HANG JAVÍTÁSA ITT:
+            if(player && player.playVideo) {
+                player.unMute();        // Némítás feloldása
+                player.setVolume(100);  // Hangerő maximumra
+                player.playVideo();     // Lejátszás
+            }
+        
         }
 
         function typeWriter(text, elementId, speed, callback) {
