@@ -23,6 +23,22 @@
         .gallery-container { position: relative; width: 100%; max-width: 400px; margin: auto; }
         .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,255,0,0.5); border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 10px; z-index: 11; }
         .prev { left: -50px; } .next { right: -50px; }
+
+        /* DEKORÁCIÓ STÍLUSOK */
+        #decoration {
+            position: fixed; bottom: 20px; right: 20px; z-index: 5; /* A szöveg fölé kerül */
+            max-width: 150px; /* Állítsd be a méretet igény szerint */
+            height: auto;
+            pointer-events: none; /* Ne akadályozza az érintést */
+            filter: drop-shadow(0 0 10px rgba(0,255,0,0.5)); /* Kis neon ragyogás */
+        }
+        .decoration-rotate { /* Forgás animáció, ha kell */
+            animation: rotate3D 10s infinite linear;
+        }
+        @keyframes rotate3D {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -35,6 +51,7 @@
         <button id="enter-btn" onclick="initializeSystem()">KATTINTS RÁM</button>
         <h1 id="main-title"></h1>
         <div id="sub-title"></div>
+
         <div id="video-wrapper"><div id="player"></div></div>
         <div id="gallery-wrapper">
             <div class="gallery-container" id="gallery">
@@ -44,6 +61,8 @@
             <div id="bg-audio-player" style="display:none;"></div>
         </div>
     </div>
+
+    <img id="decoration" src="" alt="Dekoráció" style="display:none;">
 
     <script>
         /* --- PARAMÉTEREK --- */
@@ -57,9 +76,10 @@
         const pBgMove = urlParams.get('bgmove') || "0";
         const pEffect = urlParams.get('effect'); // snow, heart, matrix
         const pIntens = parseInt(urlParams.get('intensity')) || 5;
+        const pSize   = parseInt(urlParams.get('psize')) || 0; // Szemcseméret
+        const pDeco   = urlParams.get('deco'); // advent, halloween, vagy kép linkje
         const pKepek  = urlParams.get('kepek')  ? urlParams.get('kepek').split(',') : [];
-        const pSize = parseInt(urlParams.get('psize')) || 0;
-        
+
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -76,7 +96,7 @@
                 particles.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    size: (Math.random() * (pEffect === 'snow' ? 4 : 20) + 2) + pSize,
+                    size: (Math.random() * (pEffect === 'snow' ? 4 : 20) + 2) + pSize, // pSize hozzáadása
                     speed: Math.random() * 3 + 1,
                     opacity: Math.random(),
                     char: pEffect === 'matrix' ? String.fromCharCode(0x30A0 + Math.random() * 96) : (pEffect === 'heart' ? '❤' : '●')
@@ -99,7 +119,7 @@
         }
 
         /* --- INICIALIZÁLÁS --- */
-        if (pCim || pAlcim || pZene) {
+        if (pCim || pAlcim || pZene || pDeco) { // Deco paraméter megléte is indítja
             document.getElementById('content-wrapper').style.display = 'flex';
             document.getElementById('enter-btn').innerText = pGomb;
             const bgLayer = document.getElementById('bg-layer');
@@ -114,6 +134,26 @@
                 });
             }
             if (pEffect) { initParticles(); drawParticles(); }
+
+            // DEKORÁCIÓ BEÁLLÍTÁSA
+            const decorationImg = document.getElementById('decoration');
+            if (pDeco) {
+                decorationImg.style.display = 'block';
+                let imageUrl = '';
+                if (pDeco === 'advent') {
+                    imageUrl = 'https://i.imgur.com/your_advent_wreath_image.png'; // CSERÉLD KI EGY VALÓDI KÉPLINKRE
+                    decorationImg.style.maxWidth = '200px'; // Kisebb adventi koszorú
+                    decorationImg.style.bottom = '10px';
+                    decorationImg.style.left = '10px'; // Bal alsó sarokba
+                    decorationImg.style.right = 'auto'; // Ne legyen jobb pozíció
+                } else if (pDeco === 'halloween') {
+                    imageUrl = 'https://i.imgur.com/your_halloween_pumpkin_image.png'; // CSERÉLD KI EGY VALÓDI KÉPLINKRE
+                    decorationImg.classList.add('decoration-rotate'); // Forgó tök
+                } else if (pDeco.startsWith('http')) {
+                    imageUrl = pDeco; // Egyedi kép linkje
+                }
+                if (imageUrl) decorationImg.src = imageUrl;
+            }
             
             var tag = document.createElement('script');
             tag.src = "https://www.youtube.com/iframe_api";
