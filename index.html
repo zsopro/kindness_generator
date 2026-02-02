@@ -3,42 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>kindness_generator</title>
+    <title>Kindness Generator Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* --- ALAP STÍLUSOK --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; color: #00ff00; }
         
+        /* 3D Háttér réteg - a mozgás miatt 130%-os */
         #bg-layer { position: fixed; top: -15%; left: -15%; width: 130%; height: 130%; background-size: cover; background-position: center; z-index: 1; will-change: transform; transition: transform 0.2s ease-out; }
+        /* Effekt (hó, szív, virág) vászon */
         #canvas-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+        /* Sötétítő réteg a szöveg olvashatóságáért */
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 3; }
 
-        #content-wrapper { position: relative; z-index: 4; text-align: center; width: 90%; margin: auto; height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 10px #00ff00; }
-        #main-title { font-size: 2.2rem; margin-bottom: 10px; text-transform: uppercase; }
-        #sub-title { font-size: 1.1rem; opacity: 0.9; }
-        #enter-btn { padding: 20px 40px; font-size: 1.2rem; background: rgba(0,255,0,0.1); border: 2px solid #00ff00; color: #00ff00; cursor: pointer; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 20px rgba(0,255,0,0.5); z-index: 100; text-transform: uppercase; }
+        /* Tartalom wrapper */
+        #content-wrapper { position: relative; z-index: 4; text-align: center; width: 90%; margin: auto; height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 15px rgba(0,255,0,0.7); }
+        #main-title { font-size: 2.5rem; margin-bottom: 10px; text-transform: uppercase; }
+        #sub-title { font-size: 1.2rem; opacity: 0.9; min-height: 1.5rem; }
+
+        /* Indító gomb */
+        #enter-btn { padding: 20px 40px; font-size: 1.2rem; background: rgba(0,255,0,0.1); border: 2px solid #00ff00; color: #00ff00; cursor: pointer; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 20px rgba(0,255,0,0.5); z-index: 100; text-transform: uppercase; transition: 0.3s; }
+        #enter-btn:hover { background: rgba(0,255,0,0.3); box-shadow: 0 0 30px #00ff00; }
+
+        /* Multimédia elemek */
         #video-wrapper, #gallery-wrapper { display: none; margin-top: 20px; width: 100%; }
         iframe { width: 100%; max-width: 500px; height: 280px; border: 2px solid #00ff00; border-radius: 8px; }
         .slide { display: none; width: 100%; border: 2px solid #00ff00; border-radius: 10px; max-height: 50vh; object-fit: contain; }
         .gallery-container { position: relative; width: 100%; max-width: 400px; margin: auto; }
-        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,255,0,0.5); border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 10px; z-index: 11; }
-        .prev { left: -50px; } .next { right: -50px; }
-
-        /* DEKORÁCIÓ STÍLUSOK */
-        #decoration {
-            position: fixed; bottom: 20px; right: 20px; z-index: 5; /* A szöveg fölé kerül */
-            max-width: 150px; /* Állítsd be a méretet igény szerint */
-            height: auto;
-            pointer-events: none; /* Ne akadályozza az érintést */
-            filter: drop-shadow(0 0 10px rgba(0,255,0,0.5)); /* Kis neon ragyogás */
-        }
-        .decoration-rotate { /* Forgás animáció, ha kell */
-            animation: rotate3D 10s infinite linear;
-        }
-        @keyframes rotate3D {
-            from { transform: rotateY(0deg); }
-            to { transform: rotateY(360deg); }
-        }
+        
+        /* Dekorációs elem */
+        #decoration { position: fixed; bottom: 20px; right: 20px; z-index: 5; max-width: 180px; height: auto; pointer-events: none; filter: drop-shadow(0 0 15px rgba(255,255,255,0.5)); display: none; }
     </style>
 </head>
 <body>
@@ -51,55 +46,89 @@
         <button id="enter-btn" onclick="initializeSystem()">KATTINTS RÁM</button>
         <h1 id="main-title"></h1>
         <div id="sub-title"></div>
-
         <div id="video-wrapper"><div id="player"></div></div>
         <div id="gallery-wrapper">
-            <div class="gallery-container" id="gallery">
-                <button class="nav-btn prev" onclick="changeSlide(-1)">❮</button>
-                <button class="nav-btn next" onclick="changeSlide(1)">❯</button>
-            </div>
+            <div class="gallery-container" id="gallery"></div>
             <div id="bg-audio-player" style="display:none;"></div>
         </div>
     </div>
 
-    <img id="decoration" src="" alt="Dekoráció" style="display:none;">
+    <img id="decoration" src="" alt="Dekoráció">
 
     <script>
-        /* --- PARAMÉTEREK --- */
+        /* --- PARAMÉTEREK MAGYARÁZATA --- */
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // [preset]  -> Előre beállított ünnep (valentin, anyakhnapja, nonap, szulinap, karacsony, eskuvo, matrix)
+        // [cim]     -> A nagy főcím szövege
+        // [alcim]   -> Az írógéppel megjelenő alcím
+        // [gomb]    -> Az indítógomb szövege
+        // [bg]      -> Háttér: színkód (pl. FF0000) vagy egy teljes URL képhez
+        // [effect]  -> Vizuális effekt: snow (hó), heart (szív), flower (virág), matrix (kód), star (csillogás)
+        // [bgmove]  -> 1 esetén mozog a háttér egérre/döntésre, 0 esetén fix
+        // [zene]    -> YouTube videó azonosítója (ID)
+        // [mode]    -> Megjelenítés: 'zene' (háttérben), 'video' (látható lejátszó), 'kep' (galéria)
+        
+        const pPreset = urlParams.get('preset');
         const pCim    = urlParams.get('cim');
         const pAlcim  = urlParams.get('alcim');
+        const pGomb   = urlParams.get('gomb') || "INDÍTÁS";
+        let pBg       = urlParams.get('bg');
+        let pEffect   = urlParams.get('effect');
+        let pDeco     = urlParams.get('deco');
+        const pBgMove = urlParams.get('bgmove') || "1";
+        const pIntens = parseInt(urlParams.get('intensity')) || 6;
+        const pSize   = parseInt(urlParams.get('psize')) || 0;
         const pZene   = urlParams.get('zene');
-        const pMode   = urlParams.get('mode')   || "zene";
-        const pBg     = urlParams.get('bg')     || "000000";
-        const pGomb   = urlParams.get('gomb')   || "KATTINTS RÁM";
-        const pBgMove = urlParams.get('bgmove') || "0";
-        const pEffect = urlParams.get('effect'); // snow, heart, matrix
-        const pIntens = parseInt(urlParams.get('intensity')) || 5;
-        const pSize   = parseInt(urlParams.get('psize')) || 0; // Szemcseméret
-        const pDeco   = urlParams.get('deco'); // advent, halloween, vagy kép linkje
-        const pKepek  = urlParams.get('kepek')  ? urlParams.get('kepek').split(',') : [];
+        const pMode   = urlParams.get('mode') || "zene";
+        const pKepek  = urlParams.get('kepek') ? urlParams.get('kepek').split(',') : [];
 
+        /* --- KIEMELT SABLONOK DEFINIÁLÁSA --- */
+        const presets = {
+            'valentin':   { bg: '660000', effect: 'heart',  color: '#ff4d4d' },
+            'anyakhnapja':{ bg: '4a0e2e', effect: 'flower', color: '#ffb3d9' },
+            'nonap':      { bg: '2e0854', effect: 'flower', color: '#e0b0ff' },
+            'szulinap':   { bg: '001a33', effect: 'star',   color: '#ffd700' },
+            'karacsony':  { bg: '052210', effect: 'snow',   color: '#ffffff' },
+            'eskuvo':     { bg: '222222', effect: 'star',   color: '#e5e4e2' },
+            'eljegyzes':  { bg: '222222', effect: 'star',   color: '#e5e4e2' },
+            'matrix':     { bg: '000000', effect: 'matrix', color: '#00ff00' }
+        };
+
+        // Sablon értékek alkalmazása, ha nincs egyedi megadva
+        if (pPreset && presets[pPreset]) {
+            const s = presets[pPreset];
+            if (!pBg) pBg = s.bg;
+            if (!pEffect) pEffect = s.effect;
+            document.documentElement.style.setProperty('--theme-color', s.color);
+            document.body.style.color = s.color;
+            document.body.style.textShadow = `0 0 10px ${s.color}`;
+        }
+
+        /* --- EFFEKT MOTOR (Canvas) --- */
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
 
-        /* --- EFFEKT MOTOR --- */
         function initParticles() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             particles = [];
-            let count = pIntens * 20;
-            if (pEffect === 'matrix') count = pIntens * 5;
-
+            let count = pIntens * 15;
             for (let i = 0; i < count; i++) {
+                let char = '●';
+                if (pEffect === 'heart') char = '❤';
+                if (pEffect === 'flower') char = '🌸';
+                if (pEffect === 'matrix') char = String.fromCharCode(0x30A0 + Math.random() * 96);
+                if (pEffect === 'star') char = '✨';
+
                 particles.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    size: (Math.random() * (pEffect === 'snow' ? 4 : 20) + 2) + pSize, // pSize hozzáadása
-                    speed: Math.random() * 3 + 1,
+                    size: (Math.random() * (pEffect === 'snow' ? 5 : 20) + 5) + pSize,
+                    speed: Math.random() * 2 + 1,
                     opacity: Math.random(),
-                    char: pEffect === 'matrix' ? String.fromCharCode(0x30A0 + Math.random() * 96) : (pEffect === 'heart' ? '❤' : '●')
+                    char: char
                 });
             }
         }
@@ -107,56 +136,31 @@
         function drawParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => {
-                ctx.fillStyle = pEffect === 'matrix' ? `rgba(0, 255, 0, ${p.opacity})` : (pEffect === 'heart' ? `rgba(255, 0, 0, ${p.opacity})` : `rgba(255, 255, 255, ${p.opacity})`);
+                ctx.globalAlpha = p.opacity;
+                ctx.fillStyle = (pPreset && presets[pPreset]) ? presets[pPreset].color : '#00ff00';
                 ctx.font = `${p.size}px Arial`;
                 ctx.fillText(p.char, p.x, p.y);
-                
                 p.y += p.speed;
-                if (pEffect === 'matrix') p.char = String.fromCharCode(0x30A0 + Math.random() * 96);
                 if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width; }
             });
             requestAnimationFrame(drawParticles);
         }
 
-        /* --- INICIALIZÁLÁS --- */
-        if (pCim || pAlcim || pZene || pDeco) { // Deco paraméter megléte is indítja
+        /* --- RENDSZER INDÍTÁSA --- */
+        if (pCim || pAlcim || pPreset) {
             document.getElementById('content-wrapper').style.display = 'flex';
             document.getElementById('enter-btn').innerText = pGomb;
             const bgLayer = document.getElementById('bg-layer');
-            if (pBg.startsWith('http')) bgLayer.style.backgroundImage = "url('" + pBg + "')";
-            else bgLayer.style.backgroundColor = "#" + pBg;
+            if (pBg && pBg.startsWith('http')) bgLayer.style.backgroundImage = `url('${pBg}')`;
+            else bgLayer.style.backgroundColor = `#${pBg || '000000'}`;
 
             if (pBgMove === "1") {
                 window.addEventListener('mousemove', (e) => {
-                    const x = (window.innerWidth / 2 - e.pageX) / 15;
-                    const y = (window.innerHeight / 2 - e.pageY) / 15;
-                    bgLayer.style.transform = `translate(${x}px, ${y}px)`;
+                    bgLayer.style.transform = `translate(${(window.innerWidth/2 - e.pageX)/15}px, ${(window.innerHeight/2 - e.pageY)/15}px)`;
                 });
             }
             if (pEffect) { initParticles(); drawParticles(); }
-
-            // DEKORÁCIÓ BEÁLLÍTÁSA
-            const decorationImg = document.getElementById('decoration');
-            if (pDeco) {
-                decorationImg.style.display = 'block';
-                let imageUrl = '';
-                if (pDeco === 'advent') {
-                    //imageUrl = 'https://i.imgur.com/your_advent_wreath_image.png'; // CSERÉLD KI EGY VALÓDI KÉPLINKRE
-                    imageUrl = '';
-                    
-                    decorationImg.style.maxWidth = '200px'; // Kisebb adventi koszorú
-                    decorationImg.style.bottom = '10px';
-                    decorationImg.style.left = '10px'; // Bal alsó sarokba
-                    decorationImg.style.right = 'auto'; // Ne legyen jobb pozíció
-                } else if (pDeco === 'halloween') {
-                    //imageUrl = 'https://i.imgur.com/your_halloween_pumpkin_image.png'; // CSERÉLD KI EGY VALÓDI KÉPLINKRE
-                    imageUrl = 'https://img.sopng.com.br/13038907.jpg';
-                    decorationImg.classList.add('decoration-rotate'); // Forgó tök
-                } else if (pDeco.startsWith('http')) {
-                    imageUrl = pDeco; // Egyedi kép linkje
-                }
-                if (imageUrl) decorationImg.src = imageUrl;
-            }
+            if (pDeco) { const d = document.getElementById('decoration'); d.src = pDeco; d.style.display = 'block'; }
             
             var tag = document.createElement('script');
             tag.src = "https://www.youtube.com/iframe_api";
@@ -173,19 +177,15 @@
         }
 
         async function initializeSystem() {
-            if (pBgMove === "1") {
-                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    try {
-                        const permission = await DeviceOrientationEvent.requestPermission();
-                        if (permission === 'granted') window.addEventListener('deviceorientation', (e) => {
-                            const bg = document.getElementById('bg-layer');
-                            bg.style.transform = `translate(${e.gamma * 2}px, ${(e.beta - 45) * 2}px)`;
-                        });
-                    } catch (e) { console.error(e); }
+            if (pBgMove === "1" && typeof DeviceOrientationEvent !== 'undefined') {
+                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    const resp = await DeviceOrientationEvent.requestPermission();
+                    if (resp === 'granted') window.addEventListener('deviceorientation', (e) => {
+                        document.getElementById('bg-layer').style.transform = `translate(${e.gamma * 2}px, ${(e.beta - 45) * 2}px)`;
+                    });
                 } else {
                     window.addEventListener('deviceorientation', (e) => {
-                        const bg = document.getElementById('bg-layer');
-                        bg.style.transform = `translate(${e.gamma * 2}px, ${(e.beta - 45) * 2}px)`;
+                        document.getElementById('bg-layer').style.transform = `translate(${e.gamma * 2}px, ${(e.beta - 45) * 2}px)`;
                     });
                 }
             }
@@ -198,27 +198,18 @@
 
         function typeWriter(text, elementId, speed, callback) {
             let i = 0; const el = document.getElementById(elementId);
-            function type() { if (i < text.length) { el.innerHTML += text.charAt(i); i++; setTimeout(type, speed); } else if (callback) callback(); }
-            type();
+            function t() { if (i < text.length) { el.innerHTML += text.charAt(i); i++; setTimeout(t, speed); } else if (callback) callback(); }
+            t();
         }
 
-        let slideIndex = 1;
         function setupGallery() {
             const container = document.getElementById('gallery');
             pKepek.forEach((url) => {
                 let img = document.createElement('img'); img.src = url; img.className = 'slide';
-                container.insertBefore(img, container.firstChild);
+                container.appendChild(img);
             });
-            showSlides(slideIndex);
+            if(pKepek.length) document.getElementsByClassName('slide')[0].style.display = 'block';
         }
-        function showSlides(n) {
-            let s = document.getElementsByClassName("slide"); if (!s.length) return;
-            if (n > s.length) slideIndex = 1; if (n < 1) slideIndex = s.length;
-            for (let i = 0; i < s.length; i++) s[i].style.display = "none";
-            s[slideIndex-1].style.display = "block";
-        }
-        function changeSlide(n) { showSlides(slideIndex += n); }
-        window.onresize = () => { if(pEffect) initParticles(); };
     </script>
 </body>
 </html>
