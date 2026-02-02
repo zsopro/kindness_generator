@@ -76,9 +76,48 @@
             */
             
             document.getElementById('enter-btn').style.display = 'none';
+           
 
+                // IPHONE (iOS) ENGEDÉLYKÉRÉS
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    DeviceOrientationEvent.requestPermission()
+                        .then(response => {
+                            if (response == 'granted') {
+                                window.addEventListener('deviceorientation', handleMotion);
+                            }
+                        })
+                        .catch(console.error);
+                } else {
+                    // ANDROID VAGY ASZTALI
+                    window.addEventListener('deviceorientation', handleMotion);
+                }
+            
+                typeWriter(pCim || "", "main-title", 60, () => {
+                    if(pAlcim) typeWriter(pAlcim, "sub-title", 40);
+                });
+            
+                if (pMode === 'video') document.getElementById('video-wrapper').style.display = 'block';
+                else if (pMode === 'kep') { document.getElementById('gallery-wrapper').style.display = 'block'; setupGallery(); }
+            
+                if(player && player.playVideo) {
+                    player.unMute();
+                    player.setVolume(100);
+                    player.playVideo();
+                }
+            }
+            
+            // Új, stabil mozgáskezelő függvény
+            function handleMotion(e) {
+                const bgLayer = document.getElementById('bg-layer');
+                // Gamma: bal-jobb dőlés (-90-től 90-ig)
+                // Beta: előre-hátra dőlés (-180-tól 180-ig)
+                const moveX = e.gamma / 3; 
+                const moveY = (e.beta - 45) / 3; // 45 fokos tartás az alapértelmezett
+            
+                bgLayer.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            }
             // IPHONE (iOS) ENGEDÉLYKÉRÉS
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            /*if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission()
                     .then(response => {
                         if (response == 'granted') {
@@ -97,17 +136,19 @@
             if (pMode === 'video') document.getElementById('video-wrapper').style.display = 'block';
             else if (pMode === 'kep') { document.getElementById('gallery-wrapper').style.display = 'block'; setupGallery(); }
         
-            if(player && player.playVideo) {
+            /*if(player && player.playVideo) {
                 player.unMute();
                 player.setVolume(100);
                 player.playVideo();
             }
+            */
+            
             if(player && player.playVideo) {
                 player.unMute();
                 player.playVideo();
             }
             
-            typeWriter(pCim || "", "main-title", 60, () => { 
+            /*typeWriter(pCim || "", "main-title", 60, () => { 
                 if(pAlcim) typeWriter(pAlcim, "sub-title", 40); 
             });
 
@@ -117,7 +158,7 @@
                 document.getElementById('gallery-wrapper').style.display = 'block';
                 setupGallery();
             }
-            
+           */ 
             
             
             // HANG JAVÍTÁSA ITT:
