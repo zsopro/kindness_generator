@@ -77,6 +77,31 @@
             
             document.getElementById('enter-btn').style.display = 'none';
 
+            // IPHONE (iOS) ENGEDÉLYKÉRÉS
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response == 'granted') {
+                            window.addEventListener('deviceorientation', handleMotion);
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+            // ANDROID VAGY ASZTALI
+            window.addEventListener('deviceorientation', handleMotion);
+            }
+            typeWriter(pCim || "", "main-title", 60, () => {
+                if(pAlcim) typeWriter(pAlcim, "sub-title", 40);
+            });
+        
+            if (pMode === 'video') document.getElementById('video-wrapper').style.display = 'block';
+            else if (pMode === 'kep') { document.getElementById('gallery-wrapper').style.display = 'block'; setupGallery(); }
+        
+            if(player && player.playVideo) {
+                player.unMute();
+                player.setVolume(100);
+                player.playVideo();
+            }
             if(player && player.playVideo) {
                 player.unMute();
                 player.playVideo();
