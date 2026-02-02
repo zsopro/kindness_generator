@@ -2,96 +2,109 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>Link Generátor Admin</title>
+    <title>Link Generátor Pro Admin</title>
     <style>
-        body { font-family: sans-serif; background: #222; color: #eee; display: flex; padding: 20px; gap: 20px; }
-        .panel { background: #333; padding: 20px; border-radius: 10px; width: 400px; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
-        .preview { flex-grow: 1; background: #000; border-radius: 10px; overflow: hidden; position: relative; border: 2px solid #444; }
+        body { font-family: sans-serif; background: #1a1a1a; color: white; display: flex; flex-wrap: wrap; padding: 20px; gap: 20px; }
+        .panel { background: #2a2a2a; padding: 20px; border-radius: 10px; width: 450px; border: 1px solid #444; }
+        .preview-box { flex: 1; min-width: 350px; height: 600px; border: 4px solid #444; border-radius: 10px; position: sticky; top: 20px; }
         iframe { width: 100%; height: 100%; border: none; }
-        label { display: block; margin-top: 10px; font-weight: bold; color: #00ff00; }
-        input, select { width: 100%; padding: 8px; margin-top: 5px; background: #444; border: 1px solid #555; color: white; border-radius: 4px; }
-        .row { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
-        button { width: 100%; padding: 15px; margin-top: 20px; background: #00ff00; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
-        .url-box { margin-top: 20px; padding: 10px; background: #111; border: 1px dashed #00ff00; word-break: break-all; font-size: 0.8rem; }
+        label { display: block; margin-top: 15px; font-size: 0.9rem; color: #00ff00; }
+        input[type="text"], select, textarea { width: 100%; padding: 8px; margin-top: 5px; background: #333; border: 1px solid #555; color: white; }
+        input[type="range"] { width: 100%; accent-color: #00ff00; }
+        .deco-group { border: 1px solid #444; padding: 10px; margin-top: 10px; border-radius: 5px; }
+        button { width: 100%; padding: 15px; margin-top: 20px; background: #00ff00; border: none; font-weight: bold; cursor: pointer; }
+        .url-res { font-size: 0.7rem; background: #000; padding: 10px; margin-top: 10px; word-break: break-all; }
     </style>
 </head>
 <body>
 
 <div class="panel">
-    <h2>🛠 Beállítások</h2>
+    <h2>⚙️ Beállítások</h2>
     
-    <label>Sablon (Preset)</label>
+    <label>Sablon</label>
     <select id="preset" onchange="update()">
-        <option value="">Nincs (Egyedi)</option>
-        <option value="valentin">Valentin-nap</option>
+        <option value="">Egyedi</option>
+        <option value="valentin">Valentin</option>
         <option value="anyakhnapja">Anyák napja</option>
         <option value="karacsony">Karácsony</option>
-        <option value="szulinap">Születésnap</option>
-        <option value="matrix">Mátrix</option>
     </select>
+
+    <label>YouTube Link (teljes URL-t másolhatsz)</label>
+    <input type="text" id="zene_url" placeholder="https://www.youtube.com/watch?v=..." oninput="update()">
 
     <label>Főcím</label>
-    <input type="text" id="cim" value="BOLDOG VALENTINT!" oninput="update()">
+    <input type="text" id="cim" value="SZERETLEK!" oninput="update()">
 
-    <label>Alcím</label>
-    <input type="text" id="alcim" value="Norbertnek szeretettel" oninput="update()">
+    <label>Effekt intenzitás</label>
+    <input type="range" id="intens" min="1" max="20" value="5" oninput="update()">
+    
+    <label>Effekt méret</label>
+    <input type="range" id="size" min="10" max="100" value="20" oninput="update()">
 
-    <label>Háttér (Szín vagy Kép URL)</label>
-    <input type="text" id="bg" placeholder="pl. 800020 vagy http://..." oninput="update()">
-
-    <label>YouTube Zene ID</label>
-    <input type="text" id="zene" value="9CDH4NMT_Pc" oninput="update()">
-
-    <div class="row">
-        <input type="checkbox" id="bgmove" checked onchange="update()"> 
-        <span>3D Mozgás aktív</span>
+    <div class="deco-group">
+        <strong>🖼 Dekoráció 1</strong>
+        <input type="text" id="d1url" placeholder="Kép URL" oninput="update()">
+        <label>Vízszintes (X)</label><input type="range" id="d1x" min="0" max="100" value="20" oninput="update()">
+        <label>Függőleges (Y)</label><input type="range" id="d1y" min="0" max="100" value="80" oninput="update()">
+        <label>Méret</label><input type="range" id="d1s" min="20" max="300" value="100" oninput="update()">
     </div>
 
-    <label>Effekt</label>
-    <select id="effect" onchange="update()">
-        <option value="">Semmi</option>
-        <option value="heart">Szívek</option>
-        <option value="snow">Havazás</option>
-        <option value="flower">Virágok</option>
-        <option value="matrix">Mátrix kód</option>
-        <option value="star">Csillogás</option>
-    </select>
+    <div class="deco-group">
+        <strong>🖼 Dekoráció 2</strong>
+        <input type="text" id="d2url" placeholder="Kép URL" oninput="update()">
+        <label>Vízszintes (X)</label><input type="range" id="d2x" min="0" max="100" value="80" oninput="update()">
+        <label>Függőleges (Y)</label><input type="range" id="d2y" min="0" max="100" value="80" oninput="update()">
+        <label>Méret</label><input type="range" id="d2s" min="20" max="300" value="100" oninput="update()">
+    </div>
 
     <button onclick="copyURL()">LINK MÁSOLÁSA</button>
-    <div class="url-box" id="finalURL"></div>
+    <div class="url-res" id="finalURL"></div>
 </div>
 
-<div class="preview">
-    <iframe id="previewFrame"></iframe>
+<div class="preview-box">
+    <iframe id="preview"></iframe>
 </div>
 
 <script>
+    function extractYoutubeId(url) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : url;
+    }
+
     function update() {
         const baseUrl = window.location.href.replace('admin.html', 'index.html');
         const params = new URLSearchParams();
-        
-        if (document.getElementById('preset').value) params.set('preset', document.getElementById('preset').value);
-        if (document.getElementById('cim').value) params.set('cim', document.getElementById('cim').value);
-        if (document.getElementById('alcim').value) params.set('alcim', document.getElementById('alcim').value);
-        if (document.getElementById('bg').value) params.set('bg', document.getElementById('bg').value);
-        if (document.getElementById('zene').value) params.set('zene', document.getElementById('zene').value);
-        if (document.getElementById('effect').value) params.set('effect', document.getElementById('effect').value);
-        params.set('bgmove', document.getElementById('bgmove').checked ? "1" : "0");
 
-        const fullUrl = baseUrl + "?" + params.toString();
-        document.getElementById('finalURL').innerText = fullUrl;
-        document.getElementById('previewFrame').src = fullUrl;
+        params.set('cim', document.getElementById('cim').value);
+        params.set('intens', document.getElementById('intens').value);
+        params.set('size', document.getElementById('size').value);
+        
+        const ytId = extractYoutubeId(document.getElementById('zene_url').value);
+        if(ytId) params.set('zene', ytId);
+
+        if(document.getElementById('preset').value) params.set('preset', document.getElementById('preset').value);
+
+        for(let i=1; i<=2; i++) {
+            let url = document.getElementById('d'+i+'url').value;
+            if(url) {
+                params.set('d'+i+'url', url);
+                params.set('d'+i+'x', document.getElementById('d'+i+'x').value);
+                params.set('d'+i+'y', document.getElementById('d'+i+'y').value);
+                params.set('d'+i+'s', document.getElementById('d'+i+'s').value);
+            }
+        }
+
+        const final = baseUrl + '?' + params.toString();
+        document.getElementById('finalURL').innerText = final;
+        document.getElementById('preview').src = final;
     }
 
     function copyURL() {
-        const text = document.getElementById('finalURL').innerText;
-        navigator.clipboard.writeText(text);
-        alert("Link a vágólapra másolva!");
+        navigator.clipboard.writeText(document.getElementById('finalURL').innerText);
+        alert("Másolva!");
     }
-
-    // Első betöltés
     update();
 </script>
-
 </body>
 </html>
