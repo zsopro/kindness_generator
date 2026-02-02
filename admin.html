@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Link Generátor Admin</title>
+    <style>
+        body { font-family: sans-serif; background: #222; color: #eee; display: flex; padding: 20px; gap: 20px; }
+        .panel { background: #333; padding: 20px; border-radius: 10px; width: 400px; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+        .preview { flex-grow: 1; background: #000; border-radius: 10px; overflow: hidden; position: relative; border: 2px solid #444; }
+        iframe { width: 100%; height: 100%; border: none; }
+        label { display: block; margin-top: 10px; font-weight: bold; color: #00ff00; }
+        input, select { width: 100%; padding: 8px; margin-top: 5px; background: #444; border: 1px solid #555; color: white; border-radius: 4px; }
+        .row { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+        button { width: 100%; padding: 15px; margin-top: 20px; background: #00ff00; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        .url-box { margin-top: 20px; padding: 10px; background: #111; border: 1px dashed #00ff00; word-break: break-all; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<div class="panel">
+    <h2>🛠 Beállítások</h2>
+    
+    <label>Sablon (Preset)</label>
+    <select id="preset" onchange="update()">
+        <option value="">Nincs (Egyedi)</option>
+        <option value="valentin">Valentin-nap</option>
+        <option value="anyakhnapja">Anyák napja</option>
+        <option value="karacsony">Karácsony</option>
+        <option value="szulinap">Születésnap</option>
+        <option value="matrix">Mátrix</option>
+    </select>
+
+    <label>Főcím</label>
+    <input type="text" id="cim" value="BOLDOG VALENTINT!" oninput="update()">
+
+    <label>Alcím</label>
+    <input type="text" id="alcim" value="Norbertnek szeretettel" oninput="update()">
+
+    <label>Háttér (Szín vagy Kép URL)</label>
+    <input type="text" id="bg" placeholder="pl. 800020 vagy http://..." oninput="update()">
+
+    <label>YouTube Zene ID</label>
+    <input type="text" id="zene" value="9CDH4NMT_Pc" oninput="update()">
+
+    <div class="row">
+        <input type="checkbox" id="bgmove" checked onchange="update()"> 
+        <span>3D Mozgás aktív</span>
+    </div>
+
+    <label>Effekt</label>
+    <select id="effect" onchange="update()">
+        <option value="">Semmi</option>
+        <option value="heart">Szívek</option>
+        <option value="snow">Havazás</option>
+        <option value="flower">Virágok</option>
+        <option value="matrix">Mátrix kód</option>
+        <option value="star">Csillogás</option>
+    </select>
+
+    <button onclick="copyURL()">LINK MÁSOLÁSA</button>
+    <div class="url-box" id="finalURL"></div>
+</div>
+
+<div class="preview">
+    <iframe id="previewFrame"></iframe>
+</div>
+
+<script>
+    function update() {
+        const baseUrl = window.location.href.replace('admin.html', 'index.html');
+        const params = new URLSearchParams();
+        
+        if (document.getElementById('preset').value) params.set('preset', document.getElementById('preset').value);
+        if (document.getElementById('cim').value) params.set('cim', document.getElementById('cim').value);
+        if (document.getElementById('alcim').value) params.set('alcim', document.getElementById('alcim').value);
+        if (document.getElementById('bg').value) params.set('bg', document.getElementById('bg').value);
+        if (document.getElementById('zene').value) params.set('zene', document.getElementById('zene').value);
+        if (document.getElementById('effect').value) params.set('effect', document.getElementById('effect').value);
+        params.set('bgmove', document.getElementById('bgmove').checked ? "1" : "0");
+
+        const fullUrl = baseUrl + "?" + params.toString();
+        document.getElementById('finalURL').innerText = fullUrl;
+        document.getElementById('previewFrame').src = fullUrl;
+    }
+
+    function copyURL() {
+        const text = document.getElementById('finalURL').innerText;
+        navigator.clipboard.writeText(text);
+        alert("Link a vágólapra másolva!");
+    }
+
+    // Első betöltés
+    update();
+</script>
+
+</body>
+</html>
