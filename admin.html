@@ -2,131 +2,116 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>Kindness Admin Pro</title>
+    <title>NEO Admin - Link Generátor</title>
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: white; display: flex; gap: 20px; padding: 20px; }
-        .panel { width: 450px; background: #2a2a2a; padding: 20px; border-radius: 10px; overflow-y: auto; height: 90vh; }
-        .preview { flex: 1; border: 5px solid #444; border-radius: 10px; height: 90vh; }
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; height: 100vh; margin: 0; }
+        .panel { width: 400px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; }
+        .preview { flex: 1; background: #000; position: relative; }
         iframe { width: 100%; height: 100%; border: none; }
-        label { display: block; margin-top: 15px; color: #00ff00; font-size: 0.8rem; }
-        input, select { width: 100%; padding: 8px; margin-top: 5px; background: #333; color: white; border: 1px solid #555; }
-        .deco-group { border: 1px solid #444; padding: 10px; margin-top: 10px; }
-        button { width: 100%; padding: 15px; background: #00ff00; border: none; font-weight: bold; margin-top: 20px; cursor: pointer; }
+        h2 { color: #00ff00; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        label { display: block; margin-top: 15px; color: #aaa; font-size: 0.8rem; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; background: #2d2d2d; border: 1px solid #444; color: white; border-radius: 4px; }
+        input[type="range"] { padding: 0; accent-color: #00ff00; }
+        .deco-box { background: #252525; padding: 10px; border-radius: 5px; margin-top: 15px; border-left: 3px solid #00ff00; }
+        button { width: 100%; padding: 15px; background: #00ff00; color: black; border: none; font-weight: bold; margin-top: 25px; cursor: pointer; border-radius: 5px; }
+        #url-output { font-size: 0.7rem; background: #000; padding: 10px; margin-top: 10px; word-break: break-all; color: #00ff00; border: 1px dashed #00ff00; }
     </style>
 </head>
 <body>
-    <div class="panel">
-        <h2>🛠 Adminisztrátor</h2>
-        
-        <label>YouTube URL (Bármilyen linket bemásolhatsz)</label>
-        <input type="text" id="zene_url" placeholder="https://..." oninput="update()">
 
-        <label>Lejátszási mód</label>
-        <select id="mode" onchange="update()">
-            <option value="zene">Csak zene (rejtett)</option>
-            <option value="video">Látható videó</option>
-            <option value="bgvideo">Háttér videó (Full Screen)</option>
-        </select>
+<div class="panel">
+    <h2>🛠 Beállítások</h2>
+    
+    <label>Főcím szövege</label>
+    <input type="text" id="cim" value="SZERETLEK!" oninput="update()">
 
-        <label>Főcím</label>
-        <input type="text" id="cim" value="SZERETLEK!" oninput="update()">
+    <label>Alcím szövege</label>
+    <input type="text" id="alcim" value="Norbertnek küldöm" oninput="update()">
 
-        <label>Effekt</label>
-        <select id="effect" onchange="update()">
-            <option value="heart">Szívek</option>
-            <option value="snow">Pelyhek</option>
-            <option value="flower">Virágok</option>
-        </select>
+    <label>YouTube URL / Link</label>
+    <input type="text" id="zene_url" placeholder="https://www.youtube.com/watch?v=..." oninput="update()">
 
-        <label>Effekt Intenzitás & Méret</label>
-        <input type="range" id="intens" min="1" max="20" value="5" oninput="update()">
-        <input type="range" id="size" min="10" max="100" value="30" oninput="update()">
+    <label>Lejátszási mód</label>
+    <select id="mode" onchange="update()">
+        <option value="zene">Csak zene (rejtett)</option>
+        <option value="video">Látható kis videó</option>
+        <option value="bgvideo">Teljes képernyős háttérvideó</option>
+    </select>
 
-        <div class="deco-group">
-            <strong>Dekoráció 1 (Kép URL)</strong>
-            <input type="text" id="d1url" oninput="update()">
-            <label>X-Y Pozíció és Méret</label>
-            <input type="range" id="d1x" min="0" max="100" value="20" oninput="update()">
-            <input type="range" id="d1y" min="0" max="100" value="20" oninput="update()">
-            <input type="range" id="d1s" min="20" max="400" value="100" oninput="update()">
-        </div>
+    <label>Effekt típusa</label>
+    <select id="effect" onchange="update()">
+        <option value="heart">Szívek</option>
+        <option value="flower">Virágok</option>
+        <option value="snow">Hópelyhek</option>
+    </select>
 
-        <button onclick="copy()">LINK MÁSOLÁSA</button>
-        <div id="url-res" style="font-size: 0.6rem; margin-top:10px; word-break: break-all;"></div>
+    <label>Effekt Intenzitás</label>
+    <input type="range" id="intens" min="1" max="30" value="8" oninput="update()">
+
+    <label>Effekt Méret</label>
+    <input type="range" id="size" min="10" max="80" value="30" oninput="update()">
+
+    <div class="deco-box">
+        <strong>🖼 Dekorációs kép</strong>
+        <label>Kép közvetlen linkje (HTTPS)</label>
+        <input type="text" id="d1url" placeholder="https://vmi.hu/kep.png" oninput="update()">
+        <label>Pozíció X-Y és Méret</label>
+        <input type="range" id="d1x" min="0" max="100" value="50" oninput="update()">
+        <input type="range" id="d1y" min="0" max="100" value="80" oninput="update()">
+        <input type="range" id="d1s" min="20" max="400" value="120" oninput="update()">
     </div>
-    <div class="preview"><iframe id="ifr"></iframe></div>
 
-    <script>
-        function getID(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : url;
-        }
+    <button onclick="copy()">LINK MÁSOLÁSA</button>
+    <div id="url-output"></div>
+</div>
 
-        
+<div class="preview">
+    <iframe id="preview-frame"></iframe>
+</div>
 
-            
-
-            
-
-
-        function update() {
-        const base = window.location.href.replace('admin.html', 'index.html');
-        const p = new URLSearchParams();
-        
-        p.set('cim', document.getElementById('cim').value);
-        p.set('alcim', document.getElementById('alcim').value);
-        p.set('mode', document.getElementById('mode').value);
-        p.set('effect', document.getElementById('effect').value);
-        p.set('intens', document.getElementById('intens').value);
-        p.set('size', document.getElementById('size').value);
-        
-        const zid = getID(document.getElementById('zene_url').value);
-        if(zid) p.set('zene', zid);
-
-        if(document.getElementById('d1url').value) {
-                p.set('d1url', document.getElementById('d1url').value);
-                p.set('d1x', document.getElementById('d1x').value);
-                p.set('d1y', document.getElementById('d1y').value);
-                p.set('d1s', document.getElementById('d1s').value);
-        }
-            
-        // Kép URL paraméterek
-        const dUrl = document.getElementById('d1url').value;
-        if(dUrl) {
-            p.set('d1url', dUrl);
-            p.set('d1x', document.getElementById('d1x').value);
-            p.set('d1y', document.getElementById('d1y').value);
-            p.set('d1s', document.getElementById('d1s').value);
-        }
-
-        const final = base + '?' + p.toString();
-        document.getElementById('url-res').innerText = final;
-        document.getElementById('ifr').src = final;
+<script>
+    function getYoutubeID(url) {
+        if(!url) return "";
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : url;
     }
 
+    function update() {
+        const base = window.location.href.replace('admin.html', 'index.html');
+        const params = new URLSearchParams();
 
+        params.set('cim', document.getElementById('cim').value);
+        params.set('alcim', document.getElementById('alcim').value);
+        params.set('mode', document.getElementById('mode').value);
+        params.set('effect', document.getElementById('effect').value);
+        params.set('intens', document.getElementById('intens').value);
+        params.set('size', document.getElementById('size').value);
+        
+        const ytId = getYoutubeID(document.getElementById('zene_url').value);
+        if(ytId) params.set('zene', ytId);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
+        const d1url = document.getElementById('d1url').value;
+        if(d1url) {
+            params.set('d1url', d1url);
+            params.set('d1x', document.getElementById('d1x').value);
+            params.set('d1y', document.getElementById('d1y').value);
+            params.set('d1s', document.getElementById('d1s').value);
         }
-        function copy() { navigator.clipboard.writeText(document.getElementById('url-res').innerText); alert("Másolva!"); }
-        update();
-    </script>
+
+        const finalLink = base + '?' + params.toString();
+        document.getElementById('url-output').innerText = finalLink;
+        document.getElementById('preview-frame').src = finalLink;
+    }
+
+    function copy() {
+        const text = document.getElementById('url-output').innerText;
+        navigator.clipboard.writeText(text).then(() => alert("URL másolva a vágólapra!"));
+    }
+
+    // Alaphelyzet
+    update();
+</script>
+
 </body>
 </html>
