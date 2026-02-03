@@ -14,13 +14,21 @@
         #video-bg-container iframe { width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
 
         #canvas-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 3; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 3; }
 
-        /* A tartalom látható, de a szövegek üresek az elején */
         #content-wrapper { position: relative; z-index: 10; text-align: center; width: 90%; margin: auto; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 10px currentColor; }
+        
+        /* Betöltő animáció (Spinner) */
+        #loader { width: 60px; height: 60px; border: 5px solid rgba(0, 255, 0, 0.1); border-top: 5px solid #00ff00; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #loading-text { font-size: 0.8rem; letter-spacing: 2px; animate: blink 1.5s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
         #main-title { font-size: 2.5rem; margin-bottom: 10px; text-transform: uppercase; min-height: 3rem; }
         #sub-title { font-size: 1.2rem; opacity: 0.9; min-height: 1.5em; margin-bottom: 20px; }
-        #enter-btn { padding: 20px 40px; font-size: 1.2rem; background: rgba(0,255,0,0.1); border: 2px solid currentColor; color: inherit; cursor: pointer; font-family: 'Orbitron', sans-serif; z-index: 100; text-transform: uppercase; box-shadow: 0 0 15px currentColor; display: block; }
+        
+        #enter-btn { display: none; padding: 20px 40px; font-size: 1.2rem; background: rgba(0,255,0,0.1); border: 2px solid currentColor; color: inherit; cursor: pointer; font-family: 'Orbitron', sans-serif; z-index: 100; text-transform: uppercase; box-shadow: 0 0 15px currentColor; transition: 0.3s; }
+        #enter-btn:hover { background: rgba(0,255,0,0.3); transform: scale(1.05); }
         
         #player-visible { margin-top: 20px; border: 2px solid currentColor; border-radius: 10px; overflow: hidden; display: none; z-index: 11; }
         .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); display: block !important; }
@@ -33,6 +41,11 @@
     <div id="overlay"></div>
 
     <div id="content-wrapper">
+        <div id="loader-wrapper">
+            <div id="loader"></div>
+            <div id="loading-text">RENDSZER TÖLTÉSE...</div>
+        </div>
+
         <button id="enter-btn" onclick="initializeSystem()">KATTINTS RÁM</button>
         <h1 id="main-title"></h1>
         <div id="sub-title"></div>
@@ -50,7 +63,7 @@
         const pEffect = urlParams.get('effect');
         let pBg = urlParams.get('bg');
 
-        // Dekorációk kényszerített kirakása
+        // Dekorációk kirakása
         for(let i=1; i<=2; i++) {
             let dUrl = urlParams.get('d'+i+'url');
             if(dUrl && dUrl !== "undefined") {
@@ -91,14 +104,38 @@
 
         var player;
         function onYouTubeIframeAPIReady() {
-            if(!pZene || pZene === "undefined") return;
+            if(!pZene || pZene === "undefined") {
+                showButton(); // Ha nincs zene, egyből mehet a gomb
+                return;
+            }
             let target = (pMode === 'bgvideo') ? 'video-bg-container' : 'player-visible';
             player = new YT.Player(target, {
                 height: (pMode === 'video' ? '200' : '0'),
                 width: (pMode === 'video' ? '350' : '0'),
                 videoId: pZene,
-                playerVars: { 'autoplay': 0, 'controls': (pMode==='video'?1:0), 'mute': 1, 'loop': 1, 'playlist': pZene }
+                playerVars: { 'autoplay': 1, 'controls': (pMode==='video'?1:0), 'mute': 1, 'loop': 1, 'playlist': pZene },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
             });
+        }
+
+        function onPlayerReady(event) {
+            // Elindítjuk némítva, hogy puffereljen
+            event.target.playVideo();
+        }
+
+        function onPlayerStateChange(event) {
+            // Ha a videó elkezdett játszani (még ha némítva is), akkor kész a rendszer
+            if (event.data == YT.PlayerState.PLAYING) {
+                showButton();
+            }
+        }
+
+        function showButton() {
+            document.getElementById('loader-wrapper').style.display = 'none';
+            document.getElementById('enter-btn').style.display = 'block';
         }
 
         function initializeSystem() {
@@ -118,14 +155,13 @@
             }
             if(pCim) type();
 
-            if(player && typeof player.playVideo === 'function') {
+            if(player && typeof player.unMute === 'function') {
                 player.unMute();
                 player.setVolume(100);
                 player.playVideo();
             }
         }
 
-        // Háttér beállítása
         const bgLayer = document.getElementById('bg-layer');
         if (pBg && pBg.startsWith('http')) bgLayer.style.backgroundImage = `url('${pBg}')`;
         else bgLayer.style.backgroundColor = `#${pBg || '000000'}`;
