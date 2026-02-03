@@ -120,6 +120,7 @@
 
             if(player && typeof player.playVideo === 'function') {
                 player.unMute();
+                player.setVolume(100);
                 player.playVideo();
             }
         }
