@@ -3,31 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kindness Generator Pro</title>
+    <title>Kindness Generator Ultimate</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; color: #00ff00; }
-        #bg-layer { position: fixed; top: -15%; left: -15%; width: 130%; height: 130%; background-size: cover; background-position: center; z-index: 1; transition: transform 0.2s ease-out; will-change: transform; }
+        
+        /* Háttér rétegek */
+        #bg-layer { position: fixed; top: -15%; left: -15%; width: 130%; height: 130%; background-size: cover; background-position: center; z-index: 1; transition: transform 0.2s ease-out; }
+        #video-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        #video-bg-container iframe { width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
         #canvas-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 3; }
-        #content-wrapper { position: relative; z-index: 4; text-align: center; width: 90%; margin: auto; height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 10px currentColor; }
-        #main-title { font-size: 2.2rem; margin-bottom: 10px; text-transform: uppercase; }
-        #sub-title { font-size: 1.1rem; opacity: 0.9; min-height: 1.5em; }
+
+        #content-wrapper { position: relative; z-index: 10; text-align: center; width: 90%; margin: auto; height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 10px currentColor; }
+        #main-title { font-size: 2.5rem; margin-bottom: 10px; text-transform: uppercase; }
+        #sub-title { font-size: 1.2rem; opacity: 0.9; min-height: 1.5em; }
         #enter-btn { padding: 20px 40px; font-size: 1.2rem; background: rgba(0,255,0,0.1); border: 2px solid currentColor; color: inherit; cursor: pointer; font-family: 'Orbitron', sans-serif; z-index: 100; text-transform: uppercase; box-shadow: 0 0 15px currentColor; }
+        
+        /* Videó lejátszó (Normal mode) */
+        #player-visible { margin-top: 20px; border: 2px solid currentColor; border-radius: 10px; overflow: hidden; display: none; }
+        
         .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
-        #player-container { position: absolute; top: -1000px; left: -1000px; }
     </style>
 </head>
 <body>
+    <div id="video-bg-container"></div>
     <div id="bg-layer"></div>
     <canvas id="canvas-overlay"></canvas>
     <div id="overlay"></div>
+
     <div id="content-wrapper">
         <button id="enter-btn" onclick="initializeSystem()">KATTINTS RÁM</button>
         <h1 id="main-title"></h1>
         <div id="sub-title"></div>
-        <div id="player-container"></div>
+        <div id="player-visible"></div>
     </div>
 
     <script>
@@ -35,17 +46,17 @@
         const pCim = urlParams.get('cim');
         const pAlcim = urlParams.get('alcim');
         const pPreset = urlParams.get('preset');
-        let pBg = urlParams.get('bg');
-        let pEffect = urlParams.get('effect');
+        const pMode = urlParams.get('mode') || 'zene'; // zene, video, bgvideo
         const pZene = urlParams.get('zene');
         const pIntens = parseInt(urlParams.get('intens')) || 5;
         const pSize = parseInt(urlParams.get('size')) || 20;
+        let pBg = urlParams.get('bg');
+        let pEffect = urlParams.get('effect');
 
         const presets = {
             'valentin': { bg: '660000', effect: 'heart', color: '#ff4d4d' },
             'anyakhnapja': { bg: '4a0e2e', effect: 'flower', color: '#ffb3d9' },
-            'karacsony': { bg: '052210', effect: 'snow', color: '#ffffff' },
-            'matrix': { bg: '000000', effect: 'matrix', color: '#00ff00' }
+            'karacsony': { bg: '052210', effect: 'snow', color: '#ffffff' }
         };
 
         if (pPreset && presets[pPreset]) {
@@ -55,7 +66,7 @@
             document.body.style.color = s.color;
         }
 
-        // Dekorációk kirakása
+        // Dekorációk betöltése
         for(let i=1; i<=2; i++) {
             let url = urlParams.get('d'+i+'url');
             if(url) {
@@ -69,19 +80,19 @@
             }
         }
 
+        // Canvas Effekt
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function initParticles() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            particles = [];
-            for (let i = 0; i < pIntens * 15; i++) {
-                let char = '●';
-                if(pEffect === 'heart') char = '❤';
-                if(pEffect === 'flower') char = '🌸';
-                if(pEffect === 'matrix') char = String.fromCharCode(0x30A0 + Math.random() * 96);
-                particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*pSize + 5, v: Math.random()*2+1, c: char });
+            for (let i = 0; i < pIntens * 10; i++) {
+                particles.push({
+                    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+                    s: Math.random()*pSize + 5, v: Math.random()*2+1,
+                    c: pEffect==='heart'?'❤':(pEffect==='flower'?'🌸':(pEffect==='snow'?'●':'*'))
+                });
             }
         }
         function draw() {
@@ -96,37 +107,43 @@
             requestAnimationFrame(draw);
         }
 
+        var player;
+        function onYouTubeIframeAPIReady() {
+            if(!pZene) return;
+            let target = (pMode === 'bgvideo') ? 'video-bg-container' : 'player-visible';
+            player = new YT.Player(target, {
+                height: (pMode === 'video' ? '200' : '0'),
+                width: (pMode === 'video' ? '350' : '0'),
+                videoId: pZene,
+                playerVars: { 'autoplay': 0, 'controls': (pMode==='video'?1:0), 'loop': 1, 'playlist': pZene }
+            });
+        }
+
+        function initializeSystem() {
+            document.getElementById('enter-btn').style.display = 'none';
+            document.getElementById('content-wrapper').style.display = 'flex';
+            if(pMode === 'video') document.getElementById('player-visible').style.display = 'block';
+            
+            // Típusíró
+            let i=0; const el=document.getElementById('main-title');
+            function type() { if(i < pCim.length){ el.innerHTML += pCim.charAt(i); i++; setTimeout(type, 60); } }
+            type();
+
+            if(player && player.playVideo) {
+                player.unMute();
+                player.setVolume(100);
+                player.playVideo();
+            }
+        }
+
         if (pCim || pPreset) {
             document.getElementById('content-wrapper').style.display = 'flex';
             const bg = document.getElementById('bg-layer');
             if (pBg && pBg.startsWith('http')) bg.style.backgroundImage = `url('${pBg}')`;
             else bg.style.backgroundColor = `#${pBg || '000000'}`;
-            
-            window.addEventListener('mousemove', (e) => {
-                bg.style.transform = `translate(${(window.innerWidth/2 - e.pageX)/15}px, ${(window.innerHeight/2 - e.pageY)/15}px)`;
-            });
             if(pEffect) { initParticles(); draw(); }
         }
-
-        function typeWriter(text, elementId, speed, callback) {
-            let i = 0; const el = document.getElementById(elementId);
-            function t() { if (i < text.length) { el.innerHTML += text.charAt(i); i++; setTimeout(t, speed); } else if (callback) callback(); }
-            t();
-        }
-
-        var player;
-        function onYouTubeIframeAPIReady() {
-            if(!pZene) return;
-            player = new YT.Player('player-container', { height: '0', width: '0', videoId: pZene, playerVars: { 'autoplay': 0, 'controls': 0 } });
-        }
-
-        function initializeSystem() {
-            document.getElementById('enter-btn').style.display = 'none';
-            typeWriter(pCim || "", "main-title", 60, () => {
-                if(pAlcim) typeWriter(pAlcim, "sub-title", 40);
-            });
-            if(player && player.playVideo) { player.unMute(); player.playVideo(); }
-        }
+        
         var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
     </script>
 </body>
