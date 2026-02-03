@@ -2,136 +2,127 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO Admin - Link Generátor</title>
+    <title>NEO Admin - Visual Editor</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; height: 100vh; margin: 0; overflow: hidden; }
-        .panel { width: 400px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; box-shadow: 5px 0 15px rgba(0,0,0,0.5); z-index: 20; }
-        .preview { flex: 1; background: #000; position: relative; z-index: 10; }
+        .panel { width: 450px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; }
+        .preview { flex: 1; background: #000; }
         iframe { width: 100%; height: 100%; border: none; }
-        h2 { color: #00ff00; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; font-size: 1.5rem; }
-        label { display: block; margin-top: 15px; color: #aaa; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
-        input, select { width: 100%; padding: 10px; margin-top: 5px; background: #2d2d2d; border: 1px solid #444; color: white; border-radius: 4px; outline: none; }
-        input:focus { border-color: #00ff00; }
-        input[type="range"] { padding: 0; accent-color: #00ff00; cursor: pointer; }
-        .deco-box { background: #252525; padding: 15px; border-radius: 5px; margin-top: 15px; border-left: 3px solid #00ff00; }
-        button { width: 100%; padding: 15px; background: #00ff00; color: black; border: none; font-weight: bold; margin-top: 25px; cursor: pointer; border-radius: 5px; text-transform: uppercase; transition: 0.3s; }
-        button:hover { background: #00cc00; transform: translateY(-2px); }
-        #url-output { font-size: 0.7rem; background: #000; padding: 10px; margin-top: 15px; word-break: break-all; color: #00ff00; border: 1px dashed #00ff00; min-height: 40px; }
+        h2 { color: #00ff00; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .section { background: #252525; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #444; }
+        .section.main { border-left-color: #00ff00; }
+        .section.sub { border-left-color: #00d4ff; }
+        label { display: block; margin-top: 10px; color: #aaa; font-size: 0.7rem; text-transform: uppercase; }
+        input, select { width: 100%; padding: 8px; margin-top: 5px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; }
+        .row { display: flex; gap: 10px; }
+        .row div { flex: 1; }
+        button { width: 100%; padding: 15px; background: #00ff00; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; border-radius: 5px; }
+        #url-out { font-size: 0.6rem; background: #000; padding: 10px; margin-top: 10px; word-break: break-all; color: #00ff00; }
     </style>
 </head>
 <body>
 
 <div class="panel">
-    <h2>🛠 BEÁLLÍTÁSOK</h2>
+    <h2>🎨 VIZUÁLIS SZERKESZTŐ</h2>
     
-    <label>Főcím</label>
-    <input type="text" id="cim" value="SZERETLEK!" oninput="delayedUpdate()">
+    <div class="section main">
+        <strong>FŐCÍM BEÁLLÍTÁSA</strong>
+        <input type="text" id="cim" value="SZERETLEK!" oninput="update()">
+        <div class="row">
+            <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
+            <div><label>Betűtípus</label>
+                <select id="mf" onchange="update()">
+                    <option value="Orbitron">Orbitron (Neon)</option>
+                    <option value="Dancing Script">Dancing (Kézírás)</option>
+                    <option value="Pacifico">Pacifico (Laza)</option>
+                    <option value="Roboto Mono">Retro Code</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div><label>Méret</label><input type="range" id="ms" min="1" max="10" step="0.1" value="3" oninput="update()"></div>
+            <div><label>X-Y Pozíció</label><input type="range" id="mx" min="0" max="100" value="50" oninput="update()"><input type="range" id="my" min="0" max="100" value="40" oninput="update()"></div>
+        </div>
+    </div>
 
-    <label>Alcím</label>
-    <input type="text" id="alcim" value="Mindennél jobban" oninput="delayedUpdate()">
+    <div class="section sub">
+        <strong>ALCÍM BEÁLLÍTÁSA</strong>
+        <textarea id="alcim" style="width:100%; background:#333; color:white;" oninput="update()">Mindennél jobban...</textarea>
+        <div class="row">
+            <div><label>Szín</label><input type="color" id="sc" value="#00d4ff" oninput="update()"></div>
+            <div><label>Betűtípus</label>
+                <select id="sf" onchange="update()">
+                    <option value="Orbitron">Orbitron</option>
+                    <option value="Dancing Script" selected>Dancing Script</option>
+                    <option value="Roboto Mono">Retro Code</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div><label>Méret</label><input type="range" id="ss" min="0.5" max="5" step="0.1" value="1.5" oninput="update()"></div>
+            <div><label>X-Y Pozíció</label><input type="range" id="sx" min="0" max="100" value="50" oninput="update()"><input type="range" id="sy" min="0" max="100" value="60" oninput="update()"></div>
+        </div>
+    </div>
 
-    <label>YouTube Link</label>
-    <input type="text" id="zene_url" placeholder="URL másolása ide..." oninput="delayedUpdate()">
-
-    <label>Mód</label>
-    <select id="mode" onchange="delayedUpdate()">
-        <option value="zene">Csak zene</option>
-        <option value="video">Videó lejátszó</option>
-        <option value="bgvideo">Háttér videó</option>
-    </select>
-
-    <label>Effekt</label>
-    <select id="effect" onchange="delayedUpdate()">
-        <option value="heart">Szívek</option>
-        <option value="flower">Virágok</option>
-        <option value="snow">Hó / Pontok</option>
-    </select>
-
-    <label>Intenzitás</label>
-    <input type="range" id="intens" min="1" max="40" value="10" oninput="delayedUpdate()">
-
-    <label>Méret</label>
-    <input type="range" id="size" min="5" max="100" value="30" oninput="delayedUpdate()">
-
-    <div class="deco-box">
-        <strong>🖼 DEKORÁCIÓ</strong>
-        <label>Kép Link (HTTPS)</label>
-        <input type="text" id="d1url" placeholder="https://..." oninput="delayedUpdate()">
-        <label>X-Y Pozíció</label>
-        <input type="range" id="d1x" min="0" max="100" value="50" oninput="delayedUpdate()">
-        <input type="range" id="d1y" min="0" max="100" value="80" oninput="delayedUpdate()">
-        <label>Kép mérete</label>
-        <input type="range" id="d1s" min="20" max="500" value="150" oninput="delayedUpdate()">
+    <div class="section">
+        <strong>MÉDIA & EFFEKTEK</strong>
+        <label>YouTube Link</label><input type="text" id="yt" oninput="update()">
+        <label>Mód</label>
+        <select id="mode" onchange="update()">
+            <option value="bgvideo">Háttér videó</option>
+            <option value="zene">Csak zene</option>
+            <option value="video">Kis videó</option>
+        </select>
+        <label>Effekt</label>
+        <select id="eff" onchange="update()">
+            <option value="heart">Szívek</option>
+            <option value="flower">Virágok</option>
+            <option value="snow">Hó</option>
+        </select>
     </div>
 
     <button onclick="copy()">LINK MÁSOLÁSA</button>
-    <div id="url-output"></div>
+    <div id="url-out"></div>
 </div>
 
-<div class="preview">
-    <iframe id="preview-frame" src="index.html"></iframe>
-</div>
+<div class="preview"><iframe id="ifr" src="index.html"></iframe></div>
 
 <script>
-    let timer;
-    function getYoutubeID(url) {
-        if(!url) return "";
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2].length === 11) ? match[2] : url;
-    }
-
-    // Késleltetett frissítés, hogy ne fagyjon le gépelés közben
-    function delayedUpdate() {
-        clearTimeout(timer);
-        timer = setTimeout(update, 500);
-    }
-
     function update() {
-        // Megkeressük az index.html útvonalát
-        const currentPath = window.location.pathname;
-        const basePath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
-        const url = new URL("index.html", window.location.origin + basePath);
+        const base = window.location.href.replace('admin.html', 'index.html');
+        const p = new URLSearchParams();
         
-        const params = {
-            cim: document.getElementById('cim').value,
-            alcim: document.getElementById('alcim').value,
-            mode: document.getElementById('mode').value,
-            effect: document.getElementById('effect').value,
-            intens: document.getElementById('intens').value,
-            size: document.getElementById('size').value,
-            zene: getYoutubeID(document.getElementById('zene_url').value)
-        };
+        // Főcím adatok
+        p.set('cim', document.getElementById('cim').value);
+        p.set('mc', document.getElementById('mc').value.replace('#',''));
+        p.set('mf', document.getElementById('mf').value);
+        p.set('ms', document.getElementById('ms').value);
+        p.set('mx', document.getElementById('mx').value);
+        p.set('my', document.getElementById('my').value);
 
-        const dUrl = document.getElementById('d1url').value;
-        if(dUrl) {
-            params.d1url = dUrl;
-            params.d1x = document.getElementById('d1x').value;
-            params.d1y = document.getElementById('d1y').value;
-            params.d1s = document.getElementById('d1s').value;
-        }
+        // Alcím adatok
+        p.set('alcim', document.getElementById('alcim').value);
+        p.set('sc', document.getElementById('sc').value.replace('#',''));
+        p.set('sf', document.getElementById('sf').value);
+        p.set('ss', document.getElementById('ss').value);
+        p.set('sx', document.getElementById('sx').value);
+        p.set('sy', document.getElementById('sy').value);
 
-        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+        p.set('mode', document.getElementById('mode').value);
+        p.set('effect', document.getElementById('eff').value);
+        
+        let ytUrl = document.getElementById('yt').value;
+        const reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = ytUrl.match(reg);
+        if(match && match[2].length === 11) p.set('zene', match[2]);
 
-        const finalUrl = url.toString();
-        document.getElementById('url-output').innerText = finalUrl;
-        document.getElementById('preview-frame').src = finalUrl;
+        const final = base + '?' + p.toString();
+        document.getElementById('url-out').innerText = final;
+        document.getElementById('ifr').src = final;
     }
-
-    function copy() {
-        const text = document.getElementById('url-output').innerText;
-        navigator.clipboard.writeText(text).then(() => {
-            const btn = document.querySelector('button');
-            const originalText = btn.innerText;
-            btn.innerText = "MÁSOLVA!";
-            btn.style.background = "#fff";
-            setTimeout(() => { btn.innerText = originalText; btn.style.background = "#00ff00"; }, 2000);
-        });
-    }
-
-    // Első indítás
-    setTimeout(update, 1000);
+    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("Másolva!"); }
+    setTimeout(update, 500);
 </script>
-
 </body>
-</html>
+    </html>
+    
