@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO Admin - Visual Editor</title>
+    <title>NEO Admin - Effect Color Editor</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; height: 100vh; margin: 0; overflow: hidden; }
         .panel { width: 450px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; }
@@ -12,6 +12,7 @@
         .section { background: #252525; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #444; }
         .section.main { border-left-color: #00ff00; }
         .section.sub { border-left-color: #00d4ff; }
+        .section.eff { border-left-color: #ff00ff; }
         label { display: block; margin-top: 10px; color: #aaa; font-size: 0.7rem; text-transform: uppercase; }
         input, select { width: 100%; padding: 8px; margin-top: 5px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; }
         .row { display: flex; gap: 10px; }
@@ -23,61 +24,50 @@
 <body>
 
 <div class="panel">
-    <h2>🎨 VIZUÁLIS SZERKESZTŐ</h2>
+    <h2>🎨 NEO VIZUÁLIS PANEL</h2>
     
     <div class="section main">
-        <strong>FŐCÍM BEÁLLÍTÁSA</strong>
+        <strong>FŐCÍM</strong>
         <input type="text" id="cim" value="SZERETLEK!" oninput="update()">
         <div class="row">
             <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
-            <div><label>Betűtípus</label>
-                <select id="mf" onchange="update()">
-                    <option value="Orbitron">Orbitron (Neon)</option>
-                    <option value="Dancing Script">Dancing (Kézírás)</option>
-                    <option value="Pacifico">Pacifico (Laza)</option>
-                    <option value="Roboto Mono">Retro Code</option>
-                </select>
-            </div>
+            <div><label>Méret</label><input type="range" id="ms" min="1" max="10" step="0.1" value="3" oninput="update()"></div>
         </div>
         <div class="row">
-            <div><label>Méret</label><input type="range" id="ms" min="1" max="10" step="0.1" value="3" oninput="update()"></div>
-            <div><label>X-Y Pozíció</label><input type="range" id="mx" min="0" max="100" value="50" oninput="update()"><input type="range" id="my" min="0" max="100" value="40" oninput="update()"></div>
+            <div><label>X-Poz</label><input type="range" id="mx" value="50" oninput="update()"></div>
+            <div><label>Y-Poz</label><input type="range" id="my" value="40" oninput="update()"></div>
         </div>
     </div>
 
-    <div class="section sub">
-        <strong>ALCÍM BEÁLLÍTÁSA</strong>
-        <textarea id="alcim" style="width:100%; background:#333; color:white;" oninput="update()">Mindennél jobban...</textarea>
+    <div class="section eff">
+        <strong>EFFEKT TESTRESZABÁSA</strong>
         <div class="row">
-            <div><label>Szín</label><input type="color" id="sc" value="#00d4ff" oninput="update()"></div>
-            <div><label>Betűtípus</label>
-                <select id="sf" onchange="update()">
-                    <option value="Orbitron">Orbitron</option>
-                    <option value="Dancing Script" selected>Dancing Script</option>
-                    <option value="Roboto Mono">Retro Code</option>
+            <div>
+                <label>Típus</label>
+                <select id="eff" onchange="update()">
+                    <option value="heart">Vörös Szívek</option>
+                    <option value="snow">Fehér Hó</option>
+                    <option value="flower">Virágok</option>
                 </select>
+            </div>
+            <div>
+                <label>Effekt Színe</label>
+                <input type="color" id="ec" value="#ffffff" oninput="update()">
             </div>
         </div>
         <div class="row">
-            <div><label>Méret</label><input type="range" id="ss" min="0.5" max="5" step="0.1" value="1.5" oninput="update()"></div>
-            <div><label>X-Y Pozíció</label><input type="range" id="sx" min="0" max="100" value="50" oninput="update()"><input type="range" id="sy" min="0" max="100" value="60" oninput="update()"></div>
+            <div><label>Intenzitás</label><input type="range" id="intens" min="1" max="30" value="8" oninput="update()"></div>
+            <div><label>Méret</label><input type="range" id="size" min="5" max="80" value="25" oninput="update()"></div>
         </div>
     </div>
 
     <div class="section">
-        <strong>MÉDIA & EFFEKTEK</strong>
+        <strong>MÉDIA</strong>
         <label>YouTube Link</label><input type="text" id="yt" oninput="update()">
         <label>Mód</label>
         <select id="mode" onchange="update()">
             <option value="bgvideo">Háttér videó</option>
             <option value="zene">Csak zene</option>
-            <option value="video">Kis videó</option>
-        </select>
-        <label>Effekt</label>
-        <select id="eff" onchange="update()">
-            <option value="heart">Szívek</option>
-            <option value="flower">Virágok</option>
-            <option value="snow">Hó</option>
         </select>
     </div>
 
@@ -92,24 +82,20 @@
         const base = window.location.href.replace('admin.html', 'index.html');
         const p = new URLSearchParams();
         
-        // Főcím adatok
+        // Szövegek
         p.set('cim', document.getElementById('cim').value);
         p.set('mc', document.getElementById('mc').value.replace('#',''));
-        p.set('mf', document.getElementById('mf').value);
         p.set('ms', document.getElementById('ms').value);
         p.set('mx', document.getElementById('mx').value);
         p.set('my', document.getElementById('my').value);
-
-        // Alcím adatok
-        p.set('alcim', document.getElementById('alcim').value);
-        p.set('sc', document.getElementById('sc').value.replace('#',''));
-        p.set('sf', document.getElementById('sf').value);
-        p.set('ss', document.getElementById('ss').value);
-        p.set('sx', document.getElementById('sx').value);
-        p.set('sy', document.getElementById('sy').value);
+        
+        // Effekt színe és paraméterei
+        p.set('effect', document.getElementById('eff').value);
+        p.set('ec', document.getElementById('ec').value.replace('#',''));
+        p.set('intens', document.getElementById('intens').value);
+        p.set('size', document.getElementById('size').value);
 
         p.set('mode', document.getElementById('mode').value);
-        p.set('effect', document.getElementById('eff').value);
         
         let ytUrl = document.getElementById('yt').value;
         const reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -120,9 +106,8 @@
         document.getElementById('url-out').innerText = final;
         document.getElementById('ifr').src = final;
     }
-    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("Másolva!"); }
+    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("URL másolva!"); }
     setTimeout(update, 500);
 </script>
 </body>
-    </html>
-    
+</html>
