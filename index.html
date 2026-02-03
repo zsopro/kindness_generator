@@ -3,23 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kindness Generator Fix</title>
+    <title>NEO Project - Kindness Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; color: #00ff00; }
+        
+        /* Háttér rétegek */
         #bg-layer { position: fixed; top: -15%; left: -15%; width: 130%; height: 130%; background-size: cover; background-position: center; z-index: 1; transition: transform 0.2s ease-out; }
+        #video-bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; visibility: hidden; }
+        #video-bg-container iframe { width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
         #canvas-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 3; }
-        #content-wrapper { position: relative; z-index: 10; text-align: center; width: 90%; margin: auto; height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 10px currentColor; }
-        #main-title { font-size: 2.2rem; margin-bottom: 10px; text-transform: uppercase; }
-        #sub-title { font-size: 1.1rem; opacity: 0.9; min-height: 1.5em; }
+
+        #content-wrapper { position: relative; z-index: 10; text-align: center; width: 90%; margin: auto; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 10px currentColor; }
+        #main-title { font-size: 2.5rem; margin-bottom: 10px; text-transform: uppercase; min-height: 3rem; }
+        #sub-title { font-size: 1.2rem; opacity: 0.9; min-height: 1.5em; margin-bottom: 20px; }
         #enter-btn { padding: 20px 40px; font-size: 1.2rem; background: rgba(0,255,0,0.1); border: 2px solid currentColor; color: inherit; cursor: pointer; font-family: 'Orbitron', sans-serif; z-index: 100; text-transform: uppercase; box-shadow: 0 0 15px currentColor; }
-        #yt-player { margin-top: 20px; border: 2px solid currentColor; border-radius: 10px; }
-        .deco-img { position: fixed; z-index: 5; transform: translate(-50%, -50%); pointer-events: none; display: block !important; }
+        
+        #player-visible { margin-top: 20px; border: 2px solid currentColor; border-radius: 10px; overflow: hidden; display: none; z-index: 11; }
+        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); display: block; }
     </style>
 </head>
 <body>
+    <div id="video-bg-container"></div>
     <div id="bg-layer"></div>
     <canvas id="canvas-overlay"></canvas>
     <div id="overlay"></div>
@@ -28,25 +36,25 @@
         <button id="enter-btn" onclick="initializeSystem()">KATTINTS RÁM</button>
         <h1 id="main-title"></h1>
         <div id="sub-title"></div>
-        <div id="player-target"></div>
+        <div id="player-visible"></div>
     </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const pCim = urlParams.get('cim') || "";
         const pAlcim = urlParams.get('alcim') || "";
-        const pZene = urlParams.get('zene');
         const pMode = urlParams.get('mode') || 'zene';
-        const pEffect = urlParams.get('effect');
+        const pZene = urlParams.get('zene');
         const pIntens = parseInt(urlParams.get('intens')) || 5;
         const pSize = parseInt(urlParams.get('size')) || 20;
+        const pEffect = urlParams.get('effect');
         let pBg = urlParams.get('bg');
 
-        // Dekorációk kényszerített betöltése
+        // Dekorációk betöltése
         for(let i=1; i<=2; i++) {
-            let dUrl = urlParams.get('d' + i + 'url');
+            let dUrl = urlParams.get('d'+i+'url');
             if(dUrl) {
-                let img = new Image();
+                let img = document.createElement('img');
                 img.src = dUrl;
                 img.className = 'deco-img';
                 img.style.left = (urlParams.get('d'+i+'x') || 50) + '%';
@@ -56,64 +64,9 @@
             }
         }
 
-        // Canvas motor
+        // Részecske rendszer
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function initParticles() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for (let i = 0; i < pIntens * 15; i++) {
-                particles.push({
-                    x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-                    s: Math.random()*pSize + 5, v: Math.random()*2+1,
-                    char: pEffect==='heart'?'❤':(pEffect==='flower'?'🌸':'●')
-                });
-            }
-        }
-        function draw() {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            ctx.fillStyle = document.body.style.color || '#00ff00';
-            particles.forEach(p => {
-                ctx.font = p.s + "px Arial";
-                ctx.fillText(p.char, p.x, p.y);
-                p.y += p.v; if(p.y > canvas.height) p.y = -20;
-            });
-            requestAnimationFrame(draw);
-        }
-
-        var player;
-        function onYouTubeIframeAPIReady() {
-            if(!pZene) return;
-            player = new YT.Player('player-target', {
-                height: (pMode === 'video' ? '200' : '0'),
-                width: (pMode === 'video' ? '350' : '0'),
-                videoId: pZene,
-                playerVars: { 'autoplay': 0, 'controls': (pMode==='video'?1:0), 'mute': 1 }
-            });
-        }
-
-        function initializeSystem() {
-            document.getElementById('enter-btn').style.display = 'none';
-            document.getElementById('content-wrapper').style.display = 'flex';
-            
-            // Típusíró effekt
-            let idx = 0; const titleEl = document.getElementById('main-title');
-            function type() { if(idx < pCim.length){ titleEl.innerHTML += pCim.charAt(idx); idx++; setTimeout(type, 70); } 
-                              else if(pAlcim) { document.getElementById('sub-title').innerText = pAlcim; } }
-            type();
-
-            if(player) {
-                player.unMute();
-                player.playVideo();
-            }
-        }
-
-        // Háttér beállítása
-        if (pBg && pBg.startsWith('http')) document.getElementById('bg-layer').style.backgroundImage = `url('${pBg}')`;
-        else document.getElementById('bg-layer').style.backgroundColor = `#${pBg || '000000'}`;
-        if(pEffect) { initParticles(); draw(); }
-        
-        var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
-    </script>
-</body>
-</html>
