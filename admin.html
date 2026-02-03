@@ -2,77 +2,79 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO Admin - Effect Color Editor</title>
+    <title>NEO Admin - Synced Control</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; height: 100vh; margin: 0; overflow: hidden; }
-        .panel { width: 450px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; }
+        .panel { width: 480px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; }
         .preview { flex: 1; background: #000; }
         iframe { width: 100%; height: 100%; border: none; }
-        h2 { color: #00ff00; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .section { background: #252525; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #444; }
+        h2 { color: #00ff00; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; }
+        .section { background: #252525; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #444; }
         .section.main { border-left-color: #00ff00; }
         .section.sub { border-left-color: #00d4ff; }
-        .section.eff { border-left-color: #ff00ff; }
-        label { display: block; margin-top: 10px; color: #aaa; font-size: 0.7rem; text-transform: uppercase; }
-        input, select { width: 100%; padding: 8px; margin-top: 5px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; }
-        .row { display: flex; gap: 10px; }
+        .section.btn { border-left-color: #ff0055; }
+        label { display: block; margin-top: 8px; color: #aaa; font-size: 0.65rem; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; font-size: 0.9rem; }
+        .row { display: flex; gap: 8px; }
         .row div { flex: 1; }
-        button { width: 100%; padding: 15px; background: #00ff00; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; border-radius: 5px; }
-        #url-out { font-size: 0.6rem; background: #000; padding: 10px; margin-top: 10px; word-break: break-all; color: #00ff00; }
+        button.copy-btn { width: 100%; padding: 15px; background: #00ff00; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
+        #url-out { font-size: 0.6rem; background: #000; padding: 10px; margin-top: 10px; word-break: break-all; color: #00ff00; border: 1px dashed #333; }
     </style>
 </head>
 <body>
 
 <div class="panel">
-    <h2>🎨 NEO VIZUÁLIS PANEL</h2>
+    <h2>🛠 NEO COMMAND CENTER</h2>
     
+    <div class="section btn">
+        <strong>FŐ INDÍTÓGOMB</strong>
+        <label>Gomb felirata</label>
+        <input type="text" id="btn_text" value="KATTINTS RÁM" oninput="update()">
+    </div>
+
     <div class="section main">
         <strong>FŐCÍM</strong>
         <input type="text" id="cim" value="SZERETLEK!" oninput="update()">
         <div class="row">
             <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
-            <div><label>Méret</label><input type="range" id="ms" min="1" max="10" step="0.1" value="3" oninput="update()"></div>
+            <div><label>Méret</label><input type="range" id="ms" min="1" max="8" step="0.1" value="3" oninput="update()"></div>
         </div>
         <div class="row">
-            <div><label>X-Poz</label><input type="range" id="mx" value="50" oninput="update()"></div>
-            <div><label>Y-Poz</label><input type="range" id="my" value="40" oninput="update()"></div>
+            <div><label>X poz</label><input type="range" id="mx" value="50" oninput="update()"></div>
+            <div><label>Y poz</label><input type="range" id="my" value="40" oninput="update()"></div>
         </div>
     </div>
 
-    <div class="section eff">
-        <strong>EFFEKT TESTRESZABÁSA</strong>
+    <div class="section sub">
+        <strong>ALCÍM</strong>
+        <textarea id="alcim" rows="2" oninput="update()">A mindenségen át...</textarea>
         <div class="row">
-            <div>
-                <label>Típus</label>
-                <select id="eff" onchange="update()">
-                    <option value="heart">Vörös Szívek</option>
-                    <option value="snow">Fehér Hó</option>
-                    <option value="flower">Virágok</option>
-                </select>
-            </div>
-            <div>
-                <label>Effekt Színe</label>
-                <input type="color" id="ec" value="#ffffff" oninput="update()">
-            </div>
+            <div><label>Szín</label><input type="color" id="sc" value="#ffffff" oninput="update()"></div>
+            <div><label>Méret</label><input type="range" id="ss" min="0.5" max="4" step="0.1" value="1.5" oninput="update()"></div>
         </div>
         <div class="row">
-            <div><label>Intenzitás</label><input type="range" id="intens" min="1" max="30" value="8" oninput="update()"></div>
-            <div><label>Méret</label><input type="range" id="size" min="5" max="80" value="25" oninput="update()"></div>
+            <div><label>X poz</label><input type="range" id="sx" value="50" oninput="update()"></div>
+            <div><label>Y poz</label><input type="range" id="sy" value="60" oninput="update()"></div>
         </div>
     </div>
 
     <div class="section">
-        <strong>MÉDIA</strong>
-        <label>YouTube Link</label><input type="text" id="yt" oninput="update()">
+        <strong>EFFEKT & MÉDIA</strong>
+        <div class="row">
+            <div><label>Típus</label><select id="eff" onchange="update()"><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option></select></div>
+            <div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
+        </div>
+        <label>YouTube Link/ID</label><input type="text" id="yt" oninput="update()">
         <label>Mód</label>
         <select id="mode" onchange="update()">
-            <option value="bgvideo">Háttér videó</option>
-            <option value="zene">Csak zene</option>
+            <option value="bgvideo">Háttérvideó (Szinkronizált)</option>
+            <option value="video">Kis videó ablak</option>
+            <option value="zene">Láthatatlan zene</option>
         </select>
     </div>
 
-    <button onclick="copy()">LINK MÁSOLÁSA</button>
-    <div id="url-out"></div>
+    <button class="copy-btn" onclick="copy()">GENERÁLT LINK MÁSOLÁSA</button>
+    <div id="url-out">Töltés...</div>
 </div>
 
 <div class="preview"><iframe id="ifr" src="index.html"></iframe></div>
@@ -82,32 +84,34 @@
         const base = window.location.href.replace('admin.html', 'index.html');
         const p = new URLSearchParams();
         
-        // Szövegek
+        p.set('btn', document.getElementById('btn_text').value);
         p.set('cim', document.getElementById('cim').value);
         p.set('mc', document.getElementById('mc').value.replace('#',''));
         p.set('ms', document.getElementById('ms').value);
         p.set('mx', document.getElementById('mx').value);
         p.set('my', document.getElementById('my').value);
-        
-        // Effekt színe és paraméterei
+
+        p.set('alcim', document.getElementById('alcim').value);
+        p.set('sc', document.getElementById('sc').value.replace('#',''));
+        p.set('ss', document.getElementById('ss').value);
+        p.set('sx', document.getElementById('sx').value);
+        p.set('sy', document.getElementById('sy').value);
+
         p.set('effect', document.getElementById('eff').value);
         p.set('ec', document.getElementById('ec').value.replace('#',''));
-        p.set('intens', document.getElementById('intens').value);
-        p.set('size', document.getElementById('size').value);
-
         p.set('mode', document.getElementById('mode').value);
         
         let ytUrl = document.getElementById('yt').value;
         const reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
         const match = ytUrl.match(reg);
-        if(match && match[2].length === 11) p.set('zene', match[2]);
+        if(match && match[2].length === 11) p.set('zene', match[2]); else if(ytUrl.length === 11) p.set('zene', ytUrl);
 
         const final = base + '?' + p.toString();
         document.getElementById('url-out').innerText = final;
         document.getElementById('ifr').src = final;
     }
-    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("URL másolva!"); }
-    setTimeout(update, 500);
+    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("URL Másolva!"); }
+    setTimeout(update, 800);
 </script>
 </body>
 </html>
