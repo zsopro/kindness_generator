@@ -3,23 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEO Project - Synced Experience</title>
+    <title>NEO Project - Responsive System</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Dancing+Script:wght@700&family=Pacifico&family=Roboto+Mono&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; }
+        
         #video-bg-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; pointer-events: none; display: none; background: #000; }
         #yt-placeholder { position: absolute; top: 50%; left: 50%; width: 150vw !important; height: 150vh !important; transform: translate(-50%, -50%); pointer-events: none; }
         #bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 2; pointer-events: none; }
         #canvas-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+
         #content-wrapper { position: relative; z-index: 10; width: 100%; height: 100vh; display: flex; flex-direction: column; pointer-events: none; }
-        .text-box { position: absolute; transform: translate(-50%, -50%); text-align: center; width: 90%; pointer-events: none; }
+        .text-box { position: absolute; transform: translate(-50%, -50%); text-align: center; width: 90%; pointer-events: none; line-height: 1.2; }
+        
         #loader-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #00ff00; z-index: 20; }
         #loader { width: 50px; height: 50px; border: 4px solid rgba(0,255,0,0.1); border-top: 4px solid #00ff00; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #enter-btn { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px 40px; background: rgba(0,0,0,0.8); border: 2px solid #00ff00; color: #00ff00; cursor: pointer; font-family: 'Orbitron', sans-serif; z-index: 100; box-shadow: 0 0 20px #00ff00; pointer-events: auto; text-transform: uppercase; }
-        #player-visible { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); border: 2px solid #00ff00; display: none; z-index: 11; width: 320px; height: 180px; pointer-events: auto; background: #000; }
+        
+        #enter-btn { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 2.5vh 5vw; background: rgba(0,0,0,0.8); border: 2px solid #00ff00; color: #00ff00; cursor: pointer; font-family: 'Orbitron', sans-serif; z-index: 100; box-shadow: 0 0 20px #00ff00; pointer-events: auto; font-size: 1.2rem; }
+        
+        #player-visible { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); border: 2px solid #00ff00; display: none; z-index: 11; width: 60vw; max-width: 400px; aspect-ratio: 16/9; pointer-events: auto; background: #000; }
         .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
     </style>
 </head>
@@ -39,17 +44,14 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const pMode = urlParams.get('mode') || 'zene';
-        const pZene = urlParams.get('zene');
         
-        // Gomb szövegének beállítása
-        document.getElementById('enter-btn').innerText = urlParams.get('btn') || 'KATTINTS RÁM';
-
+        // --- DINAMIKUS MÉRETEZÉS ÉS STÍLUS ---
         function applyStyle(el, prefix) {
             if(!el) return;
             el.style.left = (urlParams.get(prefix+'x') || 50) + '%';
             el.style.top = (urlParams.get(prefix+'y') || 50) + '%';
-            el.style.fontSize = (urlParams.get(prefix+'s') || 2.5) + 'rem';
+            // Százalékos (vw) méretezés a fix rem helyett
+            el.style.fontSize = (urlParams.get(prefix+'s') || 8) + 'vw'; 
             el.style.color = '#' + (urlParams.get(prefix+'c') || '00ff00');
             el.style.fontFamily = urlParams.get(prefix+'f') || 'Orbitron';
             el.style.textShadow = `0 0 15px #${urlParams.get(prefix+'c') || '00ff00'}`;
@@ -59,23 +61,28 @@
         const subEl = document.getElementById('sub-title');
         applyStyle(mainEl, 'm');
         applyStyle(subEl, 's');
+        document.getElementById('enter-btn').innerText = urlParams.get('btn') || 'INDÍTÁS';
 
+        // --- DEKORÁCIÓS KÉPEK ---
         for(let i=1; i<=2; i++) {
             let dUrl = urlParams.get('d'+i+'url');
-            if(dUrl) {
+            if(dUrl && dUrl !== "undefined" && dUrl !== "") {
                 let img = document.createElement('img');
-                img.src = dUrl; img.className = 'deco-img';
+                img.src = dUrl;
+                img.className = 'deco-img';
                 img.style.left = (urlParams.get('d'+i+'x') || 50) + '%';
                 img.style.top = (urlParams.get('d'+i+'y') || 50) + '%';
-                img.style.width = (urlParams.get('d'+i+'s') || 150) + 'px';
+                img.style.width = (urlParams.get('d'+i+'s') || 20) + 'vw'; // Kép is vw-ben!
                 document.body.appendChild(img);
             }
         }
 
+        // --- YOUTUBE SZINKRON ---
         var player;
         let isReadyToStart = false;
-
         function onYouTubeIframeAPIReady() {
+            const pZene = urlParams.get('zene');
+            const pMode = urlParams.get('mode') || 'zene';
             if(!pZene) { showButton(); return; }
             let isBG = (pMode === 'bgvideo');
             if(isBG) {
@@ -84,15 +91,12 @@
             }
             player = new YT.Player(isBG ? 'yt-placeholder' : 'player-visible', {
                 videoId: pZene,
-                playerVars: { 'autoplay': 1, 'controls': (pMode==='video'?1:0), 'mute': 1, 'loop': 1, 'playlist': pZene, 'modestbranding': 1, 'rel': 0 },
+                playerVars: { 'autoplay': 1, 'controls': (pMode==='video'?1:0), 'mute': 1, 'loop': 1, 'playlist': pZene },
                 events: { 
                     'onStateChange': (e) => { 
-                        // Amint elindul (pufferelés után), azonnal megállítjuk
                         if(e.data == YT.PlayerState.PLAYING && !isReadyToStart) {
-                            player.pauseVideo();
-                            player.seekTo(0); // Visszatekerjük az elejére
-                            isReadyToStart = true;
-                            showButton();
+                            player.pauseVideo(); player.seekTo(0);
+                            isReadyToStart = true; showButton();
                         }
                     } 
                 }
@@ -106,8 +110,7 @@
 
         function initializeSystem() {
             document.getElementById('enter-btn').style.display = 'none';
-            if(pMode === 'video') document.getElementById('player-visible').style.display = 'block';
-            
+            if(urlParams.get('mode') === 'video') document.getElementById('player-visible').style.display = 'block';
             let idx = 0;
             const pCim = urlParams.get('cim') || "";
             function type() {
@@ -115,40 +118,38 @@
                 else { subEl.innerText = urlParams.get('alcim') || ""; }
             }
             if(pCim) type();
-
-            if(player) {
-                player.unMute();
-                player.setVolume(100);
-                player.playVideo(); // Most indul el élesben
-            }
+            if(player) { player.unMute(); player.setVolume(100); player.playVideo(); }
         }
 
+        // --- EFFEKT RENDSZER (FORGATÁS-ÁLLÓ) ---
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        const effColor = '#' + (urlParams.get('ec') || 'ffffff');
+        window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
 
         function initParticles() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             let eff = urlParams.get('effect');
-            for (let i = 0; i < (urlParams.get('intens') || 8) * 10; i++) {
+            let intens = parseInt(urlParams.get('intens')) || 8;
+            for (let i = 0; i < intens * 10; i++) {
                 particles.push({
                     x: Math.random()*canvas.width, y: Math.random()*canvas.height,
-                    s: Math.random()*(urlParams.get('size') || 25) + 5, v: Math.random()*1.5 + 0.5,
+                    s: (Math.random()*3 + 1) + 'vw', v: Math.random()*1.5 + 0.5,
                     char: eff==='heart'?'❤':(eff==='flower'?'🌸':(eff==='snow'?'❄':'●'))
                 });
             }
         }
         function draw() {
-            ctx.clearRect(0,0,canvas.width, canvas.height); ctx.fillStyle = effColor;
-            particles.forEach(p => { ctx.font = p.s + "px Arial"; ctx.fillText(p.char, p.x, p.y); p.y += p.v; if(p.y > canvas.height) p.y = -20; });
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = '#' + (urlParams.get('ec') || 'ffffff');
+            particles.forEach(p => {
+                ctx.font = `bold ${p.s} Arial`;
+                ctx.fillText(p.char, p.x, p.y);
+                p.y += p.v; if(p.y > canvas.height) p.y = -50;
+            });
             requestAnimationFrame(draw);
         }
 
-        let bg = urlParams.get('bg');
-        if (bg && bg.startsWith('http')) document.getElementById('bg-layer').style.backgroundImage = `url('${bg}')`;
-        else if(pMode !== 'bgvideo') document.getElementById('bg-layer').style.backgroundColor = `#${bg || '000000'}`;
-        
         initParticles(); draw();
         var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
     </script>
