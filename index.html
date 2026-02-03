@@ -7,15 +7,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; }
-        #bg-layer { position: fixed; top: -15%; left: -15%; width: 130%; height: 130%; background-size: cover; background-position: center; z-index: 1; transition: transform 0.2s ease-out; }
+        body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; color: #00ff00; }
+        #bg-layer { position: fixed; top: -15%; left: -15%; width: 130%; height: 130%; background-size: cover; background-position: center; z-index: 1; transition: transform 0.2s ease-out; will-change: transform; }
         #canvas-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 3; }
-        #content-wrapper { position: relative; z-index: 4; text-align: center; width: 90%; margin: auto; height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; }
-        #main-title { font-size: 2.5rem; margin-bottom: 10px; text-transform: uppercase; }
-        #sub-title { font-size: 1.2rem; opacity: 0.9; }
-        #enter-btn { padding: 20px 40px; font-size: 1.2rem; background: rgba(0,255,0,0.1); border: 2px solid #00ff00; color: #00ff00; cursor: pointer; font-family: 'Orbitron', sans-serif; z-index: 100; text-transform: uppercase; }
-        .deco-img { position: fixed; z-index: 5; pointer-events: none; }
+        #content-wrapper { position: relative; z-index: 4; text-align: center; width: 90%; margin: auto; height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center; text-shadow: 0 0 10px currentColor; }
+        #main-title { font-size: 2.2rem; margin-bottom: 10px; text-transform: uppercase; }
+        #sub-title { font-size: 1.1rem; opacity: 0.9; min-height: 1.5em; }
+        #enter-btn { padding: 20px 40px; font-size: 1.2rem; background: rgba(0,255,0,0.1); border: 2px solid currentColor; color: inherit; cursor: pointer; font-family: 'Orbitron', sans-serif; z-index: 100; text-transform: uppercase; box-shadow: 0 0 15px currentColor; }
+        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
+        #player-container { position: absolute; top: -1000px; left: -1000px; }
     </style>
 </head>
 <body>
@@ -40,25 +41,11 @@
         const pIntens = parseInt(urlParams.get('intens')) || 5;
         const pSize = parseInt(urlParams.get('size')) || 20;
 
-        // Dekorációk beolvasása (példa: d1url, d1x, d1y, d1s)
-        for(let i=1; i<=2; i++) {
-            let url = urlParams.get('d'+i+'url');
-            if(url) {
-                let img = document.createElement('img');
-                img.src = url;
-                img.className = 'deco-img';
-                img.style.left = (urlParams.get('d'+i+'x') || 50) + '%';
-                img.style.top = (urlParams.get('d'+i+'y') || 50) + '%';
-                img.style.width = (urlParams.get('d'+i+'s') || 100) + 'px';
-                img.style.transform = 'translate(-50%, -50%)';
-                document.body.appendChild(img);
-            }
-        }
-
         const presets = {
             'valentin': { bg: '660000', effect: 'heart', color: '#ff4d4d' },
             'anyakhnapja': { bg: '4a0e2e', effect: 'flower', color: '#ffb3d9' },
-            'karacsony': { bg: '052210', effect: 'snow', color: '#ffffff' }
+            'karacsony': { bg: '052210', effect: 'snow', color: '#ffffff' },
+            'matrix': { bg: '000000', effect: 'matrix', color: '#00ff00' }
         };
 
         if (pPreset && presets[pPreset]) {
@@ -68,21 +55,33 @@
             document.body.style.color = s.color;
         }
 
-        // --- Canvas Effekt ---
+        // Dekorációk kirakása
+        for(let i=1; i<=2; i++) {
+            let url = urlParams.get('d'+i+'url');
+            if(url) {
+                let img = document.createElement('img');
+                img.src = url;
+                img.className = 'deco-img';
+                img.style.left = (urlParams.get('d'+i+'x') || 50) + '%';
+                img.style.top = (urlParams.get('d'+i+'y') || 50) + '%';
+                img.style.width = (urlParams.get('d'+i+'s') || 100) + 'px';
+                document.body.appendChild(img);
+            }
+        }
+
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function initParticles() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            for (let i = 0; i < pIntens * 10; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    s: Math.random() * pSize + 5,
-                    v: Math.random() * 2 + 1,
-                    char: pEffect === 'heart' ? '❤' : (pEffect === 'flower' ? '🌸' : '●')
-                });
+            particles = [];
+            for (let i = 0; i < pIntens * 15; i++) {
+                let char = '●';
+                if(pEffect === 'heart') char = '❤';
+                if(pEffect === 'flower') char = '🌸';
+                if(pEffect === 'matrix') char = String.fromCharCode(0x30A0 + Math.random() * 96);
+                particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*pSize + 5, v: Math.random()*2+1, c: char });
             }
         }
         function draw() {
@@ -90,7 +89,7 @@
             ctx.fillStyle = document.body.style.color || '#00ff00';
             particles.forEach(p => {
                 ctx.font = p.s + "px Arial";
-                ctx.fillText(p.char, p.x, p.y);
+                ctx.fillText(p.c, p.x, p.y);
                 p.y += p.v;
                 if(p.y > canvas.height) p.y = -20;
             });
@@ -102,20 +101,31 @@
             const bg = document.getElementById('bg-layer');
             if (pBg && pBg.startsWith('http')) bg.style.backgroundImage = `url('${pBg}')`;
             else bg.style.backgroundColor = `#${pBg || '000000'}`;
+            
+            window.addEventListener('mousemove', (e) => {
+                bg.style.transform = `translate(${(window.innerWidth/2 - e.pageX)/15}px, ${(window.innerHeight/2 - e.pageY)/15}px)`;
+            });
             if(pEffect) { initParticles(); draw(); }
         }
 
-        // YouTube lejátszó rész (rövidítve a hely miatt)
+        function typeWriter(text, elementId, speed, callback) {
+            let i = 0; const el = document.getElementById(elementId);
+            function t() { if (i < text.length) { el.innerHTML += text.charAt(i); i++; setTimeout(t, speed); } else if (callback) callback(); }
+            t();
+        }
+
         var player;
         function onYouTubeIframeAPIReady() {
             if(!pZene) return;
-            player = new YT.Player('player-container', { height: '0', width: '0', videoId: pZene, playerVars: { 'autoplay': 0 } });
+            player = new YT.Player('player-container', { height: '0', width: '0', videoId: pZene, playerVars: { 'autoplay': 0, 'controls': 0 } });
         }
+
         function initializeSystem() {
             document.getElementById('enter-btn').style.display = 'none';
-            document.getElementById('main-title').innerText = pCim;
-            if(player) { player.unMute(); player.playVideo(); }
-            // Típusíró és egyéb animációk...
+            typeWriter(pCim || "", "main-title", 60, () => {
+                if(pAlcim) typeWriter(pAlcim, "sub-title", 40);
+            });
+            if(player && player.playVideo) { player.unMute(); player.playVideo(); }
         }
         var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
     </script>
