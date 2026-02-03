@@ -62,36 +62,69 @@
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : url;
         }
-        <script>
-            function update() {
-                const base = window.location.href.replace('admin.html', 'index.html');
-                const p = new URLSearchParams();
-                
-                p.set('cim', document.getElementById('cim').value);
-                p.set('alcim', document.getElementById('alcim').value);
-                p.set('mode', document.getElementById('mode').value);
-                p.set('effect', document.getElementById('effect').value);
-                p.set('intens', document.getElementById('intens').value);
-                p.set('size', document.getElementById('size').value);
-                
-                const zid = getID(document.getElementById('zene_url').value);
-                if(zid) p.set('zene', zid);
+
         
-                // Kép URL paraméterek
-                const dUrl = document.getElementById('d1url').value;
-                if(dUrl) {
-                    p.set('d1url', dUrl);
-                    p.set('d1x', document.getElementById('d1x').value);
-                    p.set('d1y', document.getElementById('d1y').value);
-                    p.set('d1s', document.getElementById('d1s').value);
-                }
+
+            
+
+            
+
+
+        function update() {
+        const base = window.location.href.replace('admin.html', 'index.html');
+        const p = new URLSearchParams();
         
-                const final = base + '?' + p.toString();
-                document.getElementById('url-res').innerText = final;
-                document.getElementById('ifr').src = final;
-            }
+        p.set('cim', document.getElementById('cim').value);
+        p.set('alcim', document.getElementById('alcim').value);
+        p.set('mode', document.getElementById('mode').value);
+        p.set('effect', document.getElementById('effect').value);
+        p.set('intens', document.getElementById('intens').value);
+        p.set('size', document.getElementById('size').value);
         
-       
+        const zid = getID(document.getElementById('zene_url').value);
+        if(zid) p.set('zene', zid);
+
+        if(document.getElementById('d1url').value) {
+                p.set('d1url', document.getElementById('d1url').value);
+                p.set('d1x', document.getElementById('d1x').value);
+                p.set('d1y', document.getElementById('d1y').value);
+                p.set('d1s', document.getElementById('d1s').value);
+        }
+            
+        // Kép URL paraméterek
+        const dUrl = document.getElementById('d1url').value;
+        if(dUrl) {
+            p.set('d1url', dUrl);
+            p.set('d1x', document.getElementById('d1x').value);
+            p.set('d1y', document.getElementById('d1y').value);
+            p.set('d1s', document.getElementById('d1s').value);
+        }
+
+        const final = base + '?' + p.toString();
+        document.getElementById('url-res').innerText = final;
+        document.getElementById('ifr').src = final;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+        }
         function copy() { navigator.clipboard.writeText(document.getElementById('url-res').innerText); alert("Másolva!"); }
         update();
     </script>
