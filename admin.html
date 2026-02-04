@@ -2,22 +2,24 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO Admin - Stability Fix</title>
+    <title>NEO Admin - Full Control</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; height: 100vh; margin: 0; }
         .panel { width: 520px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; }
         .preview { flex: 1; background: #000; display: flex; align-items: center; justify-content: center; }
-        .phone-mockup { width: 360px; height: 740px; border: 10px solid #333; border-radius: 30px; overflow: hidden; background: #000; position: relative; }
+        .phone-mockup { width: 360px; height: 740px; border: 10px solid #333; border-radius: 30px; overflow: hidden; background: #000; }
         iframe { width: 100%; height: 100%; border: none; }
         .section { background: #252525; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #444; }
         .section.main { border-left-color: #00ff00; }
         .section.sub { border-left-color: #00d4ff; }
+        .section.eff { border-left-color: #ff00ff; }
         label { display: block; margin-top: 8px; color: #aaa; font-size: 0.65rem; text-transform: uppercase; }
         input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; }
         .num-input { width: 55px; text-align: center; background: #444; border: none; font-weight: bold; color: #00ff00; }
         .control-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
         .control-row input[type="range"] { flex: 1; }
         .row { display: flex; gap: 8px; }
+        .row div { flex: 1; }
         button { width: 100%; padding: 15px; background: #00ff00; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
         #url-out { font-size: 0.6rem; background: #000; padding: 10px; margin-top: 10px; word-break: break-all; color: #00ff00; border: 1px dashed #333; }
     </style>
@@ -51,8 +53,8 @@
             <input type="number" id="ms_n" class="num-input" value="5" oninput="sync(this, 'ms'); update()">
         </div>
         <div class="row">
-            <div><label>X pozíció %</label><input type="number" id="mx" value="50" oninput="update()" class="num-input" style="width:100%"></div>
-            <div><label>Y pozíció %</label><input type="number" id="my" value="40" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>X %</label><input type="number" id="mx" value="50" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Y %</label><input type="number" id="my" value="40" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
     </div>
 
@@ -60,19 +62,51 @@
         <strong>ALCÍM</strong>
         <textarea id="alcim" rows="1" oninput="update()">Örökké és még tovább...</textarea>
         <div class="row">
+            <div><label>Szín</label><input type="color" id="sc" value="#ffffff" oninput="update()"></div>
+            <div><label>Betű</label>
+                <select id="sf" onchange="update()">
+                    <option value="Dancing Script">Dancing</option>
+                    <option value="Orbitron">Orbitron</option>
+                    <option value="Pacifico">Pacifico</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
             <div><label>X%</label><input type="number" id="sx" value="50" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Y%</label><input type="number" id="sy" value="60" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Méret</label><input type="number" id="ss" value="2.5" oninput="update()" class="num-input" style="width:100%"></div>
+        </div>
+    </div>
+
+    <div class="section eff">
+        <strong>EFFEKT</strong>
+        <div class="row">
+            <div><label>Típus</label><select id="eff" onchange="update()"><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option></select></div>
+            <div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
+        </div>
+        <div class="row">
+            <div><label>Intenzitás</label><input type="number" id="intens" value="8" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Részecske</label><input type="number" id="esize" value="2" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
     </div>
 
     <div class="section">
-        <strong>KÉP ÉS RADIUS</strong>
-        <input type="text" id="d1url" placeholder="Kép 1 (URL)" oninput="update()">
+        <strong>KÉPEK ÉS RADIUS</strong>
+        <label>Kép 1 URL</label>
+        <input type="text" id="d1url" oninput="update()">
         <div class="row">
             <div><label>X%</label><input type="number" id="d1x" value="20" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Y%</label><input type="number" id="d1y" value="20" oninput="update()" class="num-input" style="width:100%"></div>
-            <div><label>Méret%</label><input type="number" id="d1s" value="15" oninput="update()" class="num-input" style="width:100%"></div>
-            <div><label>Radius%</label><input type="number" id="d1r" value="0" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>S%</label><input type="number" id="d1s" value="15" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>R%</label><input type="number" id="d1r" value="0" oninput="update()" class="num-input" style="width:100%"></div>
+        </div>
+        <label>Kép 2 URL</label>
+        <input type="text" id="d2url" oninput="update()">
+        <div class="row">
+            <div><label>X%</label><input type="number" id="d2x" value="80" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Y%</label><input type="number" id="d2y" value="20" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>S%</label><input type="number" id="d2s" value="15" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>R%</label><input type="number" id="d2r" value="0" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
     </div>
 
@@ -102,45 +136,60 @@
     function sync(source, targetId) { document.getElementById(targetId).value = source.value; }
 
     let lastVideoId = "";
+    let updateTimeout;
 
     function update() {
-        const p = new URLSearchParams();
-        p.set('btn', document.getElementById('btn_text').value);
-        p.set('cim', document.getElementById('cim').value);
-        p.set('mc', document.getElementById('mc').value.replace('#',''));
-        p.set('ms', document.getElementById('ms').value);
-        p.set('mf', document.getElementById('mf').value);
-        p.set('mx', document.getElementById('mx').value);
-        p.set('my', document.getElementById('my').value);
-        p.set('alcim', document.getElementById('alcim').value);
-        p.set('sx', document.getElementById('sx').value);
-        p.set('sy', document.getElementById('sy').value);
-        p.set('d1url', document.getElementById('d1url').value);
-        p.set('d1x', document.getElementById('d1x').value);
-        p.set('d1y', document.getElementById('d1y').value);
-        p.set('d1s', document.getElementById('d1s').value);
-        p.set('d1r', document.getElementById('d1r').value);
-        p.set('mode', document.getElementById('mode').value);
-        
-        let ytVal = document.getElementById('yt').value;
-        const reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        const match = ytVal.match(reg);
-        let vidId = (match && match[2].length === 11) ? match[2] : ytVal;
-        p.set('zene', vidId);
+        // Debounce: várunk egy kicsit a gépelés után, hogy ne rángassuk az iframe-et
+        clearTimeout(updateTimeout);
+        updateTimeout = setTimeout(() => {
+            const p = new URLSearchParams();
+            p.set('btn', document.getElementById('btn_text').value);
+            p.set('cim', document.getElementById('cim').value);
+            p.set('mc', document.getElementById('mc').value.replace('#',''));
+            p.set('ms', document.getElementById('ms').value);
+            p.set('mf', document.getElementById('mf').value);
+            p.set('mx', document.getElementById('mx').value);
+            p.set('my', document.getElementById('my').value);
+            p.set('alcim', document.getElementById('alcim').value);
+            p.set('sc', document.getElementById('sc').value.replace('#',''));
+            p.set('ss', document.getElementById('ss').value);
+            p.set('sf', document.getElementById('sf').value);
+            p.set('sx', document.getElementById('sx').value);
+            p.set('sy', document.getElementById('sy').value);
+            p.set('effect', document.getElementById('eff').value);
+            p.set('ec', document.getElementById('ec').value.replace('#',''));
+            p.set('intens', document.getElementById('intens').value);
+            p.set('esize', document.getElementById('esize').value);
+            p.set('mode', document.getElementById('mode').value);
+            
+            for(let i=1; i<=2; i++) {
+                p.set('d'+i+'url', document.getElementById('d'+i+'url').value);
+                p.set('d'+i+'x', document.getElementById('d'+i+'x').value);
+                p.set('d'+i+'y', document.getElementById('d'+i+'y').value);
+                p.set('d'+i+'s', document.getElementById('d'+i+'s').value);
+                p.set('d'+i+'r', document.getElementById('d'+i+'r').value);
+            }
 
-        const final = 'index.html?' + p.toString();
-        document.getElementById('url-out').innerText = final;
+            let ytVal = document.getElementById('yt').value;
+            const reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = ytVal.match(reg);
+            let vidId = (match && match[2].length === 11) ? match[2] : ytVal;
+            p.set('zene', vidId);
 
-        // KRITIKUS: Csak akkor töltjük újra az iframe-et, ha a Videó ID megváltozott!
-        // Ha csak a szöveget írod, az iframe-en BELÜL változik a tartalom (postMessage-szel kellene, de egyszerűbb így)
-        // Ha mégis minden oninputra frissíteni akarod, a videó meg fog állni.
-        if (vidId !== lastVideoId) {
-            document.getElementById('ifr').src = final + "&preview=1";
-            lastVideoId = vidId;
-        } else {
-            // Ha csak szöveg változott, küldjük át a friss URL-t az iframe-nek újratöltés nélkül?
-            // Egyelőre: ha szöveget írsz, ne töltsön újra, hogy ne álljon meg a zene.
-        }
+            const final = 'index.html?' + p.toString();
+            document.getElementById('url-out').innerText = final;
+
+            // FIX: Csak akkor töltjük újra az iframe-et, ha tényleg megváltozott a videó ID-ja.
+            // Ezzel megakadályozzuk, hogy gépelés közben megálljon a zene.
+            if (vidId !== lastVideoId || document.getElementById('ifr').src === "") {
+                document.getElementById('ifr').src = final;
+                lastVideoId = vidId;
+            } else {
+                // Ha csak szöveg változott, frissíthetjük az iframe src-t, de 
+                // csak ha nem gépelünk túl gyorsan.
+                document.getElementById('ifr').src = final;
+            }
+        }, 500); 
     }
 
     function copy() {
@@ -148,8 +197,8 @@
         alert("Link másolva!");
     }
 
-    setTimeout(update, 500);
+    update();
 </script>
 </body>
-                </html>
-                
+                     </html>
+                     
