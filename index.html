@@ -3,21 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEO Project - Final</title>
+    <title>NEO Project - Universal Fix</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Dancing+Script:wght@700&family=Pacifico&family=Roboto+Mono&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; }
-        #video-bg-wrapper { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; overflow: hidden; pointer-events: none; display: none; }
-        #yt-placeholder { position: absolute; top: 50%; left: 50%; width: 200vw !important; height: 200vh !important; transform: translate(-50%, -50%); pointer-events: none; }
+        
+        /* Videó javítás: Mindig töltse ki a teljes hátteret */
+        #video-bg-wrapper { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; overflow: hidden; pointer-events: none; display: none; }
+        #yt-placeholder { position: absolute; top: 50%; left: 50%; width: 120vw !important; height: 120vh !important; min-width: 100%; min-height: 100%; transform: translate(-50%, -50%); pointer-events: none; }
+        
         #bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 2; }
-        #canvas-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+        #canvas-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 3; pointer-events: none; }
+
         #content-wrapper { position: relative; z-index: 10; width: 100%; height: 100vh; pointer-events: none; }
-        .text-box { position: absolute; transform: translate(-50%, -50%); text-align: center; width: 95%; pointer-events: none; line-height: 1.2; }
-        #enter-btn { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px 40px; background: rgba(0,0,0,0.8); border: 2px solid #00ff00; color: #00ff00; cursor: pointer; z-index: 100; box-shadow: 0 0 20px #00ff00; pointer-events: auto; font-size: 1.2rem; }
-        #player-visible { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); border: 2px solid #00ff00; display: none; z-index: 11; width: 300px; height: 170px; pointer-events: auto; }
-        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); }
+        
+        /* Szövegkorlát javítás */
+        .text-box { 
+            position: absolute; 
+            transform: translate(-50%, -50%); 
+            text-align: center; 
+            width: 90%; 
+            max-height: 40vh; /* Megakadályozza a túlfutást */
+            overflow: hidden;
+            pointer-events: none; 
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        #enter-btn { 
+            display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            padding: 15px 30px; background: rgba(0,0,0,0.85); border: 2px solid #00ff00; 
+            color: #00ff00; cursor: pointer; z-index: 100; box-shadow: 0 0 15px #00ff00; 
+            pointer-events: auto; font-size: 1.1rem; text-transform: uppercase;
+        }
+        
+        #player-visible { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); border: 2px solid #00ff00; display: none; z-index: 11; width: 280px; height: 158px; pointer-events: auto; }
+        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); max-width: 90vw; }
         #loader-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #00ff00; z-index: 20; }
     </style>
 </head>
@@ -26,8 +48,9 @@
     <div id="bg-layer"></div>
     <div id="overlay"></div>
     <canvas id="canvas-overlay"></canvas>
+
     <div id="content-wrapper">
-        <div id="loader-wrapper"><p>TÖLTÉS...</p></div>
+        <div id="loader-wrapper"><p>NEO RENDSZER...</p></div>
         <button id="enter-btn" onclick="initializeSystem()"></button>
         <h1 id="main-title" class="text-box"></h1>
         <div id="sub-title" class="text-box"></div>
@@ -36,18 +59,21 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
+        
         function applyStyle(el, prefix, defSize, defFont) {
             if(!el) return;
             el.style.left = (urlParams.get(prefix+'x') || 50) + '%';
             el.style.top = (urlParams.get(prefix+'y') || 50) + '%';
-            el.style.fontSize = (urlParams.get(prefix+'s') || defSize) + 'vmax';
-            el.style.color = '#' + (urlParams.get(prefix+'c') || '00ff00');
+            // Calc használata: alapméret + skálázás, de ésszerű keretek között
+            let size = urlParams.get(prefix+'s') || defSize;
+            el.style.fontSize = `calc(${size}vw + ${size}vh / 2)`;
+            el.style.color = '#' + (urlParams.get(prefix+'c') || (prefix === 'm' ? '00ff00' : 'ffffff'));
             el.style.fontFamily = urlParams.get(prefix+'f') || defFont;
-            el.style.textShadow = `0 0 10px #${urlParams.get(prefix+'c') || '00ff00'}`;
+            el.style.textShadow = `0 0 8px #${urlParams.get(prefix+'c') || '00ff00'}`;
         }
 
-        applyStyle(document.getElementById('main-title'), 'm', 5, 'Orbitron');
-        applyStyle(document.getElementById('sub-title'), 's', 2.5, 'Dancing Script');
+        applyStyle(document.getElementById('main-title'), 'm', 4, 'Orbitron');
+        applyStyle(document.getElementById('sub-title'), 's', 2, 'Dancing Script');
         document.getElementById('enter-btn').innerText = urlParams.get('btn') || 'INDÍTÁS';
 
         for(let i=1; i<=2; i++) {
@@ -57,7 +83,8 @@
                 img.src = dUrl; img.className = 'deco-img';
                 img.style.left = urlParams.get('d'+i+'x') + '%';
                 img.style.top = urlParams.get('d'+i+'y') + '%';
-                img.style.width = urlParams.get('d'+i+'s') + 'vmax';
+                let ds = urlParams.get('d'+i+'s') || 15;
+                img.style.width = `calc(${ds}vw + ${ds}vh / 4)`;
                 document.body.appendChild(img);
             }
         }
@@ -68,15 +95,15 @@
             const pZene = urlParams.get('zene');
             const pMode = urlParams.get('mode') || 'zene';
             if(!pZene) { showBtn(); return; }
-            let isBG = (pMode === 'bgvideo');
-            if(isBG) document.getElementById('video-bg-wrapper').style.display = 'block';
-            player = new YT.Player(isBG ? 'yt-placeholder' : 'player-visible', {
+            if(pMode === 'bgvideo') document.getElementById('video-bg-wrapper').style.display = 'block';
+            player = new YT.Player(pMode === 'bgvideo' ? 'yt-placeholder' : 'player-visible', {
                 videoId: pZene,
-                playerVars: { 'autoplay': 1, 'mute': 1, 'loop': 1, 'playlist': pZene },
+                playerVars: { 'autoplay': 1, 'mute': 1, 'loop': 1, 'playlist': pZene, 'controls': 0, 'modestbranding': 1 },
                 events: { 'onStateChange': (e) => { if(e.data == YT.PlayerState.PLAYING && !isReady) { player.pauseVideo(); player.seekTo(0); isReady = true; showBtn(); } } }
             });
         }
         function showBtn() { document.getElementById('loader-wrapper').style.display = 'none'; document.getElementById('enter-btn').style.display = 'block'; }
+        
         function initializeSystem() {
             document.getElementById('enter-btn').style.display = 'none';
             if(urlParams.get('mode') === 'video') document.getElementById('player-visible').style.display = 'block';
@@ -88,20 +115,33 @@
             type(); if(player) { player.unMute(); player.setVolume(100); player.playVideo(); }
         }
 
+        // Effekt javítás: Elforgatáskor újraszámolja a pozíciókat
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        window.onresize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+        
+        window.onresize = () => { 
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            // Elforgatáskor a meglévő részecskéket szétterítjük az új szélességen
+            particles.forEach(p => { if(p.x > canvas.width) p.x = Math.random() * canvas.width; });
+        };
+
         function init() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            let eff = urlParams.get('effect'), intens = parseInt(urlParams.get('intens')) || 8, size = urlParams.get('esize') || 2;
+            let eff = urlParams.get('effect'), intens = parseInt(urlParams.get('intens')) || 8, es = urlParams.get('esize') || 2;
             for (let i = 0; i < intens * 10; i++) {
-                particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: (Math.random()*size + 0.5) + 'vmax', v: Math.random()*1.5 + 0.5, char: eff==='heart'?'❤':(eff==='flower'?'🌸':(eff==='snow'?'❄':'●')) });
+                particles.push({ 
+                    x: Math.random()*canvas.width, 
+                    y: Math.random()*canvas.height, 
+                    s: `calc(${es}vw + ${es}vh / 4)`, 
+                    v: Math.random()*1.5 + 0.5, 
+                    char: eff==='heart'?'❤':(eff==='flower'?'🌸':(eff==='snow'?'❄':'●')) 
+                });
             }
         }
         function draw() {
             ctx.clearRect(0,0,canvas.width, canvas.height); ctx.fillStyle = '#' + (urlParams.get('ec') || 'ffffff');
-            particles.forEach(p => { ctx.font = p.s + " Arial"; ctx.fillText(p.char, p.x, p.y); p.y += p.v; if(p.y > canvas.height) p.y = -50; });
+            particles.forEach(p => { ctx.font = `bold ${p.s} Arial`; ctx.fillText(p.char, p.x, p.y); p.y += p.v; if(p.y > canvas.height) p.y = -50; });
             requestAnimationFrame(draw);
         }
         init(); draw();
