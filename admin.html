@@ -2,78 +2,106 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO Admin - Image Preview Fix</title>
+    <title>NEO Admin - All In One</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; display: flex; margin: 0; height: 100vh; }
-        .panel { width: 450px; padding: 20px; background: #1e1e1e; overflow-y: auto; border-right: 2px solid #333; }
-        .preview { flex: 1; display: flex; align-items: center; justify-content: center; background: #000; }
-        .phone { width: 340px; height: 680px; border: 8px solid #333; border-radius: 25px; overflow: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; height: 100vh; margin: 0; }
+        .panel { width: 480px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; }
+        .preview { flex: 1; background: #000; display: flex; align-items: center; justify-content: center; }
+        .phone-mockup { width: 340px; height: 700px; border: 10px solid #333; border-radius: 30px; overflow: hidden; }
         iframe { width: 100%; height: 100%; border: none; }
-        .section { background: #2a2a2a; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-        input, range { width: 100%; margin: 5px 0; }
-        .row { display: flex; gap: 10px; align-items: center; }
-        label { font-size: 12px; color: #888; }
-        .num { width: 50px; background: #333; color: #0f0; border: none; text-align: center; }
+        .section { background: #252525; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #444; }
+        label { display: block; margin-top: 8px; color: #aaa; font-size: 0.7rem; text-transform: uppercase; }
+        input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; }
+        .row { display: flex; gap: 8px; align-items: center; }
+        .num-input { width: 60px; text-align: center; color: #0f0; background: #000; border: none; }
+        button { width: 100%; padding: 15px; background: #00ff00; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
+        #url-out { font-size: 0.6rem; background: #000; padding: 10px; margin-top: 10px; word-break: break-all; color: #00ff00; }
     </style>
 </head>
 <body>
-    <div class="panel">
-        <h3>NEO SZERKESZTŐ</h3>
-        
-        <div class="section">
-            <strong>FŐCÍM</strong>
-            <input type="text" id="cim" value="TESZT" oninput="update()">
-            <label>Méret (Max 6)</label>
-            <div class="row">
-                <input type="range" id="ms" min="1" max="10" step="0.1" value="5" oninput="sync(this, 'ms_n'); update()">
-                <input type="number" id="ms_n" class="num" value="5" oninput="sync(this, 'ms'); update()">
-            </div>
-        </div>
-
-        <div class="section">
-            <strong>KÉP DEKORÁCIÓ (URL)</strong>
-            <input type="text" id="d1url" placeholder="Kép közvetlen linkje (.png, .jpg)" oninput="update()">
-            <label>Pozíció X - Y</label>
-            <div class="row">
-                <input type="range" id="d1x" min="0" max="100" value="50" oninput="update()">
-                <input type="range" id="d1y" min="0" max="100" value="30" oninput="update()">
-            </div>
-            <label>Méret</label>
-            <input type="range" id="d1s" min="5" max="50" value="20" oninput="update()">
-        </div>
-
-        <div id="url-display" style="font-size: 10px; word-break: break-all; color: #666; margin-top: 20px;"></div>
-    </div>
-
-    <div class="preview">
-        <div class="phone"><iframe id="ifr" src="index.html"></iframe></div>
-    </div>
-
-    <script>
-        function sync(s, t) { document.getElementById(t).value = s.value; }
-
-        function update() {
-            const p = new URLSearchParams();
-            p.set('cim', document.getElementById('cim').value);
-            p.set('ms', document.getElementById('ms').value);
-            
-            // Kép adatok küldése
-            const d1url = document.getElementById('d1url').value;
-            if(d1url) {
-                p.set('d1url', d1url);
-                p.set('d1x', document.getElementById('d1x').value);
-                p.set('d1y', document.getElementById('d1y').value);
-                p.set('d1s', document.getElementById('d1s').value);
-            }
-
-            const finalUrl = 'index.html?' + p.toString();
-            document.getElementById('url-display').innerText = finalUrl;
-            document.getElementById('ifr').src = finalUrl;
-        }
-        
-        // Kezdő frissítés
-        setTimeout(update, 500);
-    </script>
-</body>
-    </html>
+<div class="panel">
+    <h2>🛠 NEO COMMANDER</h2>
     
+    <div class="section" style="border-left-color: #0f0;">
+        <strong>FŐCÍM</strong>
+        <input type="text" id="cim" value="SZERETLEK!" oninput="update()">
+        <div class="row">
+            <input type="range" id="ms" min="1" max="10" step="0.1" value="5" oninput="sync(this, 'ms_n'); update()">
+            <input type="number" id="ms_n" class="num-input" value="5" oninput="sync(this, 'ms'); update()">
+        </div>
+        <div class="row">
+            <div><label>X %</label><input type="range" id="mx" value="50" oninput="update()"></div>
+            <div><label>Y %</label><input type="range" id="my" value="40" oninput="update()"></div>
+        </div>
+    </div>
+
+    <div class="section" style="border-left-color: #00d4ff;">
+        <strong>ALCÍM</strong>
+        <input type="text" id="alcim" value="Örökké..." oninput="update()">
+        <div class="row">
+            <input type="range" id="ss" min="1" max="10" step="0.1" value="2.5" oninput="sync(this, 'ss_n'); update()">
+            <input type="number" id="ss_n" class="num-input" value="2.5" oninput="sync(this, 'ss'); update()">
+        </div>
+    </div>
+
+    <div class="section" style="border-left-color: #ff00ff;">
+        <strong>EFFEKT</strong>
+        <select id="eff" onchange="update()"><option value="heart">Szív</option><option value="snow">Hó</option></select>
+        <label>Intenzitás & Méret</label>
+        <div class="row"><input type="range" id="intens" min="1" max="50" value="8" oninput="update()"><input type="range" id="esize" min="1" max="10" step="0.5" value="2" oninput="update()"></div>
+    </div>
+
+    <div class="section" style="border-left-color: #ffaa00;">
+        <strong>KÉP 1 (URL)</strong>
+        <input type="text" id="d1url" placeholder="Kép link..." oninput="update()">
+        <div class="row">
+            <div><label>X%</label><input type="range" id="d1x" value="20" oninput="update()"></div>
+            <div><label>Y%</label><input type="range" id="d1y" value="20" oninput="update()"></div>
+            <div><label>Méret</label><input type="range" id="d1s" value="15" oninput="update()"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <strong>YOUTUBE & MÓD</strong>
+        <input type="text" id="yt" placeholder="YouTube URL" oninput="update()">
+        <select id="mode" onchange="update()"><option value="bgvideo">Háttér</option><option value="video">Ablak</option><option value="zene">Zene</option></select>
+    </div>
+
+    <button onclick="copy()">LINK MÁSOLÁSA</button>
+    <div id="url-out">...</div>
+</div>
+
+<div class="preview"><div class="phone-mockup"><iframe id="ifr" src="index.html"></iframe></div></div>
+
+<script>
+    function sync(s, t) { document.getElementById(t).value = s.value; }
+    function update() {
+        const p = new URLSearchParams();
+        p.set('cim', document.getElementById('cim').value);
+        p.set('alcim', document.getElementById('alcim').value);
+        p.set('ms', document.getElementById('ms').value);
+        p.set('mx', document.getElementById('mx').value);
+        p.set('my', document.getElementById('my').value);
+        p.set('ss', document.getElementById('ss').value);
+        p.set('effect', document.getElementById('eff').value);
+        p.set('intens', document.getElementById('intens').value);
+        p.set('esize', document.getElementById('esize').value);
+        p.set('mode', document.getElementById('mode').value);
+        
+        const d1url = document.getElementById('d1url').value;
+        if(d1url) { p.set('d1url', d1url); p.set('d1x', document.getElementById('d1x').value); p.set('d1y', document.getElementById('d1y').value); p.set('d1s', document.getElementById('d1s').value); }
+        
+        let yt = document.getElementById('yt').value;
+        let m = yt.match(/[?&]v=([^&#]+)/) || yt.match(/youtu\.be\/([^&#]+)/);
+        if(m) p.set('zene', m[1]); else if(yt.length === 11) p.set('zene', yt);
+
+        const final = 'index.html?' + p.toString();
+        document.getElementById('url-out').innerText = final;
+        document.getElementById('ifr').src = final;
+    }
+    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("Másolva!"); }
+    setTimeout(update, 500);
+</script>
+</body>
+                </html>
+                
