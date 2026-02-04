@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEO Project</title>
+    <title>NEO Project - Full</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Dancing+Script:wght@700&family=Pacifico&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -31,9 +31,11 @@
         <div id="sub-title" class="text-box"></div>
         <div id="player-visible"></div>
     </div>
+
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         let isStarted = false;
+
         function applyStyle(el, prefix, defSize, defFont) {
             if(!el) return;
             el.style.left = (urlParams.get(prefix+'x') || 50) + '%';
@@ -42,9 +44,12 @@
             el.style.color = '#' + (urlParams.get(prefix+'c') || '00ff00');
             el.style.fontFamily = urlParams.get(prefix+'f') || defFont;
         }
+
         applyStyle(document.getElementById('main-title'), 'm', 5, 'Orbitron');
         applyStyle(document.getElementById('sub-title'), 's', 2.5, 'Dancing Script');
         document.getElementById('enter-btn').innerText = urlParams.get('btn') || 'INDÍTÁS';
+
+        // Mind a két kép betöltése radius-szal
         for(let i=1; i<=2; i++) {
             let dUrl = urlParams.get('d'+i+'url');
             if(dUrl && dUrl !== "undefined" && dUrl.trim() !== "") {
@@ -58,6 +63,7 @@
                 document.body.appendChild(img);
             }
         }
+
         var player; let isReady = false;
         function onYouTubeIframeAPIReady() {
             const pZene = urlParams.get('zene');
@@ -73,7 +79,9 @@
                 }
             });
         }
+
         function showBtn() { document.getElementById('loader-wrapper').style.display = 'none'; document.getElementById('enter-btn').style.display = 'block'; }
+
         function initializeSystem() {
             isStarted = true;
             document.getElementById('enter-btn').style.display = 'none';
@@ -82,5 +90,47 @@
             const target = document.getElementById('main-title');
             function type() {
                 if(idx < pCim.length) { target.innerHTML += pCim.charAt(idx); idx++; setTimeout(type, 70); }
-                else { document.getElementById('sub
-        
+                else { document.getElementById('sub-title').innerText = urlParams.get('alcim') || ""; }
+            }
+            type(); 
+            if(player) { player.unMute(); player.setVolume(100); player.playVideo(); }
+        }
+
+        const canvas = document.getElementById('canvas-overlay');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas);
+
+        function init() {
+            resizeCanvas();
+            let eff = urlParams.get('effect'), intens = parseInt(urlParams.get('intens')) || 8, es = parseFloat(urlParams.get('esize')) || 2;
+            for (let i = 0; i < intens * 10; i++) {
+                particles.push({ 
+                    x: Math.random()*canvas.width, 
+                    y: Math.random()*canvas.height, 
+                    s: (Math.random()*es + 1) + 'vmax', 
+                    v: Math.random()*1.5 + 0.5, 
+                    char: eff==='heart'?'❤':(eff==='flower'?'🌸':(eff==='snow'?'❄':'●')) 
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,canvas.width, canvas.height); 
+            if(isStarted) {
+                ctx.fillStyle = '#' + (urlParams.get('ec') || 'ffffff');
+                particles.forEach(p => { 
+                    ctx.font = p.s + " Arial"; 
+                    ctx.fillText(p.char, p.x, p.y); 
+                    p.y += p.v; 
+                    if(p.y > canvas.height) p.y = -50; 
+                });
+            }
+            requestAnimationFrame(draw);
+        }
+        init(); draw();
+        var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
+    </script>
+</body>
+</html>
