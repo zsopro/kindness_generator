@@ -53,19 +53,11 @@
             <input type="number" id="ms_n" class="num-input" value="5" oninput="sync(this, 'ms'); update()">
         </div>
         <div class="row">
-            <div>
-                <label>X pozíció %</label>
-                <div class="control-row">
-                    <input type="range" id="mx" min="0" max="100" value="50" oninput="sync(this, 'mx_n'); update()">
-                    <input type="number" id="mx_n" class="num-input" value="50" oninput="sync(this, 'mx'); update()">
-                </div>
+            <div><label>X pozíció %</label>
+                <div class="control-row"><input type="range" id="mx" min="0" max="100" value="50" oninput="sync(this, 'mx_n'); update()"><input type="number" id="mx_n" class="num-input" value="50" oninput="sync(this, 'mx'); update()"></div>
             </div>
-            <div>
-                <label>Y pozíció %</label>
-                <div class="control-row">
-                    <input type="range" id="my" min="0" max="100" value="40" oninput="sync(this, 'my_n'); update()">
-                    <input type="number" id="my_n" class="num-input" value="40" oninput="sync(this, 'my'); update()">
-                </div>
+            <div><label>Y pozíció %</label>
+                <div class="control-row"><input type="range" id="my" min="0" max="100" value="40" oninput="sync(this, 'my_n'); update()"><input type="number" id="my_n" class="num-input" value="40" oninput="sync(this, 'my'); update()"></div>
             </div>
         </div>
     </div>
@@ -75,34 +67,13 @@
         <textarea id="alcim" rows="1" oninput="update()">Örökké és még tovább...</textarea>
         <div class="row">
             <div><label>Szín</label><input type="color" id="sc" value="#ffffff" oninput="update()"></div>
-            <div><label>Betű</label>
-                <select id="sf" onchange="update()">
-                    <option value="Dancing Script">Dancing</option>
-                    <option value="Orbitron">Orbitron</option>
-                    <option value="Pacifico">Pacifico</option>
-                </select>
-            </div>
+            <div><label>Betű</label><select id="sf" onchange="update()"><option value="Dancing Script">Dancing</option><option value="Orbitron">Orbitron</option><option value="Pacifico">Pacifico</option></select></div>
         </div>
         <label>Méret (vmax)</label>
-        <div class="control-row">
-            <input type="range" id="ss" min="0.5" max="10" step="0.1" value="2.5" oninput="sync(this, 'ss_n'); update()">
-            <input type="number" id="ss_n" class="num-input" value="2.5" oninput="sync(this, 'ss'); update()">
-        </div>
+        <div class="control-row"><input type="range" id="ss" min="0.5" max="10" step="0.1" value="2.5" oninput="sync(this, 'ss_n'); update()"><input type="number" id="ss_n" class="num-input" value="2.5" oninput="sync(this, 'ss'); update()"></div>
         <div class="row">
-            <div>
-                <label>X pozíció %</label>
-                <div class="control-row">
-                    <input type="range" id="sx" min="0" max="100" value="50" oninput="sync(this, 'sx_n'); update()">
-                    <input type="number" id="sx_n" class="num-input" value="50" oninput="sync(this, 'sx'); update()">
-                </div>
-            </div>
-            <div>
-                <label>Y pozíció %</label>
-                <div class="control-row">
-                    <input type="range" id="sy" min="0" max="100" value="60" oninput="sync(this, 'sy_n'); update()">
-                    <input type="number" id="sy_n" class="num-input" value="60" oninput="sync(this, 'sy'); update()">
-                </div>
-            </div>
+            <div><label>X pozíció %</label><div class="control-row"><input type="range" id="sx" min="0" max="100" value="50" oninput="sync(this, 'sx_n'); update()"><input type="number" id="sx_n" class="num-input" value="50" oninput="sync(this, 'sx'); update()"></div></div>
+            <div><label>Y pozíció %</label><div class="control-row"><input type="range" id="sy" min="0" max="100" value="60" oninput="sync(this, 'sy_n'); update()"><input type="number" id="sy_n" class="num-input" value="60" oninput="sync(this, 'sy'); update()"></div></div>
         </div>
     </div>
 
@@ -113,15 +84,9 @@
             <div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
         </div>
         <label>Intenzitás</label>
-        <div class="control-row">
-            <input type="range" id="intens" min="1" max="50" value="8" oninput="sync(this, 'intens_n'); update()">
-            <input type="number" id="intens_n" class="num-input" value="8" oninput="sync(this, 'intens'); update()">
-        </div>
+        <div class="control-row"><input type="range" id="intens" min="1" max="50" value="8" oninput="sync(this, 'intens_n'); update()"><input type="number" id="intens_n" class="num-input" value="8" oninput="sync(this, 'intens'); update()"></div>
         <label>Részecske méret</label>
-        <div class="control-row">
-            <input type="range" id="esize" min="0.5" max="10" step="0.1" value="2" oninput="sync(this, 'esize_n'); update()">
-            <input type="number" id="esize_n" class="num-input" value="2" oninput="sync(this, 'esize'); update()">
-        </div>
+        <div class="control-row"><input type="range" id="esize" min="0.5" max="10" step="0.1" value="2" oninput="sync(this, 'esize_n'); update()"><input type="number" id="esize_n" class="num-input" value="2" oninput="sync(this, 'esize'); update()"></div>
     </div>
 
     <div class="section">
@@ -131,14 +96,14 @@
             <div><label>X%</label><input type="number" id="d1x" value="20" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Y%</label><input type="number" id="d1y" value="20" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Mér%</label><input type="number" id="d1s" value="15" oninput="update()" class="num-input" style="width:100%"></div>
-            <div><label>Sug%</label><input type="number" id="d1r" value="0" min="0" max="50" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Sug%</label><input type="number" id="d1r" value="0" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
         <input type="text" id="d2url" placeholder="Kép 2 (URL)" oninput="update()" style="margin-top:10px">
         <div class="row">
             <div><label>X%</label><input type="number" id="d2x" value="80" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Y%</label><input type="number" id="d2y" value="20" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Mér%</label><input type="number" id="d2s" value="15" oninput="update()" class="num-input" style="width:100%"></div>
-            <div><label>Sug%</label><input type="number" id="d2r" value="0" min="0" max="50" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Sug%</label><input type="number" id="d2r" value="0" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
     </div>
 
@@ -162,7 +127,6 @@
 
 <script>
     function sync(source, targetId) { document.getElementById(targetId).value = source.value; }
-
     function update() {
         const p = new URLSearchParams();
         p.set('btn', document.getElementById('btn_text').value);
@@ -183,26 +147,22 @@
         p.set('intens', document.getElementById('intens').value);
         p.set('esize', document.getElementById('esize').value);
         p.set('mode', document.getElementById('mode').value);
-        
-        for(let i=1; i<=2; i++) {
+        for(let i=1; i<=2; i++){
             p.set('d'+i+'url', document.getElementById('d'+i+'url').value);
             p.set('d'+i+'x', document.getElementById('d'+i+'x').value);
             p.set('d'+i+'y', document.getElementById('d'+i+'y').value);
             p.set('d'+i+'s', document.getElementById('d'+i+'s').value);
             p.set('d'+i+'r', document.getElementById('d'+i+'r').value);
         }
-
         let ytUrl = document.getElementById('yt').value;
         const reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
         const match = ytUrl.match(reg);
         if(match && match[2].length === 11) p.set('zene', match[2]); else if(ytUrl.length === 11) p.set('zene', ytUrl);
-
         const final = 'index.html?' + p.toString();
         document.getElementById('url-out').innerText = final;
         document.getElementById('ifr').src = final;
     }
-
-    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("Link másolva!"); }
+    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("Másolva!"); }
     setTimeout(update, 500);
 </script>
 </body>
