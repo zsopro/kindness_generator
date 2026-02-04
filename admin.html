@@ -2,103 +2,175 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO Admin - Complete Control</title>
+    <title>NEO Admin - Precision Control</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; height: 100vh; margin: 0; }
-        .panel { width: 480px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; height: 100vh; }
-        .preview { flex: 1; background: #000; position: relative; }
+        .panel { width: 520px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; }
+        .preview { flex: 1; background: #000; display: flex; align-items: center; justify-content: center; }
+        .phone-mockup { width: 360px; height: 740px; border: 10px solid #333; border-radius: 30px; overflow: hidden; background: #000; }
         iframe { width: 100%; height: 100%; border: none; }
-        h2 { color: #00ff00; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; }
         .section { background: #252525; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #444; }
         .section.main { border-left-color: #00ff00; }
         .section.sub { border-left-color: #00d4ff; }
-        .section.deco { border-left-color: #ffaa00; }
+        .section.eff { border-left-color: #ff00ff; }
         label { display: block; margin-top: 8px; color: #aaa; font-size: 0.65rem; text-transform: uppercase; }
         input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; }
+        
+        /* Számmező stílusa */
+        .num-input { width: 55px; text-align: center; background: #444; border: none; font-weight: bold; color: #00ff00; }
+        .control-row { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+        .control-row input[type="range"] { flex: 1; }
+        
         .row { display: flex; gap: 8px; }
         .row div { flex: 1; }
-        button { width: 100%; padding: 15px; background: #00ff00; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; border-radius: 5px; }
+        button { width: 100%; padding: 15px; background: #00ff00; border: none; font-weight: bold; margin-top: 10px; cursor: pointer; border-radius: 5px; text-transform: uppercase; }
         #url-out { font-size: 0.6rem; background: #000; padding: 10px; margin-top: 10px; word-break: break-all; color: #00ff00; border: 1px dashed #333; }
     </style>
 </head>
 <body>
 
 <div class="panel">
-    <h2>🛠 NEO COMMANDER V2</h2>
+    <h2>🛠 NEO PRECISION CONTROL</h2>
     
     <div class="section">
-        <strong>FŐ INDÍTÓGOMB</strong>
+        <strong>INDÍTÓGOMB</strong>
         <input type="text" id="btn_text" value="RENDSZER INDÍTÁSA" oninput="update()">
     </div>
 
     <div class="section main">
-        <strong>FŐCÍM SZEKCIÓ</strong>
+        <strong>FŐCÍM</strong>
         <input type="text" id="cim" value="SZERETLEK!" oninput="update()">
         <div class="row">
             <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
-            <div><label>Méret %</label><input type="range" id="ms" min="1" max="25" value="8" oninput="update()"></div>
+            <div><label>Betű</label>
+                <select id="mf" onchange="update()">
+                    <option value="Orbitron">Orbitron</option>
+                    <option value="Pacifico">Pacifico</option>
+                    <option value="Dancing Script">Dancing</option>
+                </select>
+            </div>
+        </div>
+        <label>Méret (vmax)</label>
+        <div class="control-row">
+            <input type="range" id="ms" min="1" max="20" step="0.5" value="5" oninput="sync(this, 'ms_n'); update()">
+            <input type="number" id="ms_n" class="num-input" value="5" oninput="sync(this, 'ms'); update()">
         </div>
         <div class="row">
-            <div><label>X %</label><input type="range" id="mx" value="50" oninput="update()"></div>
-            <div><label>Y %</label><input type="range" id="my" value="40" oninput="update()"></div>
+            <div>
+                <label>X pozíció %</label>
+                <div class="control-row">
+                    <input type="range" id="mx" min="0" max="100" value="50" oninput="sync(this, 'mx_n'); update()">
+                    <input type="number" id="mx_n" class="num-input" value="50" oninput="sync(this, 'mx'); update()">
+                </div>
+            </div>
+            <div>
+                <label>Y pozíció %</label>
+                <div class="control-row">
+                    <input type="range" id="my" min="0" max="100" value="40" oninput="sync(this, 'my_n'); update()">
+                    <input type="number" id="my_n" class="num-input" value="40" oninput="sync(this, 'my'); update()">
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="section sub">
-        <strong>ALCÍM SZEKCIÓ</strong>
-        <textarea id="alcim" rows="2" oninput="update()">Örökké és még tovább...</textarea>
+        <strong>ALCÍM</strong>
+        <textarea id="alcim" rows="1" oninput="update()">Örökké és még tovább...</textarea>
         <div class="row">
             <div><label>Szín</label><input type="color" id="sc" value="#ffffff" oninput="update()"></div>
-            <div><label>Méret %</label><input type="range" id="ss" min="1" max="15" value="4" oninput="update()"></div>
+            <div><label>Betű</label>
+                <select id="sf" onchange="update()">
+                    <option value="Dancing Script">Dancing</option>
+                    <option value="Orbitron">Orbitron</option>
+                    <option value="Pacifico">Pacifico</option>
+                </select>
+            </div>
+        </div>
+        <label>Méret (vmax)</label>
+        <div class="control-row">
+            <input type="range" id="ss" min="0.5" max="10" step="0.1" value="2.5" oninput="sync(this, 'ss_n'); update()">
+            <input type="number" id="ss_n" class="num-input" value="2.5" oninput="sync(this, 'ss'); update()">
         </div>
         <div class="row">
-            <div><label>X %</label><input type="range" id="sx" value="50" oninput="update()"></div>
-            <div><label>Y %</label><input type="range" id="sy" value="60" oninput="update()"></div>
+            <div>
+                <label>X pozíció %</label>
+                <div class="control-row">
+                    <input type="range" id="sx" min="0" max="100" value="50" oninput="sync(this, 'sx_n'); update()">
+                    <input type="number" id="sx_n" class="num-input" value="50" oninput="sync(this, 'sx'); update()">
+                </div>
+            </div>
+            <div>
+                <label>Y pozíció %</label>
+                <div class="control-row">
+                    <input type="range" id="sy" min="0" max="100" value="60" oninput="sync(this, 'sy_n'); update()">
+                    <input type="number" id="sy_n" class="num-input" value="60" oninput="sync(this, 'sy'); update()">
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="section deco">
-        <strong>KÉP DEKORÁCIÓ 1 (Link)</strong>
-        <input type="text" id="d1url" placeholder="PNG/GIF URL" oninput="update()">
+    <div class="section eff">
+        <strong>EFFEKT SZERKESZTŐ</strong>
         <div class="row">
-            <div><label>X%</label><input type="range" id="d1x" value="20" oninput="update()"></div>
-            <div><label>Y%</label><input type="range" id="d1y" value="20" oninput="update()"></div>
-            <div><label>Szél%</label><input type="range" id="d1s" min="5" max="80" value="20" oninput="update()"></div>
+            <div><label>Típus</label><select id="eff" onchange="update()"><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option></select></div>
+            <div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
         </div>
-        <br>
-        <strong>KÉP DEKORÁCIÓ 2 (Link)</strong>
-        <input type="text" id="d2url" placeholder="PNG/GIF URL" oninput="update()">
-        <div class="row">
-            <div><label>X%</label><input type="range" id="d2x" value="80" oninput="update()"></div>
-            <div><label>Y%</label><input type="range" id="d2y" value="20" oninput="update()"></div>
-            <div><label>Szél%</label><input type="range" id="d2s" min="5" max="80" value="20" oninput="update()"></div>
+        <label>Intenzitás</label>
+        <div class="control-row">
+            <input type="range" id="intens" min="1" max="50" value="8" oninput="sync(this, 'intens_n'); update()">
+            <input type="number" id="intens_n" class="num-input" value="8" oninput="sync(this, 'intens'); update()">
+        </div>
+        <label>Részecske méret</label>
+        <div class="control-row">
+            <input type="range" id="esize" min="0.5" max="10" step="0.1" value="2" oninput="sync(this, 'esize_n'); update()">
+            <input type="number" id="esize_n" class="num-input" value="2" oninput="sync(this, 'esize'); update()">
         </div>
     </div>
 
     <div class="section">
-        <strong>MÉDIA & EFFEKTEK</strong>
+        <strong>KÉP DEKORÁCIÓK</strong>
+        <input type="text" id="d1url" placeholder="Kép 1 (URL)" oninput="update()">
         <div class="row">
-            <div><label>Effekt</label><select id="eff" onchange="update()"><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option></select></div>
-            <div><label>Effekt Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
+            <div><label>X%</label><input type="number" id="d1x" value="20" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Y%</label><input type="number" id="d1y" value="20" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Méret%</label><input type="number" id="d1s" value="15" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
-        <label>YouTube Link</label><input type="text" id="yt" oninput="update()">
+        <input type="text" id="d2url" placeholder="Kép 2 (URL)" oninput="update()" style="margin-top:10px">
+        <div class="row">
+            <div><label>X%</label><input type="number" id="d2x" value="80" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Y%</label><input type="number" id="d2y" value="20" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Méret%</label><input type="number" id="d2s" value="15" oninput="update()" class="num-input" style="width:100%"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <strong>MÉDIA</strong>
+        <label>YouTube Link</label>
+        <input type="text" id="yt" placeholder="URL vagy ID" oninput="update()">
         <label>Mód</label>
         <select id="mode" onchange="update()">
             <option value="bgvideo">Háttérvideó</option>
-            <option value="video">Kis lejátszó ablak</option>
+            <option value="video">Kis ablak</option>
             <option value="zene">Csak zene</option>
         </select>
     </div>
 
     <button onclick="copy()">LINK MÁSOLÁSA</button>
-    <div id="url-out">Töltés...</div>
+    <div id="url-out">...</div>
 </div>
 
 <div class="preview">
-    <iframe id="ifr" src="index.html"></iframe>
+    <div class="phone-mockup">
+        <iframe id="ifr" src="index.html"></iframe>
+    </div>
 </div>
 
 <script>
+    // Szinkronizáló függvény a csúszka és a számmező között
+    function sync(source, targetId) {
+        document.getElementById(targetId).value = source.value;
+    }
+
     function update() {
         const base = window.location.href.replace('admin.html', 'index.html');
         const p = new URLSearchParams();
@@ -107,23 +179,32 @@
         p.set('cim', document.getElementById('cim').value);
         p.set('mc', document.getElementById('mc').value.replace('#',''));
         p.set('ms', document.getElementById('ms').value);
+        p.set('mf', document.getElementById('mf').value);
         p.set('mx', document.getElementById('mx').value);
         p.set('my', document.getElementById('my').value);
+        
         p.set('alcim', document.getElementById('alcim').value);
         p.set('sc', document.getElementById('sc').value.replace('#',''));
         p.set('ss', document.getElementById('ss').value);
+        p.set('sf', document.getElementById('sf').value);
         p.set('sx', document.getElementById('sx').value);
         p.set('sy', document.getElementById('sy').value);
+        
+        p.set('effect', document.getElementById('eff').value);
+        p.set('ec', document.getElementById('ec').value.replace('#',''));
+        p.set('intens', document.getElementById('intens').value);
+        p.set('esize', document.getElementById('esize').value);
+        
         p.set('d1url', document.getElementById('d1url').value);
         p.set('d1x', document.getElementById('d1x').value);
         p.set('d1y', document.getElementById('d1y').value);
         p.set('d1s', document.getElementById('d1s').value);
+        
         p.set('d2url', document.getElementById('d2url').value);
         p.set('d2x', document.getElementById('d2x').value);
         p.set('d2y', document.getElementById('d2y').value);
         p.set('d2s', document.getElementById('d2s').value);
-        p.set('effect', document.getElementById('eff').value);
-        p.set('ec', document.getElementById('ec').value.replace('#',''));
+        
         p.set('mode', document.getElementById('mode').value);
         
         let ytUrl = document.getElementById('yt').value;
@@ -135,8 +216,15 @@
         document.getElementById('url-out').innerText = final;
         document.getElementById('ifr').src = final;
     }
-    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("URL Másolva!"); }
-    setTimeout(update, 800);
+
+    function copy() {
+        navigator.clipboard.writeText(document.getElementById('url-out').innerText);
+        alert("Link a vágólapra másolva!");
+    }
+
+    setTimeout(update, 500);
 </script>
+
 </body>
-</html>
+                </html>
+        
