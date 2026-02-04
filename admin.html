@@ -2,17 +2,14 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO Admin - Működő Link & Előnézet</title>
+    <title>NEO Admin - Működő Előnézet</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; height: 100vh; margin: 0; }
-        .panel { width: 520px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; }
+        .panel { width: 500px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; }
         .preview { flex: 1; background: #000; display: flex; align-items: center; justify-content: center; }
         .phone-mockup { width: 360px; height: 740px; border: 10px solid #333; border-radius: 30px; overflow: hidden; background: #000; position: relative; }
         iframe { width: 100%; height: 100%; border: none; }
-        .section { background: #252525; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #444; }
-        .section.main { border-left-color: #00ff00; }
-        .section.sub { border-left-color: #00d4ff; }
-        .section.eff { border-left-color: #ff00ff; }
+        .section { background: #252525; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #444; }
         label { display: block; margin-top: 8px; color: #aaa; font-size: 0.65rem; text-transform: uppercase; }
         input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; }
         .num-input { width: 60px; text-align: center; background: #444; border: none; font-weight: bold; color: #00ff00; }
@@ -23,27 +20,13 @@
     </style>
 </head>
 <body>
-
 <div class="panel">
-    <h2>🛠 NEO CONTROL CENTER</h2>
-    
-    <div class="section">
-        <strong>INDÍTÓGOMB</strong>
-        <input type="text" id="btn_text" value="RENDSZER INDÍTÁSA" oninput="update()">
-    </div>
-
-    <div class="section main">
-        <strong>FŐCÍM</strong>
-        <input type="text" id="cim" value="SZERETLEK!" oninput="update()">
+    <h2>🛠 NEO ADMIN</h2>
+    <div class="section"><strong>GOMB SZÖVEG</strong><input type="text" id="btn_text" value="RENDSZER INDÍTÁSA" oninput="update()"></div>
+    <div class="section" style="border-left-color:#0f0"><strong>FŐCÍM</strong><input type="text" id="cim" value="SZERETLEK!" oninput="update()">
         <div class="row">
             <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
-            <div><label>Betű</label>
-                <select id="mf" onchange="update()">
-                    <option value="Orbitron">Orbitron</option>
-                    <option value="Pacifico">Pacifico</option>
-                    <option value="Dancing Script">Dancing</option>
-                </select>
-            </div>
+            <div><label>Betű</label><select id="mf" onchange="update()"><option value="Orbitron">Orbitron</option><option value="Pacifico">Pacifico</option><option value="Dancing Script">Dancing</option></select></div>
         </div>
         <div class="row">
             <div><label>Méret</label><input type="number" id="ms" value="5" step="0.5" oninput="update()" class="num-input" style="width:100%"></div>
@@ -51,10 +34,7 @@
             <div><label>Y%</label><input type="number" id="my" value="40" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
     </div>
-
-    <div class="section sub">
-        <strong>ALCÍM</strong>
-        <textarea id="alcim" rows="1" oninput="update()">Örökké és még tovább...</textarea>
+    <div class="section" style="border-left-color:#0df"><strong>ALCÍM</strong><textarea id="alcim" rows="1" oninput="update()">Örökké és még tovább...</textarea>
         <div class="row">
             <div><label>Szín</label><input type="color" id="sc" value="#ffffff" oninput="update()"></div>
             <div><label>X%</label><input type="number" id="sx" value="50" oninput="update()" class="num-input" style="width:100%"></div>
@@ -62,17 +42,9 @@
             <div><label>Méret</label><input type="number" id="ss" value="2.5" step="0.1" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
     </div>
-
-    <div class="section eff">
-        <strong>EFFEKT</strong>
+    <div class="section" style="border-left-color:#f0f"><strong>EFFEKT</strong>
         <div class="row">
-            <div><label>Típus</label>
-                <select id="eff" onchange="update()">
-                    <option value="heart">Szív</option>
-                    <option value="snow">Hó</option>
-                    <option value="flower">Virág</option>
-                </select>
-            </div>
+            <div><label>Típus</label><select id="eff" onchange="update()"><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option></select></div>
             <div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
         </div>
         <div class="row">
@@ -80,54 +52,36 @@
             <div><label>Méret</label><input type="number" id="esize" value="2" step="0.1" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
     </div>
-
-    <div class="section">
-        <strong>KÉPEK & RADIUS</strong>
+    <div class="section"><strong>KÉPEK</strong>
         <label>Kép 1 URL</label><input type="text" id="d1url" oninput="update()">
         <div class="row">
             <div><label>X%</label><input type="number" id="d1x" value="20" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Y%</label><input type="number" id="d1y" value="20" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>S%</label><input type="number" id="d1s" value="15" oninput="update()" class="num-input" style="width:100%"></div>
-            <div><label>R%</label><input type="number" id="d1r" value="0" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>R% (Rad)</label><input type="number" id="d1r" value="0" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
-        <label style="margin-top:5px">Kép 2 URL</label><input type="text" id="d2url" oninput="update()">
+        <label>Kép 2 URL</label><input type="text" id="d2url" oninput="update()">
         <div class="row">
             <div><label>X%</label><input type="number" id="d2x" value="80" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Y%</label><input type="number" id="d2y" value="20" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>S%</label><input type="number" id="d2s" value="15" oninput="update()" class="num-input" style="width:100%"></div>
-            <div><label>R%</label><input type="number" id="d2r" value="0" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>R% (Rad)</label><input type="number" id="d2r" value="0" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
     </div>
-
-    <div class="section">
-        <strong>MÉDIA</strong>
+    <div class="section"><strong>MÉDIA</strong>
         <input type="text" id="yt" value="YgQPz42mUH0" oninput="update()">
-        <select id="mode" onchange="update()">
-            <option value="bgvideo">Háttérvideó</option>
-            <option value="video">Kis ablak</option>
-            <option value="zene">Csak zene</option>
-        </select>
+        <select id="mode" onchange="update()"><option value="bgvideo">Háttér</option><option value="video">Ablak</option><option value="zene">Zene</option></select>
     </div>
-
     <button onclick="copy()">LINK MÁSOLÁSA</button>
     <div id="url-out">...</div>
 </div>
-
-<div class="preview">
-    <div class="phone-mockup">
-        <iframe id="ifr" src="index.html" allow="autoplay; encrypted-media"></iframe>
-    </div>
-</div>
-
+<div class="preview"><div class="phone-mockup"><iframe id="ifr" src="index.html"></iframe></div></div>
 <script>
-    let lastVid = ""; 
     let db;
-
     function update() {
         clearTimeout(db);
         db = setTimeout(() => {
             const p = new URLSearchParams();
-            
             p.set('btn', document.getElementById('btn_text').value);
             p.set('cim', document.getElementById('cim').value);
             p.set('mc', document.getElementById('mc').value.replace('#',''));
@@ -135,15 +89,50 @@
             p.set('mf', document.getElementById('mf').value);
             p.set('mx', document.getElementById('mx').value);
             p.set('my', document.getElementById('my').value);
-            
             p.set('alcim', document.getElementById('alcim').value);
             p.set('sc', document.getElementById('sc').value.replace('#',''));
             p.set('ss', document.getElementById('ss').value);
             p.set('sf', document.getElementById('sf').value);
             p.set('sx', document.getElementById('sx').value);
             p.set('sy', document.getElementById('sy').value);
-            
             p.set('effect', document.getElementById('eff').value);
             p.set('ec', document.getElementById('ec').value.replace('#',''));
-            p
-    
+            p.set('intens', document.getElementById('intens').value);
+            p.set('esize', document.getElementById('esize').value);
+            p.set('mode', document.getElementById('mode').value);
+            for(let i=1; i<=2; i++){
+                p.set('d'+i+'url', document.getElementById('d'+i+'url').value);
+                p.set('d'+i+'x', document.getElementById('d'+i+'x').value);
+                p.set('d'+i+'y', document.getElementById('d'+i+'y').value);
+                p.set('d'+i+'s', document.getElementById('d'+i+'s').value);
+                p.set('d'+i+'r', document.getElementById('d'+i+'r').value);
+            }
+            let v = document.getElementById('yt').value;
+            let m = v.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+            let id = (m && m[2].length===11) ? m[2] : v;
+            p.set('zene', id);
+
+            const queryString = p.toString();
+            // Ez a rész garantálja, hogy a fájlrendszerben is működjön az előnézet
+            const previewUrl = "index.html?" + queryString;
+            document.getElementById('ifr').src = previewUrl;
+
+            // Link generálás a másoláshoz (webes formátum)
+            let currentUrl = window.location.href.split('?')[0].replace('admin.html', 'index.html');
+            document.getElementById('url-out').innerText = currentUrl + "?" + queryString;
+        }, 300);
+    }
+    function copy() {
+        const text = document.getElementById('url-out').innerText;
+        const dummy = document.createElement("textarea");
+        document.body.appendChild(dummy);
+        dummy.value = text;
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+        alert("Link a vágólapra másolva!");
+    }
+    window.onload = update;
+</script>
+</body>
+</html>
