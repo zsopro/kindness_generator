@@ -7,7 +7,7 @@
         body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; height: 100vh; margin: 0; }
         .panel { width: 520px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #333; }
         .preview { flex: 1; background: #000; display: flex; align-items: center; justify-content: center; }
-        .phone-mockup { width: 360px; height: 740px; border: 10px solid #333; border-radius: 30px; overflow: hidden; background: #000; }
+        .phone-mockup { width: 360px; height: 740px; border: 10px solid #333; border-radius: 30px; overflow: hidden; background: #000; position: relative; }
         iframe { width: 100%; height: 100%; border: none; }
         .section { background: #252525; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #444; }
         .section.main { border-left-color: #00ff00; }
@@ -53,12 +53,8 @@
             <input type="number" id="ms_n" class="num-input" value="5" oninput="sync(this, 'ms'); update()">
         </div>
         <div class="row">
-            <div><label>X pozíció %</label>
-                <div class="control-row"><input type="range" id="mx" min="0" max="100" value="50" oninput="sync(this, 'mx_n'); update()"><input type="number" id="mx_n" class="num-input" value="50" oninput="sync(this, 'mx'); update()"></div>
-            </div>
-            <div><label>Y pozíció %</label>
-                <div class="control-row"><input type="range" id="my" min="0" max="100" value="40" oninput="sync(this, 'my_n'); update()"><input type="number" id="my_n" class="num-input" value="40" oninput="sync(this, 'my'); update()"></div>
-            </div>
+            <div><label>X pozíció %</label><div class="control-row"><input type="range" id="mx" min="0" max="100" value="50" oninput="sync(this, 'mx_n'); update()"><input type="number" id="mx_n" class="num-input" value="50" oninput="sync(this, 'mx'); update()"></div></div>
+            <div><label>Y pozíció %</label><div class="control-row"><input type="range" id="my" min="0" max="100" value="40" oninput="sync(this, 'my_n'); update()"><input type="number" id="my_n" class="num-input" value="40" oninput="sync(this, 'my'); update()"></div></div>
         </div>
     </div>
 
@@ -78,7 +74,7 @@
     </div>
 
     <div class="section eff">
-        <strong>EFFEKT SZERKESZTŐ</strong>
+        <strong>EFFEKT SZERKESZTŐ (LEGFELSŐ RÉTEG)</strong>
         <div class="row">
             <div><label>Típus</label><select id="eff" onchange="update()"><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option></select></div>
             <div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
@@ -96,14 +92,14 @@
             <div><label>X%</label><input type="number" id="d1x" value="20" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Y%</label><input type="number" id="d1y" value="20" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Mér%</label><input type="number" id="d1s" value="15" oninput="update()" class="num-input" style="width:100%"></div>
-            <div><label>Sug%</label><input type="number" id="d1r" value="0" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Sug%</label><input type="number" id="d1r" value="0" min="0" max="50" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
         <input type="text" id="d2url" placeholder="Kép 2 (URL)" oninput="update()" style="margin-top:10px">
         <div class="row">
             <div><label>X%</label><input type="number" id="d2x" value="80" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Y%</label><input type="number" id="d2y" value="20" oninput="update()" class="num-input" style="width:100%"></div>
             <div><label>Mér%</label><input type="number" id="d2s" value="15" oninput="update()" class="num-input" style="width:100%"></div>
-            <div><label>Sug%</label><input type="number" id="d2r" value="0" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Sug%</label><input type="number" id="d2r" value="0" min="0" max="50" oninput="update()" class="num-input" style="width:100%"></div>
         </div>
     </div>
 
@@ -134,19 +130,18 @@
         p.set('mc', document.getElementById('mc').value.replace('#',''));
         p.set('ms', document.getElementById('ms').value);
         p.set('mf', document.getElementById('mf').value);
-        p.set('mx', document.getElementById('mx').value);
-        p.set('my', document.getElementById('my').value);
+        p.set('mx', document.getElementById('mx').value); p.set('my', document.getElementById('my').value);
         p.set('alcim', document.getElementById('alcim').value);
         p.set('sc', document.getElementById('sc').value.replace('#',''));
         p.set('ss', document.getElementById('ss').value);
         p.set('sf', document.getElementById('sf').value);
-        p.set('sx', document.getElementById('sx').value);
-        p.set('sy', document.getElementById('sy').value);
+        p.set('sx', document.getElementById('sx').value); p.set('sy', document.getElementById('sy').value);
         p.set('effect', document.getElementById('eff').value);
         p.set('ec', document.getElementById('ec').value.replace('#',''));
         p.set('intens', document.getElementById('intens').value);
         p.set('esize', document.getElementById('esize').value);
         p.set('mode', document.getElementById('mode').value);
+        
         for(let i=1; i<=2; i++){
             p.set('d'+i+'url', document.getElementById('d'+i+'url').value);
             p.set('d'+i+'x', document.getElementById('d'+i+'x').value);
@@ -154,16 +149,19 @@
             p.set('d'+i+'s', document.getElementById('d'+i+'s').value);
             p.set('d'+i+'r', document.getElementById('d'+i+'r').value);
         }
+
         let ytUrl = document.getElementById('yt').value;
         const reg = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
         const match = ytUrl.match(reg);
         if(match && match[2].length === 11) p.set('zene', match[2]); else if(ytUrl.length === 11) p.set('zene', ytUrl);
+
         const final = 'index.html?' + p.toString();
         document.getElementById('url-out').innerText = final;
         document.getElementById('ifr').src = final;
     }
-    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("Másolva!"); }
+    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("Link másolva!"); }
     setTimeout(update, 500);
 </script>
 </body>
-</html>
+                                                                                                                                                                        </html>
+    
