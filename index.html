@@ -25,7 +25,7 @@
     <div id="overlay"></div>
     <canvas id="canvas-overlay"></canvas>
     <div id="content-wrapper">
-        <div id="loader-wrapper"><p>NEO BETÖLTÉS...</p></div>
+        <div id="loader-wrapper"><p>NEO RENDSZER BETÖLTÉSE...</p></div>
         <button id="enter-btn" onclick="initializeSystem()"></button>
         <h1 id="main-title" class="text-box"></h1>
         <div id="sub-title" class="text-box"></div>
@@ -69,22 +69,49 @@
             const pMode = urlParams.get('mode') || 'zene';
             if(!pZene) { showBtn(); return; }
             if(pMode === 'bgvideo') document.getElementById('video-bg-wrapper').style.display = 'block';
+            
             player = new YT.Player(pMode === 'bgvideo' ? 'yt-placeholder' : 'player-visible', {
                 videoId: pZene,
-                playerVars: { 'autoplay': 1, 'mute': 1, 'loop': 1, 'playlist': pZene, 'controls': 0, 'playsinline': 1 },
+                playerVars: { 
+                    'autoplay': 1, 
+                    'mute': 1, 
+                    'loop': 1, 
+                    'playlist': pZene, 
+                    'controls': 0, 
+                    'playsinline': 1,
+                    'enablejsapi': 1 
+                },
                 events: { 
-                    'onReady': () => { setTimeout(() => { if(!isReady) { isReady = true; showBtn(); } }, 2000); },
-                    'onStateChange': (e) => { if(e.data == YT.PlayerState.PLAYING && !isReady) { player.pauseVideo(); player.seekTo(0); isReady = true; showBtn(); } } 
+                    'onReady': () => { isReady = true; showBtn(); },
+                    'onStateChange': (e) => { if(e.data == YT.PlayerState.PLAYING && !isStarted) { player.pauseVideo(); } }
                 }
             });
         }
 
-        function showBtn() { document.getElementById('loader-wrapper').style.display = 'none'; document.getElementById('enter-btn').style.display = 'block'; }
+        function showBtn() { 
+            document.getElementById('loader-wrapper').style.display = 'none'; 
+            document.getElementById('enter-btn').style.display = 'block'; 
+        }
 
         function initializeSystem() {
             isStarted = true;
             document.getElementById('enter-btn').style.display = 'none';
             if(urlParams.get('mode') === 'video') document.getElementById('player-visible').style.display = 'block';
+            
+            // Hang kikényszerítése: Újraindítjuk a videót hanggal a felhasználói kattintás hatására
+            if(player && player.unMute) {
+                player.unMute();
+                player.setVolume(100);
+                player.playVideo();
+                
+                // Extra biztonsági kör: ha a böngésző még mindig ellenállna
+                setTimeout(() => {
+                    if (player.getPlayerState() !== 1) { // 1 = PLAYING
+                        player.playVideo();
+                    }
+                }, 100);
+            }
+
             let idx = 0; const pCim = urlParams.get('cim') || "";
             const target = document.getElementById('main-title');
             function type() {
@@ -92,29 +119,23 @@
                 else { document.getElementById('sub-title').innerText = urlParams.get('alcim') || ""; }
             }
             type(); 
-            if(player) { player.unMute(); player.setVolume(100); player.playVideo(); }
         }
 
+        // --- Effekt Logika ---
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
 
-        function init() {
-            resizeCanvas();
+        function initEff() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             let eff = urlParams.get('effect'), intens = parseInt(urlParams.get('intens')) || 8, es = parseFloat(urlParams.get('esize')) || 2;
-            if(eff === 'none') return;
-            const chars = { 
-                heart: '❤', snow: '❄', flower: '🌸', 
-                grad: '🎓', bday: '🎉', party: '🥂' 
-            };
+            if(!eff || eff === 'none') return;
+            const chars = { heart: '❤', snow: '❄', flower: '🌸', grad: '🎓', bday: '🎉', party: '🥂' };
             for (let i = 0; i < intens * 10; i++) {
                 particles.push({ 
-                    x: Math.random()*canvas.width, 
-                    y: Math.random()*canvas.height, 
-                    s: (Math.random()*es + 1) + 'vmax', 
-                    v: Math.random()*1.5 + 0.5, 
+                    x: Math.random()*canvas.width, y: Math.random()*canvas.height, 
+                    s: (Math.random()*es + 1) + 'vmax', v: Math.random()*1.5 + 0.5, 
                     char: chars[eff] || '●',
                     color: eff === 'bday' ? `hsl(${Math.random()*360}, 100%, 50%)` : null
                 });
@@ -135,7 +156,7 @@
             }
             requestAnimationFrame(draw);
         }
-        init(); draw();
+        initEff(); draw();
         var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
     </script>
 </body>
