@@ -74,7 +74,7 @@
     </div>
 
     <div class="section eff">
-        <strong>EFFEKT SZERKESZTŐ (LEGFELSŐ RÉTEG)</strong>
+        <strong>EFFEKT SZERKESZTŐ</strong>
         <div class="row">
             <div><label>Típus</label><select id="eff" onchange="update()"><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option></select></div>
             <div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
@@ -119,11 +119,16 @@
     <div id="url-out">...</div>
 </div>
 
-<div class="preview"><div class="phone-mockup"><iframe id="ifr" src="index.html"></iframe></div></div>
+<div class="preview"><div class="phone-mockup"><iframe id="ifr"></iframe></div></div>
 
 <script>
     function sync(source, targetId) { document.getElementById(targetId).value = source.value; }
     function update() {
+        // Dinamikus bázis URL meghatározása
+        const currentPath = window.location.pathname;
+        const basePath = currentPath.substring(0, currentPath.lastIndexOf('/')) || '';
+        const base = window.location.origin + basePath + '/index.html';
+
         const p = new URLSearchParams();
         p.set('btn', document.getElementById('btn_text').value);
         p.set('cim', document.getElementById('cim').value);
@@ -155,7 +160,7 @@
         const match = ytUrl.match(reg);
         if(match && match[2].length === 11) p.set('zene', match[2]); else if(ytUrl.length === 11) p.set('zene', ytUrl);
 
-        const final = 'index.html?' + p.toString();
+        const final = base + '?' + p.toString();
         document.getElementById('url-out').innerText = final;
         document.getElementById('ifr').src = final;
     }
@@ -163,5 +168,5 @@
     setTimeout(update, 500);
 </script>
 </body>
-                                                                                                                                                                        </html>
-    
+                                                                        </html>
+                                                                        
