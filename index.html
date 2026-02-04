@@ -7,47 +7,45 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Dancing+Script:wght@700&family=Pacifico&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; position: fixed; font-family: 'Orbitron', sans-serif; }
-        #video-bg-wrapper { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; overflow: hidden; pointer-events: none; display: none; }
+        body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; position: fixed; }
+        #video-bg-wrapper { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; display: none; }
         #yt-placeholder { position: absolute; top: 50%; left: 50%; width: 150vw !important; height: 150vh !important; transform: translate(-50%, -50%); }
-        #bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 2; }
-        #canvas-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 3; pointer-events: none; }
+        
+        /* EFFEKT RÉTEG - MOST MÁR MINDEN FELETT (z-index: 20) */
+        #canvas-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 20; pointer-events: none; }
+        
         #content-wrapper { position: relative; z-index: 10; width: 100%; height: 100vh; pointer-events: none; }
-        .text-box { position: absolute; transform: translate(-50%, -50%); text-align: center; width: 95%; pointer-events: none; line-height: 1.1; }
-        #enter-btn { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 35px; background: rgba(0,0,0,0.9); border: 2px solid #00ff00; color: #00ff00; cursor: pointer; z-index: 100; pointer-events: auto; box-shadow: 0 0 15px #00ff00; }
-        #player-visible { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); border: 2px solid #00ff00; display: none; z-index: 11; width: 280px; height: 158px; pointer-events: auto; }
-        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); object-fit: cover; }
+        .text-box { position: absolute; transform: translate(-50%, -50%); text-align: center; width: 95%; pointer-events: none; }
+        #enter-btn { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 35px; background: rgba(0,0,0,0.9); border: 2px solid #00ff00; color: #00ff00; cursor: pointer; z-index: 100; pointer-events: auto; }
+        
+        /* KÉPEK - z-index: 5 (Az effekt alatt maradnak) */
+        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); object-fit: cover; aspect-ratio: 1/1; }
     </style>
 </head>
 <body>
     <div id="video-bg-wrapper"><div id="yt-placeholder"></div></div>
-    <div id="bg-layer"></div><div id="overlay"></div><canvas id="canvas-overlay"></canvas>
+    <div id="overlay"></div>
+    <canvas id="canvas-overlay"></canvas>
     <div id="content-wrapper">
         <button id="enter-btn" onclick="initializeSystem()"></button>
         <h1 id="main-title" class="text-box"></h1>
         <div id="sub-title" class="text-box"></div>
-        <div id="player-visible"></div>
     </div>
-
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        
         function applyStyle(el, prefix, defSize, defFont) {
             if(!el) return;
             el.style.left = (urlParams.get(prefix+'x') || 50) + '%';
             el.style.top = (urlParams.get(prefix+'y') || 50) + '%';
-            let rawSize = parseFloat(urlParams.get(prefix+'s')) || defSize;
-            el.style.fontSize = Math.min(rawSize, 6) + 'vmax';
-            el.style.color = '#' + (urlParams.get(prefix+'c') || (prefix==='m'?'0f0':'fff'));
+            el.style.fontSize = (urlParams.get(prefix+'s') || defSize) + 'vmax';
+            el.style.color = '#' + (urlParams.get(prefix+'c') || '0f0');
             el.style.fontFamily = urlParams.get(prefix+'f') || defFont;
-            el.style.textShadow = `0 0 10px #${urlParams.get(prefix+'c') || '0f0'}`;
         }
-
         applyStyle(document.getElementById('main-title'), 'm', 5, 'Orbitron');
         applyStyle(document.getElementById('sub-title'), 's', 2.5, 'Dancing Script');
         document.getElementById('enter-btn').innerText = urlParams.get('btn') || 'INDÍTÁS';
-
+        
         for(let i=1; i<=2; i++) {
             let dUrl = urlParams.get('d'+i+'url');
             if(dUrl) {
@@ -65,19 +63,15 @@
         var player;
         function onYouTubeIframeAPIReady() {
             const pZene = urlParams.get('zene');
-            const pMode = urlParams.get('mode') || 'zene';
             if(!pZene) { document.getElementById('enter-btn').style.display = 'block'; return; }
-            if(pMode === 'bgvideo') document.getElementById('video-bg-wrapper').style.display = 'block';
-            player = new YT.Player(pMode === 'bgvideo' ? 'yt-placeholder' : 'player-visible', {
+            player = new YT.Player('yt-placeholder', {
                 videoId: pZene,
                 playerVars: { 'autoplay': 1, 'mute': 1, 'loop': 1, 'playlist': pZene, 'controls': 0 },
                 events: { 'onStateChange': (e) => { if(e.data == YT.PlayerState.PLAYING) { player.pauseVideo(); player.seekTo(0); document.getElementById('enter-btn').style.display = 'block'; } } }
             });
         }
-
         function initializeSystem() {
             document.getElementById('enter-btn').style.display = 'none';
-            if(urlParams.get('mode') === 'video') document.getElementById('player-visible').style.display = 'block';
             document.getElementById('main-title').innerText = urlParams.get('cim') || "";
             document.getElementById('sub-title').innerText = urlParams.get('alcim') || "";
             if(player) { player.unMute(); player.playVideo(); }
@@ -88,14 +82,14 @@
         let particles = [];
         function init() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            let eff = urlParams.get('effect'), intens = parseInt(urlParams.get('intens')) || 8;
+            let eff = urlParams.get('effect'), intens = parseInt(urlParams.get('intens')) || 8, es = urlParams.get('esize') || 2;
             for (let i = 0; i < intens * 10; i++) {
-                particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, v: Math.random()*1.5 + 0.5, char: eff==='heart'?'❤':(eff==='snow'?'❄':'🌸') });
+                particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: (Math.random()*es + 1) + 'vmax', v: Math.random()*1.5 + 0.5, char: eff==='heart'?'❤':(eff==='snow'?'❄':'🌸') });
             }
         }
         function draw() {
             ctx.clearRect(0,0,canvas.width, canvas.height); ctx.fillStyle = '#' + (urlParams.get('ec') || 'fff');
-            particles.forEach(p => { ctx.fillText(p.char, p.x, p.y); p.y += p.v; if(p.y > canvas.height) p.y = -20; });
+            particles.forEach(p => { ctx.font = p.s + " Arial"; ctx.fillText(p.char, p.x, p.y); p.y += p.v; if(p.y > canvas.height) p.y = -50; });
             requestAnimationFrame(draw);
         }
         init(); draw();
