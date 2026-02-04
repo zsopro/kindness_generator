@@ -3,41 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEO Project - Image Fix</title>
+    <title>NEO Project - Final Stability</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Dancing+Script:wght@700&family=Pacifico&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; position: fixed; }
+        body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; position: fixed; font-family: 'Orbitron', sans-serif; }
+        
+        /* Videó és háttér */
+        #video-bg-wrapper { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; overflow: hidden; pointer-events: none; display: none; }
+        #yt-placeholder { position: absolute; top: 50%; left: 50%; width: 150vw !important; height: 150vh !important; transform: translate(-50%, -50%); }
         #bg-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 2; }
+        
+        /* Effekt vászon */
         #canvas-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 3; pointer-events: none; }
+
+        /* Tartalom */
         #content-wrapper { position: relative; z-index: 10; width: 100%; height: 100vh; pointer-events: none; }
         .text-box { position: absolute; transform: translate(-50%, -50%); text-align: center; width: 95%; pointer-events: none; line-height: 1.1; }
-        #enter-btn { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 35px; background: rgba(0,0,0,0.9); border: 2px solid #00ff00; color: #00ff00; cursor: pointer; z-index: 100; pointer-events: auto; }
+        
+        #enter-btn { 
+            display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            padding: 15px 35px; background: rgba(0,0,0,0.9); border: 2px solid #00ff00; 
+            color: #00ff00; cursor: pointer; z-index: 100; pointer-events: auto; box-shadow: 0 0 15px #00ff00;
+        }
+        
+        #player-visible { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); border: 2px solid #00ff00; display: none; z-index: 11; width: 280px; height: 158px; pointer-events: auto; }
         .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); object-fit: contain; }
+        #loader-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #00ff00; z-index: 20; text-align: center; }
     </style>
 </head>
 <body>
+    <div id="video-bg-wrapper"><div id="yt-placeholder"></div></div>
     <div id="bg-layer"></div>
     <div id="overlay"></div>
     <canvas id="canvas-overlay"></canvas>
+
     <div id="content-wrapper">
+        <div id="loader-wrapper"><p>NEO RENDSZER BETÖLTÉSE...</p></div>
         <button id="enter-btn" onclick="initializeSystem()"></button>
         <h1 id="main-title" class="text-box"></h1>
         <div id="sub-title" class="text-box"></div>
+        <div id="player-visible"></div>
     </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-
-        // Szövegstílus és a 6-os LIMIT
+        
+        // Szövegstílus és a 6-os SZIGORÚ LIMIT
         function applyStyle(el, prefix, defSize, defFont) {
             if(!el) return;
             el.style.left = (urlParams.get(prefix+'x') || 50) + '%';
             el.style.top = (urlParams.get(prefix+'y') || 50) + '%';
-            let finalSize = Math.min(parseFloat(urlParams.get(prefix+'s')) || defSize, 6); 
-            el.style.fontSize = finalSize + 'vmax';
-            el.style.color = '#' + (urlParams.get(prefix+'c') || '00ff00');
+            let rawSize = parseFloat(urlParams.get(prefix+'s')) || defSize;
+            el.style.fontSize = Math.min(rawSize, 6) + 'vmax';
+            el.style.color = '#' + (urlParams.get(prefix+'c') || (prefix === 'm' ? '00ff00' : 'ffffff'));
             el.style.fontFamily = urlParams.get(prefix+'f') || defFont;
             el.style.textShadow = `0 0 10px #${urlParams.get(prefix+'c') || '00ff00'}`;
         }
@@ -46,33 +66,54 @@
         applyStyle(document.getElementById('sub-title'), 's', 2.5, 'Dancing Script');
         document.getElementById('enter-btn').innerText = urlParams.get('btn') || 'INDÍTÁS';
 
-        // Képek betöltése javítva
+        // Képek kezelése egyszerűbben és stabilabban
         for(let i=1; i<=2; i++) {
             let dUrl = urlParams.get('d'+i+'url');
             if(dUrl && dUrl.length > 5) {
-                let img = new Image();
-                img.onload = function() {
-                    img.className = 'deco-img';
-                    img.style.left = (urlParams.get('d'+i+'x') || 50) + '%';
-                    img.style.top = (urlParams.get('d'+i+'y') || 50) + '%';
-                    img.style.width = (urlParams.get('d'+i+'s') || 15) + 'vmax';
-                    document.body.appendChild(img);
-                };
+                let img = document.createElement('img');
                 img.src = dUrl;
+                img.className = 'deco-img';
+                img.style.left = (urlParams.get('d'+i+'x') || (i===1?20:80)) + '%';
+                img.style.top = (urlParams.get('d'+i+'y') || 20) + '%';
+                img.style.width = (urlParams.get('d'+i+'s') || 15) + 'vmax';
+                // Csak akkor adjuk hozzá, ha a kép tényleg betölthető
+                img.onerror = () => img.remove();
+                document.body.appendChild(img);
             }
+        }
+
+        var player;
+        let isReady = false;
+        function onYouTubeIframeAPIReady() {
+            const pZene = urlParams.get('zene');
+            const pMode = urlParams.get('mode') || 'zene';
+            if(!pZene) { showBtn(); return; }
+            if(pMode === 'bgvideo') document.getElementById('video-bg-wrapper').style.display = 'block';
+            player = new YT.Player(pMode === 'bgvideo' ? 'yt-placeholder' : 'player-visible', {
+                videoId: pZene,
+                playerVars: { 'autoplay': 1, 'mute': 1, 'loop': 1, 'playlist': pZene, 'controls': 0 },
+                events: { 'onStateChange': (e) => { if(e.data == YT.PlayerState.PLAYING && !isReady) { player.pauseVideo(); player.seekTo(0); isReady = true; showBtn(); } } }
+            });
+        }
+
+        function showBtn() {
+            document.getElementById('loader-wrapper').style.display = 'none';
+            document.getElementById('enter-btn').style.display = 'block';
         }
 
         function initializeSystem() {
             document.getElementById('enter-btn').style.display = 'none';
+            if(urlParams.get('mode') === 'video') document.getElementById('player-visible').style.display = 'block';
             let idx = 0; const pCim = urlParams.get('cim') || "";
             function type() {
                 if(idx < pCim.length) { document.getElementById('main-title').innerHTML += pCim.charAt(idx); idx++; setTimeout(type, 70); }
                 else { document.getElementById('sub-title').innerText = urlParams.get('alcim') || ""; }
             }
             type();
+            if(player) { player.unMute(); player.setVolume(100); player.playVideo(); }
         }
 
-        // Effekt elforgatás javítás
+        // Effekt rendszer elforgatás-garanciával
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -80,10 +121,11 @@
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             particles.forEach(p => p.x = Math.random() * canvas.width);
         }
-        window.onresize = resize;
+        window.addEventListener('resize', resize);
+        window.addEventListener('orientationchange', () => setTimeout(resize, 300));
 
         function init() {
-            resize();
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             let eff = urlParams.get('effect'), intens = parseInt(urlParams.get('intens')) || 8, es = urlParams.get('esize') || 2;
             for (let i = 0; i < intens * 10; i++) {
                 particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: (Math.random()*es + 1) + 'vmax', v: Math.random()*1.5 + 0.5, char: eff==='heart'?'❤':(eff==='flower'?'🌸':(eff==='snow'?'❄':'●')) });
@@ -95,7 +137,7 @@
             requestAnimationFrame(draw);
         }
         init(); draw();
-        document.getElementById('enter-btn').style.display = 'block';
+        var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
     </script>
 </body>
 </html>
