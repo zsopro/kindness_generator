@@ -1,0 +1,6 @@
+{
+  "categories": {
+    "Ünnepek": ["Karácsony", "Húsvét", "Ballagás", "Születésnap", "Névnap"],
+    "Névjegy": ["Céges", "Magán"]
+  }
+}
