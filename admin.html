@@ -239,8 +239,8 @@
     function openSaveModal() { document.getElementById('save-modal').style.display = 'block'; }
 
         function confirmSave() {
-        const mainCat = document.getElementById('main-cat').value; // Fő kategória
-        const subCat = document.getElementById('sub-cat').value;   // Alkategória
+        const mainCat = document.getElementById('main-cat').value; 
+        const subCat = document.getElementById('sub-cat').value;   
         const name = document.getElementById('modal-new-name').value;
         
         if(!name) { alert("Adj meg egy nevet!"); return; }
@@ -251,9 +251,10 @@
         const p = new URLSearchParams(currentSrc.split('?')[1]);
         p.delete('edit');
         
-        // ÚJ: Most már mentjük a fő kategóriát is (category), így pontos lesz az azonosítás
+        // ÚJ: Egyedi ID hozzáadása (id) a kért formátumban
         const newTemplate = { 
             name: name, 
+            id: Date.now(), // Egyedi időbélyeg alapú azonosító
             category: mainCat, 
             subCategory: subCat, 
             params: p.toString() 
@@ -263,15 +264,16 @@
         
         const fullJson = JSON.stringify({ templates: templates }, null, 2);
         
-        console.log("--- ÚJ TEMPLATES.JSON ---", fullJson);
+        console.log("--- ÚJ TEMPLATES.JSON (ID-VAL) ---", fullJson);
         
         navigator.clipboard.writeText(fullJson).then(() => {
-            alert("Sikeres mentés! A teljes JSON a vágólapon.");
+            alert("Sablon elmentve (ID: " + newTemplate.id + ") és a teljes JSON a vágólapon!");
         });
         
         document.getElementById('save-modal').style.display = 'none';
         renderTemplates();
-            }
+        }
+    
     
 
     function copyLink() {
