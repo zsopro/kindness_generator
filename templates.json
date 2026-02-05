@@ -1,0 +1,16 @@
+{
+  "templates": [
+    {
+      "id": 1,
+      "name": "Alap Születésnap",
+      "category": "unnep",
+      "params": "cim=Boldog+Születésnapot!&mc=ffcc00&ms=6&effect=bday&vw=100&vh=100&zene=YgQPz42mUH0"
+    },
+    {
+      "id": 2,
+      "name": "Profi Céges Névjegy",
+      "category": "nevjegy",
+      "params": "cim=NEO+CORP&mc=00ff00&ms=3&vw=40&vh=25&vx=80&vy=80&mute=1&zene=5V2B_n_X5f8"
+    }
+  ]
+}
