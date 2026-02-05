@@ -31,7 +31,6 @@
         let player, isStarted = false, effImg = new Image();
 
         function applyStyles() {
-            // Fix mezők (Cím, Alcím)
             [['m','cim','t_m'],['s','alcim','t_s']].forEach(cfg => {
                 const [p, key, id] = cfg;
                 const el = document.getElementById(id);
@@ -45,7 +44,6 @@
                 if(isEditMode) { el.style.display = 'block'; el.innerText = el.dataset.fulltxt; }
             });
 
-            // Dinamikus extra mezők feldolgozása
             const wrapper = document.getElementById('dynamic-wrapper');
             let i = 1;
             while(urlParams.has('txt'+i)) {
@@ -65,7 +63,6 @@
                 i++;
             }
 
-            // Videó pozicionálás
             const vc = document.getElementById('video-container');
             vc.style.left = (urlParams.get('vx') || 50) + '%';
             vc.style.top = (urlParams.get('vy') || 50) + '%';
@@ -73,7 +70,6 @@
             vc.style.height = (urlParams.get('vh') || 100) + 'vh';
             if(isEditMode) vc.style.opacity = '1';
 
-            // Dekorációs képek
             for(let j=1; j<=2; j++) {
                 const url = urlParams.get('d'+j+'url');
                 if(url) {
@@ -126,7 +122,6 @@
             typeNext();
         }
 
-        // Effektek
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
