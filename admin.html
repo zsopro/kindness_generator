@@ -2,210 +2,168 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO ADMIN - CENTRAL TEMPLATES</title>
+    <title>NEO ADMIN - HIERARCHICAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&family=Pacifico&family=Bebas+Neue&family=Great+Vibes&family=Monoton&family=Press+Start+2P&family=Rajdhani&family=Satisfy&family=Comfortaa&family=Righteous&family=Cinzel&family=Lobster&family=Kaushan+Script&family=Permanent+Marker&family=Exo+2&family=Abril+Fatface&family=Unbounded&family=Special+Elite&family=Russo+One&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; height: 100vh; margin: 0; }
-        .panel { width: 500px; background: #1e1e1e; padding: 20px; overflow-y: auto; border-right: 2px solid #0f0; }
-        .preview { flex: 1; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        iframe { width: 340px; height: 600px; border: 5px solid #333; border-radius: 20px; }
-        .section { background: #252525; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #444; }
-        label { display: block; margin-top: 8px; color: #aaa; font-size: 0.65rem; text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; background: #333; border: 1px solid #444; color: white; border-radius: 4px; }
-        .num-input { text-align: center; background: #444; border: none; font-weight: bold; color: #0f0; }
-        .row { display: flex; gap: 8px; } .row div { flex: 1; }
-        
-        .template-card { background: #333; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #444; display: flex; justify-content: space-between; align-items: center; }
-        .template-card button { background: #0f0; border: none; padding: 5px 10px; cursor: pointer; font-weight: bold; border-radius: 3px; }
-        
-        #json-export-area { width: 100%; height: 100px; font-family: monospace; font-size: 10px; margin-top: 10px; display: none; }
-        .btn-blue { background: #007bff; color: white; padding: 10px; border: none; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; height: 100vh; margin: 0; overflow: hidden; }
+        .panel { width: 450px; background: #1e1e1e; padding: 15px; overflow-y: auto; border-right: 2px solid #0f0; }
+        .preview { flex: 1; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
+        iframe { width: 320px; height: 580px; border: 10px solid #333; border-radius: 30px; }
+        .section { background: #282828; padding: 10px; border-radius: 5px; margin-bottom: 10px; border-left: 3px solid #0f0; }
+        label { font-size: 0.6rem; color: #888; text-transform: uppercase; }
+        input, select { width: 100%; padding: 5px; background: #333; color: #fff; border: 1px solid #444; margin-bottom: 5px; }
+        .row { display: flex; gap: 5px; } .row > div { flex: 1; }
+        .template-item { background: #333; padding: 8px; margin-top: 5px; display: flex; justify-content: space-between; font-size: 0.8rem; }
+        button { cursor: pointer; background: #0f0; border: none; font-weight: bold; padding: 10px; width: 100%; }
+        #json-out { width: 100%; height: 60px; font-size: 10px; background: #000; color: #0f0; display: none; margin-top: 10px; }
     </style>
 </head>
 <body>
 <div class="panel">
-    <h3>🛠 NEO PROJECT ADMIN</h3>
-
+    <h3>NEO SYSTEM ADMIN</h3>
+    
     <div class="section" style="border-left-color: #007bff;">
-        <strong>SABLONOK (templates.json)</strong>
-        <select id="category-filter" onchange="renderTemplates()">
-            <option value="unnep">🎈 Ünnepségek</option>
-            <option value="nevjegy">👔 Névjegykártyák</option>
-        </select>
-        <div id="template-list" style="margin:10px 0;"></div>
-        
-        <button class="btn-blue" onclick="exportCurrent()">Jelenlegi beállítás JSON kódja</button>
-        <textarea id="json-export-area" readonly placeholder="Másold ezt a templates.json fájlba..."></textarea>
-    </div>
-
-    <div class="section"><strong>GOMB</strong><input type="text" id="btn" value="START" oninput="update()"></div>
-
-    <div class="section" style="border-left-color:#0f0">
-        <strong>FŐCÍM</strong>
-        <input type="text" id="cim" value="NEO PROJECT" oninput="update()">
-        <div class="row">
-            <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
-            <div><label>Betű</label><select id="mf" onchange="update()"></select></div>
-        </div>
-        <div class="row">
-            <div><label>S%</label><input type="number" id="ms" value="5" step="0.5" oninput="update()" class="num-input"></div>
-            <div><label>X%</label><input type="number" id="mx" value="50" oninput="update()" class="num-input"></div>
-            <div><label>Y%</label><input type="number" id="my" value="40" oninput="update()" class="num-input"></div>
-        </div>
-    </div>
-
-    <div class="section" style="border-left-color:#0df">
-        <strong>ALCÍM</strong>
-        <input type="text" id="alcim" oninput="update()">
-        <div class="row">
-            <div><label>Szín</label><input type="color" id="sc" value="#ffffff" oninput="update()"></div>
-            <div><label>Betű</label><select id="sf" onchange="update()"></select></div>
-        </div>
-        <div class="row">
-            <div><label>S%</label><input type="number" id="ss" value="2.5" oninput="update()" class="num-input"></div>
-            <div><label>X%</label><input type="number" id="sx" value="50" oninput="update()" class="num-input"></div>
-            <div><label>Y%</label><input type="number" id="sy" value="60" oninput="update()" class="num-input"></div>
-        </div>
-    </div>
-
-    <div class="section" style="border-left-color:#f0f">
-        <strong>EFFEKT</strong>
-        <div class="row">
-            <div><select id="eff" onchange="update()">
-                <option value="none">Nincs</option><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option><option value="grad">🎓</option><option value="bday">🎉</option><option value="party">🥂</option>
-            </select></div>
-            <div><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
-            <div><input type="number" id="intens" value="8" oninput="update()" class="num-input"></div>
-        </div>
-    </div>
-
-    <div class="section" style="border-left-color:#ff0">
-        <strong>YOUTUBE & MÉRET</strong>
-        <input type="text" id="yt" value="YgQPz42mUH0" oninput="update()">
-        <div class="row">
-            <div><label>X%</label><input type="number" id="vx" value="50" oninput="update()" class="num-input"></div>
-            <div><label>Y%</label><input type="number" id="vy" value="50" oninput="update()" class="num-input"></div>
-        </div>
-        <div class="row">
-            <div><label>W%</label><input type="number" id="vw" value="100" oninput="update()" class="num-input"></div>
-            <div><label>H%</label><input type="number" id="vh" value="100" oninput="update()" class="num-input"></div>
-            <div style="text-align:center"><label>Mute</label><input type="checkbox" id="mute" onchange="update()" style="width:20px;"></div>
-        </div>
+        <strong>KATEGÓRIA ÉS SABLON</strong>
+        <label>Főcsoport</label>
+        <select id="main-cat" onchange="updateSubCats()"></select>
+        <label>Alcsoport</label>
+        <select id="sub-cat" onchange="renderTemplates()"></select>
+        <div id="template-list"></div>
+        <button onclick="exportTemplate()" style="background:#007bff; color:white; margin-top:5px;">💾 Jelenlegi mentése (JSON)</button>
+        <textarea id="json-out" readonly></textarea>
     </div>
 
     <div class="section">
-        <strong>KÉPEK (D1 & D2)</strong>
-        <input type="text" id="d1url" placeholder="Kép 1 URL" oninput="update()">
+        <strong>SZÖVEGEK</strong>
+        <label>Cím</label><input type="text" id="cim" value="SZERETLEK" oninput="update()">
         <div class="row">
-            <div><label>X%</label><input type="number" id="d1x" value="20" oninput="update()" class="num-input"></div>
-            <div><label>S%</label><input type="number" id="d1s" value="15" oninput="update()" class="num-input"></div>
-            <div><label>R%</label><input type="number" id="d1r" value="0" oninput="update()" class="num-input"></div>
+            <div><label>Betű</label><select id="mf" onchange="update()"></select></div>
+            <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
         </div>
-        <input type="text" id="d2url" placeholder="Kép 2 URL" oninput="update()">
         <div class="row">
-            <div><label>X%</label><input type="number" id="d2x" value="80" oninput="update()" class="num-input"></div>
-            <div><label>S%</label><input type="number" id="d2s" value="15" oninput="update()" class="num-input"></div>
-            <div><label>R%</label><input type="number" id="d2r" value="0" oninput="update()" class="num-input"></div>
+            <div><label>Méret</label><input type="number" id="ms" value="5" oninput="update()"></div>
+            <div><label>X%</label><input type="number" id="mx" value="50" oninput="update()"></div>
+            <div><label>Y%</label><input type="number" id="my" value="40" oninput="update()"></div>
+        </div>
+        <label>Alcím</label><input type="text" id="alcim" value="Örökké" oninput="update()">
+        <div class="row">
+            <div><label>Betű</label><select id="sf" onchange="update()"></select></div>
+            <div><label>X%</label><input type="number" id="sx" value="50" oninput="update()"></div>
+            <div><label>Y%</label><input type="number" id="sy" value="60" oninput="update()"></div>
         </div>
     </div>
 
-    <button style="width:100%; padding:15px; background:#0f0; border:none; font-weight:bold; cursor:pointer;" onclick="copy()">LINK MÁSOLÁSA</button>
+    <div class="section" style="border-left-color: #ff0;">
+        <strong>VIDEÓ ÉS MÉRET</strong>
+        <input type="text" id="yt" value="YgQPz42mUH0" oninput="update()">
+        <div class="row">
+            <div><label>W%</label><input type="number" id="vw" value="100" oninput="update()"></div>
+            <div><label>H%</label><input type="number" id="vh" value="100" oninput="update()"></div>
+            <div><label>Mute</label><input type="checkbox" id="mute" onchange="update()"></div>
+        </div>
+    </div>
+
+    <div class="section" style="border-left-color: #f0f;">
+        <strong>EFFEKT</strong>
+        <select id="eff" onchange="update()">
+            <option value="none">Nincs</option><option value="heart">Szív</option><option value="snow">Hó</option><option value="bday">🎉</option>
+        </select>
+    </div>
+
+    <button onclick="copyLink()">KÉSZ LINK MÁSOLÁSA</button>
 </div>
 
-<div class="preview">
-    <iframe id="ifr" src="index.html"></iframe>
-    <div id="url-out" style="font-size: 10px; color: #555; margin-top: 10px; width: 340px; word-break: break-all;"></div>
-</div>
+<div class="preview"><iframe id="ifr" src="index.html"></iframe></div>
 
 <script>
-    let allTemplates = [];
     const fonts = ["Orbitron", "Dancing Script", "Pacifico", "Bebas Neue", "Great Vibes", "Monoton", "Press Start 2P", "Rajdhani", "Satisfy", "Comfortaa", "Righteous", "Cinzel", "Lobster", "Kaushan Script", "Permanent Marker", "Exo 2", "Abril Fatface", "Unbounded", "Special Elite", "Russo One"];
-    const inputIds = ['btn','cim','mc','ms','mf','mx','my','alcim','sc','ss','sf','sx','sy','eff','ec','intens','vx','vy','vw','vh','d1url','d1x','d1s','d1r','d2url','d2x','d2s','d2r'];
+    const inputIds = ['cim','mc','ms','mf','mx','my','alcim','sf','sx','sy','eff','yt','vw','vh','mute'];
+    let catData = {}, templates = [];
 
-    // Betöltés a JSON fájlból
-    async function loadTemplatesFile() {
+    async function init() {
+        // Betűtípusok
+        ['mf','sf'].forEach(id => {
+            const s = document.getElementById(id);
+            fonts.forEach(f => { let o = document.createElement('option'); o.value=f; o.innerText=f; o.style.fontFamily=f; s.appendChild(o); });
+        });
+
+        // Kategóriák betöltése
         try {
-            const resp = await fetch('templates.json');
-            const data = await resp.json();
-            allTemplates = data.templates;
-            renderTemplates();
-        } catch (e) {
-            console.log("Nincs templates.json vagy hiba történt. Kezdjünk üressel.");
-            allTemplates = [];
-        }
+            const cRes = await fetch('categories.json');
+            catData = (await cRes.json()).categories;
+            const mCat = document.getElementById('main-cat');
+            Object.keys(catData).forEach(k => { let o = document.createElement('option'); o.value=k; o.innerText=k; mCat.appendChild(o); });
+            updateSubCats();
+        } catch(e) { console.error("Fájl hiba"); }
+
+        // Sablonok betöltése
+        try {
+            const tRes = await fetch('templates.json');
+            templates = (await tRes.json()).templates;
+        } catch(e) {}
+        
+        update();
+    }
+
+    function updateSubCats() {
+        const main = document.getElementById('main-cat').value;
+        const sub = document.getElementById('sub-cat');
+        sub.innerHTML = "";
+        catData[main].forEach(s => { let o = document.createElement('option'); o.value=s; o.innerText=s; sub.appendChild(o); });
+        renderTemplates();
     }
 
     function renderTemplates() {
-        const cat = document.getElementById('category-filter').value;
+        const sub = document.getElementById('sub-cat').value;
         const list = document.getElementById('template-list');
         list.innerHTML = "";
-        allTemplates.filter(t => t.category === cat).forEach(t => {
-            const div = document.createElement('div');
-            div.className = 'template-card';
-            div.innerHTML = `<span>${t.name}</span><button onclick="applyTemplate('${t.params}')">Betölt</button>`;
-            list.appendChild(div);
+        templates.filter(t => t.subCategory === sub).forEach(t => {
+            const d = document.createElement('div');
+            d.className = 'template-item';
+            d.innerHTML = `<span>${t.name}</span><button style="width:auto" onclick="loadT('${t.params}')">OK</button>`;
+            list.appendChild(d);
         });
     }
 
-    function applyTemplate(qs) {
-        const p = new URLSearchParams(qs);
-        p.forEach((val, key) => {
-            const el = document.getElementById(key === 'effect' ? 'eff' : key);
-            if(el) { if(el.type === 'checkbox') el.checked = val === '1'; else el.value = val; }
+    function loadT(pStr) {
+        const p = new URLSearchParams(pStr);
+        p.forEach((v, k) => {
+            const el = document.getElementById(k==='effect'?'eff':k);
+            if(el) { if(el.type==='checkbox') el.checked = v==='1'; else el.value=v; }
         });
         update();
     }
 
-    function exportCurrent() {
-        const name = prompt("Mi legyen az új sablon neve?");
+    function exportTemplate() {
+        const name = prompt("Sablon neve?");
         if(!name) return;
         const p = new URLSearchParams();
-        inputIds.forEach(id => p.set(id === 'eff' ? 'effect' : id, document.getElementById(id).value.replace('#','')));
-        p.set('mute', document.getElementById('mute').checked ? '1' : '0');
-        p.set('zene', getYTId(document.getElementById('yt').value));
-
-        const newT = {
-            id: Date.now(),
-            name: name,
-            category: document.getElementById('category-filter').value,
-            params: p.toString()
-        };
-        
-        allTemplates.push(newT);
-        const fullJson = JSON.stringify({ templates: allTemplates }, null, 2);
-        const area = document.getElementById('json-export-area');
-        area.value = fullJson;
-        area.style.display = 'block';
-        area.select();
-        alert("A JSON kódot legeneráltam az ablak alján. Másold be a templates.json fájlba!");
+        inputIds.forEach(id => {
+            const el = document.getElementById(id);
+            p.set(id==='eff'?'effect':id, el.type==='checkbox' ? (el.checked?'1':'0') : el.value.replace('#',''));
+        });
+        const newT = { name, subCategory: document.getElementById('sub-cat').value, params: p.toString() };
+        templates.push(newT);
+        document.getElementById('json-out').style.display = 'block';
+        document.getElementById('json-out').value = JSON.stringify({templates}, null, 2);
         renderTemplates();
-    }
-
-    function getYTId(v) {
-        let m = v.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
-        return (m && m[2].length===11) ? m[2] : v;
     }
 
     function update() {
         const p = new URLSearchParams();
-        inputIds.forEach(id => p.set(id === 'eff' ? 'effect' : id, document.getElementById(id).value.replace('#','')));
-        p.set('mute', document.getElementById('mute').checked ? '1' : '0');
-        p.set('zene', getYTId(document.getElementById('yt').value));
-        const url = window.location.href.split('admin.html')[0] + 'index.html?' + p.toString();
-        document.getElementById('url-out').innerText = url;
-        document.getElementById('ifr').src = 'index.html?' + p.toString();
-    }
-
-    function init() {
-        ['mf', 'sf'].forEach(id => {
-            const s = document.getElementById(id);
-            fonts.forEach(f => { let o = document.createElement('option'); o.value=f; o.innerText=f; o.style.fontFamily=f; s.appendChild(o); });
+        inputIds.forEach(id => {
+            const el = document.getElementById(id);
+            p.set(id==='eff'?'effect':id, el.type==='checkbox' ? (el.checked?'1':'0') : el.value.replace('#',''));
         });
-        loadTemplatesFile();
-        update();
+        const url = 'index.html?' + p.toString();
+        document.getElementById('ifr').src = url;
     }
 
-    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("Kész link másolva!"); }
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href.replace('admin.html', document.getElementById('ifr').src));
+        alert("Link másolva!");
+    }
+
     window.onload = init;
 </script>
 </body>
