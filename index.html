@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEO Project - Fixed Edition</title>
+    <title>NEO Project - Ultimate</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&family=Pacifico&family=Bebas+Neue&family=Great+Vibes&family=Monoton&family=Press+Start+2P&family=Rajdhani&family=Satisfy&family=Comfortaa&family=Righteous&family=Cinzel&family=Lobster&family=Kaushan+Script&family=Permanent+Marker&family=Exo+2&family=Abril+Fatface&family=Unbounded&family=Special+Elite&family=Russo+One&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,7 +27,7 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        let player, isStarted = false;
+        let player, isStarted = false, effImg = new Image();
 
         function applyStyles() {
             const config = [
@@ -48,12 +48,11 @@
             vc.style.top = (urlParams.get('vy') || 50) + '%';
             vc.style.width = (urlParams.get('vw') || 100) + 'vw';
             vc.style.height = (urlParams.get('vh') || 100) + 'vh';
-
             document.getElementById('enter-btn').innerText = urlParams.get('btn') || 'START';
 
             for(let i=1; i<=2; i++) {
                 let url = urlParams.get('d'+i+'url');
-                if(url && url !== "undefined") {
+                if(url && url.length > 5) {
                     let img = document.createElement('img'); img.src = url; img.className = 'deco-img';
                     img.style.left = (urlParams.get('d'+i+'x') || (i==1?20:80)) + '%';
                     img.style.top = (urlParams.get('d'+i+'y') || 20) + '%';
@@ -70,7 +69,7 @@
             if(!z) { document.getElementById('enter-btn').style.display = 'block'; return; }
             player = new YT.Player('yt-placeholder', {
                 videoId: z,
-                playerVars: { 'autoplay': 1, 'mute': 1, 'controls': 0, 'loop': 1, 'playlist': z },
+                playerVars: { 'autoplay': 1, 'mute': 1, 'controls': 0, 'loop': 1, 'playlist': z, 'playsinline': 1 },
                 events: { 'onReady': () => document.getElementById('enter-btn').style.display = 'block' }
             });
         }
@@ -79,13 +78,8 @@
             isStarted = true;
             document.getElementById('enter-btn').style.display = 'none';
             document.getElementById('overlay').style.display = 'block';
-            
-            const vc = document.getElementById('video-container');
-            vc.style.opacity = '1';
-            if(player) {
-                if(urlParams.get('mute') !== '1') player.unMute();
-                player.playVideo();
-            }
+            document.getElementById('video-container').style.opacity = '1';
+            if(player) { if(urlParams.get('mute') !== '1') player.unMute(); player.playVideo(); }
 
             const mt = document.getElementById('main-title');
             mt.style.visibility = 'visible';
@@ -101,22 +95,44 @@
             type();
         }
 
-        // Effektek...
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function initEff() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            let eff = urlParams.get('effect'), intens = parseInt(urlParams.get('intens')) || 8;
+            let eff = urlParams.get('effect');
+            let customEff = urlParams.get('eff_url');
             if(!eff || eff === 'none') return;
+
             const chars = { heart:'❤', snow:'❄', flower:'🌸', grad:'🎓', bday:'🎉', party:'🥂' };
-            for (let i=0; i<intens*10; i++) particles.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, s:(Math.random()*2+1)+'vmax', v:Math.random()*1.5+0.5, char:chars[eff] });
+            if(customEff) effImg.src = customEff;
+
+            for (let i=0; i< (parseInt(urlParams.get('intens')) || 8)*10; i++) {
+                particles.push({
+                    x: Math.random()*canvas.width,
+                    y: Math.random()*canvas.height,
+                    s: (Math.random()*2+1), // Vmax scale
+                    v: Math.random()*1.5+0.5,
+                    char: chars[eff] || ''
+                });
+            }
         }
+
         function draw() {
             ctx.clearRect(0,0,canvas.width, canvas.height);
             if(isStarted && urlParams.get('effect') !== 'none') {
-                ctx.fillStyle = '#' + (urlParams.get('ec') || 'ffffff');
-                particles.forEach(p => { ctx.font = p.s + " Arial"; ctx.fillText(p.char, p.x, p.y); p.y += p.v; if(p.y > canvas.height) p.y = -50; });
+                const sizeBase = Math.min(canvas.width, canvas.height) / 100;
+                particles.forEach(p => {
+                    if(urlParams.get('eff_url')) {
+                        let drawS = p.s * sizeBase * 2;
+                        ctx.drawImage(effImg, p.x, p.y, drawS, drawS);
+                    } else {
+                        ctx.fillStyle = '#' + (urlParams.get('ec') || 'ffffff');
+                        ctx.font = (p.s * 2) + "vmax Arial";
+                        ctx.fillText(p.char, p.x, p.y);
+                    }
+                    p.y += p.v; if(p.y > canvas.height) p.y = -50;
+                });
             }
             requestAnimationFrame(draw);
         }
