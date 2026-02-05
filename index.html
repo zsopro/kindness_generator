@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEO Project - Dynamic Engine</title>
+    <title>NEO Project - Full Engine</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&family=Pacifico&family=Bebas+Neue&family=Great+Vibes&family=Monoton&family=Press+Start+2P&family=Rajdhani&family=Satisfy&family=Comfortaa&family=Righteous&family=Cinzel&family=Lobster&family=Kaushan+Script&family=Permanent+Marker&family=Exo+2&family=Abril+Fatface&family=Unbounded&family=Special+Elite&family=Russo+One&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,7 +22,8 @@
     <div id="overlay"></div>
     <canvas id="canvas-overlay"></canvas>
     <button id="enter-btn" onclick="startSystem()">START</button>
-    <div id="text-wrapper"></div>
+    <div id="t_m" class="text-box"></div><div id="t_s" class="text-box"></div>
+    <div id="dynamic-wrapper"></div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -30,32 +31,41 @@
         let player, isStarted = false, effImg = new Image();
 
         function applyStyles() {
-            // Dinamikus szövegmező generálás az URL alapján
-            const wrapper = document.getElementById('text-wrapper');
-            wrapper.innerHTML = '';
-            
-            // Megkeressük az összes txtX paramétert
+            // Fix mezők (Cím, Alcím)
+            [['m','cim','t_m'],['s','alcim','t_s']].forEach(cfg => {
+                const [p, key, id] = cfg;
+                const el = document.getElementById(id);
+                if(!urlParams.get(key)) return;
+                el.style.left = (urlParams.get(p+'x') || 50) + '%';
+                el.style.top = (urlParams.get(p+'y') || (p==='m'?30:40)) + '%';
+                el.style.fontSize = (urlParams.get(p+'s') || 4) + 'vmax';
+                el.style.color = '#' + (urlParams.get(p+'c') || '0f0');
+                el.style.fontFamily = "'" + (urlParams.get(p+'f') || 'Orbitron') + "', sans-serif";
+                el.dataset.fulltxt = urlParams.get(key);
+                if(isEditMode) { el.style.display = 'block'; el.innerText = el.dataset.fulltxt; }
+            });
+
+            // Dinamikus extra mezők feldolgozása
+            const wrapper = document.getElementById('dynamic-wrapper');
             let i = 1;
-            while (urlParams.has(`txt${i}`)) {
-                const txt = urlParams.get(`txt${i}`);
-                if (txt) {
+            while(urlParams.has('txt'+i)) {
+                const txt = urlParams.get('txt'+i);
+                if(txt) {
                     const el = document.createElement('div');
-                    el.id = `t${i}`;
-                    el.className = 'text-box';
-                    el.style.left = (urlParams.get(`x${i}`) || 50) + '%';
-                    el.style.top = (urlParams.get(`y${i}`) || (10 * i)) + '%';
-                    el.style.fontSize = (urlParams.get(`s${i}`) || 3) + 'vmax';
-                    el.style.color = '#' + (urlParams.get(`c${i}`) || '0f0');
-                    el.style.fontFamily = "'" + (urlParams.get(`f${i}`) || 'Orbitron') + "', sans-serif";
+                    el.className = 'text-box'; el.id = 'dyn'+i;
+                    el.style.left = (urlParams.get('x'+i) || 50) + '%';
+                    el.style.top = (urlParams.get('y'+i) || (50 + i*5)) + '%';
+                    el.style.fontSize = (urlParams.get('s'+i) || 2) + 'vmax';
+                    el.style.color = '#' + (urlParams.get('c'+i) || 'fff');
+                    el.style.fontFamily = "'" + (urlParams.get('f'+i) || 'Arial') + "', sans-serif";
                     el.dataset.fulltxt = txt;
-                    
-                    if (isEditMode) { el.style.display = 'block'; el.innerText = txt; }
+                    if(isEditMode) { el.style.display = 'block'; el.innerText = txt; }
                     wrapper.appendChild(el);
                 }
                 i++;
             }
 
-            // Videó és Képek (Változatlanul)
+            // Videó pozicionálás
             const vc = document.getElementById('video-container');
             vc.style.left = (urlParams.get('vx') || 50) + '%';
             vc.style.top = (urlParams.get('vy') || 50) + '%';
@@ -63,9 +73,10 @@
             vc.style.height = (urlParams.get('vh') || 100) + 'vh';
             if(isEditMode) vc.style.opacity = '1';
 
+            // Dekorációs képek
             for(let j=1; j<=2; j++) {
                 const url = urlParams.get('d'+j+'url');
-                if(url && url !== "undefined" && url !== "") {
+                if(url) {
                     const img = document.createElement('img');
                     img.src = url; img.className = 'deco-img';
                     img.style.left = (urlParams.get('d'+j+'x') || (j===1?20:80)) + '%';
@@ -98,7 +109,7 @@
             document.querySelectorAll('.deco-img').forEach(img => img.style.display = 'block');
             if(player) { if(urlParams.get('mute') !== '1') player.unMute(); player.playVideo(); }
 
-            const boxes = Array.from(document.querySelectorAll('.text-box'));
+            const boxes = Array.from(document.querySelectorAll('.text-box')).filter(b => b.dataset.fulltxt);
             let idx = 0;
             function typeNext() {
                 if(idx >= boxes.length) return;
@@ -107,21 +118,22 @@
                 b.style.display = 'block';
                 let cIdx = 0;
                 function charLoop() {
-                    if(cIdx < full.length) { b.innerHTML += full.charAt(cIdx); cIdx++; setTimeout(charLoop, 50); }
-                    else { idx++; typeNext(); }
+                    if(cIdx < full.length) { b.innerHTML += full.charAt(cIdx); cIdx++; setTimeout(charLoop, 40); }
+                    else { idx++; setTimeout(typeNext, 200); }
                 }
                 charLoop();
             }
             typeNext();
         }
 
-        // Effekt rajzoló (Változatlan)
+        // Effektek
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function initEff() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            const eff = urlParams.get('effect'); if(!eff || eff==='none') return;
+            const eff = urlParams.get('effect');
+            if(!eff || eff==='none') return;
             if(urlParams.get('eff_url')) effImg.src = urlParams.get('eff_url');
             const chars = { heart:'❤', snow:'❄', flower:'🌸', bday:'🎉' };
             for(let i=0; i<(parseInt(urlParams.get('intens')) || 8)*10; i++) {
@@ -130,7 +142,7 @@
         }
         function draw() {
             ctx.clearRect(0,0,canvas.width, canvas.height);
-            if((isStarted || isEditMode) && urlParams.get('effect') !== 'none') {
+            if((isStarted || isEditMode) && urlParams.get('effect') && urlParams.get('effect') !== 'none') {
                 const sb = Math.min(canvas.width, canvas.height) / 100;
                 particles.forEach(p => {
                     if(urlParams.get('eff_url')) ctx.drawImage(effImg, p.x, p.y, p.s*sb*2, p.s*sb*2);
