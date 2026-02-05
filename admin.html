@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>NEO ADMIN - SABLONOK ÉS NÉVJEGYEK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&family=Pacifico&family=Bebas+Neue&family=Great+Vibes&family=Monoton&family=Press+Start+2P&family=Rajdhani&family=Satisfy&family=Comfortaa&family=Righteous&family=Cinzel&family=Lobster&family=Kaushan+Script&family=Permanent+Marker&family=Exo+2&family=Abril+Fatface&family=Unbounded&family=Special+Elite&family=Russo+One&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: white; display: flex; height: 100vh; margin: 0; }
+        .panel { width: 500px; background: #1a1a1a; padding: 20px; overflow-y: auto; border-right: 3px solid #0f0; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
+        .preview { flex: 1; background: #000; display: flex; align-items: center; justify-content: center; }
+        iframe { width: 360px; height: 640px; border: 8px solid #333; border-radius: 30px; background: #000; }
+        .section { background: #252525; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid #444; }
+        label { display: block; margin-top: 10px; color: #aaa; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; background: #333; border: 1px solid #444; color: white; border-radius: 5px; font-size: 0.9rem; }
+        .num-input { text-align: center; background: #444; border: none; font-weight: bold; color: #0f0; }
+        .row { display: flex; gap: 10px; }
+        .row div { flex: 1; }
+        .preset-btn { background: #007bff; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 5px; transition: 0.3s; }
+        .preset-btn:hover { background: #0056b3; }
+        select option { background: #333; font-size: 1.1rem; }
+        button#main-copy { width: 100%; padding: 18px; background: #0f0; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; text-transform: uppercase; font-size: 1rem; color: #000; }
+        #url-out { font-size: 0.7rem; background: #000; padding: 12px; margin-top: 15px; word-break: break-all; color: #0f0; border: 1px dashed #0f0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+<div class="panel">
+    <h2 style="color:#0f0; text-align:center; margin-bottom:20px;">NEO TOTAL CONTROL</h2>
+
+    <div class="section" style="border-left-color: #007bff;">
+        <strong>SABLONOK (QUICK START)</strong>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 10px;">
+            <button class="preset-btn" onclick="setPreset('love')">❤️ Szerelmes</button>
+            <button class="preset-btn" onclick="setPreset('bday')">🎉 Szülinap</button>
+            <button class="preset-btn" onclick="setPreset('pro')">👔 Céges Névjegy</button>
+            <button class="preset-btn" onclick="setPreset('personal')">🏠 Magán Névjegy</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <strong>ALAPOK</strong>
+        <label>Gomb felirata</label><input type="text" id="btn" value="BELÉPÉS" oninput="update()">
+    </div>
+
+    <div class="section" style="border-left-color:#0f0">
+        <strong>FŐCÍM (NÉV / ÜZENET)</strong>
+        <input type="text" id="cim" value="MINTA JÁNOS" oninput="update()">
+        <div class="row">
+            <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
+            <div><label>Betű</label><select id="mf" onchange="update()"></select></div>
+        </div>
+        <div class="row">
+            <div><label>Méret</label><input type="number" id="ms" value="4" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>X%</label><input type="number" id="mx" value="50" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Y%</label><input type="number" id="my" value="45" oninput="update()" class="num-input" style="width:100%"></div>
+        </div>
+    </div>
+
+    <div class="section" style="border-left-color:#0df">
+        <strong>ALCÍM (TITULUS / INFÓ)</strong>
+        <input type="text" id="alcim" value="Szoftverfejlesztő" oninput="update()">
+        <div class="row">
+            <div><label>Szín</label><input type="color" id="sc" value="#ffffff" oninput="update()"></div>
+            <div><label>Betű</label><select id="sf" onchange="update()"></select></div>
+        </div>
+        <div class="row">
+            <div><label>X%</label><input type="number" id="sx" value="50" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Y%</label><input type="number" id="sy" value="55" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Méret</label><input type="number" id="ss" value="1.5" oninput="update()" class="num-input" style="width:100%"></div>
+        </div>
+    </div>
+
+    <div class="section" style="border-left-color:#f0f">
+        <strong>EFFEKT</strong>
+        <div class="row">
+            <div><select id="eff" onchange="update()">
+                <option value="none">Nincs effekt</option>
+                <option value="heart">❤️ Szív</option>
+                <option value="snow">❄️ Hó</option>
+                <option value="flower">🌸 Virág</option>
+                <option value="grad">🎓 Ballagás</option>
+                <option value="bday">🎉 Konfetti</option>
+                <option value="party">🥂 Koccintás</option>
+            </select></div>
+            <div><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
+        </div>
+    </div>
+
+    <div class="section" style="border-left-color:#ff0">
+        <strong>YOUTUBE MÉDIA</strong>
+        <input type="text" id="yt" value="YgQPz42mUH0" oninput="update()">
+        <div class="row"><div style="flex:0.1"><input type="checkbox" id="mute" onchange="update()"></div><div><label>NÉMÍTÁS</label></div></div>
+        <div class="row">
+            <div><label>X%</label><input type="number" id="vx" value="50" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Y%</label><input type="number" id="vy" value="50" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>W%</label><input type="number" id="vw" value="100" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>H%</label><input type="number" id="vh" value="100" oninput="update()" class="num-input" style="width:100%"></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <strong>KÉPEK (LOGÓ / PROFIL)</strong>
+        <label>Kép 1 URL</label><input type="text" id="d1url" oninput="update()">
+        <div class="row">
+            <div><label>X%</label><input type="number" id="d1x" value="50" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>Y%</label><input type="number" id="d1y" value="25" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>S%</label><input type="number" id="d1s" value="10" oninput="update()" class="num-input" style="width:100%"></div>
+            <div><label>R%</label><input type="number" id="d1r" value="50" oninput="update()" class="num-input" style="width:100%"></div>
+        </div>
+    </div>
+
+    <button id="main-copy" onclick="copy()">KÉSZ LINK MÁSOLÁSA</button>
+    <div id="url-out">...</div>
+</div>
+<div class="preview"><iframe id="ifr" src="index.html"></iframe></div>
+
+<script>
+    const fonts = ["Orbitron", "Dancing Script", "Pacifico", "Bebas Neue", "Great Vibes", "Monoton", "Press Start 2P", "Rajdhani", "Satisfy", "Comfortaa", "Righteous", "Cinzel", "Lobster", "Kaushan Script", "Permanent Marker", "Exo 2", "Abril Fatface", "Unbounded", "Special Elite", "Russo One"];
+    
+    function initFonts() {
+        const selects = [document.getElementById('mf'), document.getElementById('sf')];
+        selects.forEach(s => {
+            fonts.forEach(f => {
+                let o = document.createElement('option');
+                o.value = f; o.innerText = f; o.style.fontFamily = f;
+                s.appendChild(o);
+            });
+        });
+    }
+
+    function setPreset(type) {
+        if(type === 'love') {
+            document.getElementById('cim').value = "SZERETLEK!";
+            document.getElementById('mf').value = "Great Vibes";
+            document.getElementById('mc').value = "#ff0055";
+            document.getElementById('ms').value = "6";
+            document.getElementById('eff').value = "heart";
+            document.getElementById('vw').value = "150"; document.getElementById('vh').value = "100";
+        } else if(type === 'pro') {
+            document.getElementById('cim').value = "NEO SOLUTIONS KFT.";
+            document.getElementById('mf').value = "Orbitron";
+            document.getElementById('mc').value = "#00ff00";
+            document.getElementById('ms').value = "3";
+            document.getElementById('eff').value = "none";
+            document.getElementById('vw').value = "40"; document.getElementById('vh').value = "25";
+            document.getElementById('vy').value = "80";
+        } else if(type === 'personal') {
+            document.getElementById('cim').value = "KOVÁCS LÁSZLÓ";
+            document.getElementById('mf').value = "Rajdhani";
+            document.getElementById('mc').value = "#ffffff";
+            document.getElementById('ms').value = "4";
+            document.getElementById('vw').value = "100"; document.getElementById('vh').value = "100";
+            document.getElementById('eff').value = "none";
+        } else if(type === 'bday') {
+            document.getElementById('cim').value = "BOLDOG SZÜLETÉSNAPOT!";
+            document.getElementById('mf').value = "Lobster";
+            document.getElementById('mc').value = "#ffcc00";
+            document.getElementById('eff').value = "bday";
+            document.getElementById('vw').value = "100"; document.getElementById('vh').value = "100";
+        }
+        update();
+    }
+
+    function update() {
+        const p = new URLSearchParams();
+        const ids = ['btn','cim','mc','ms','mf','mx','my','alcim','sc','ss','sf','sx','sy','eff','ec','vx','vy','vw','vh','d1url','d1x','d1y','d1s','d1r'];
+        ids.forEach(id => {
+            let el = document.getElementById(id);
+            p.set(id === 'eff' ? 'effect' : id, el.type === 'color' ? el.value.replace('#','') : el.value);
+        });
+        p.set('mute', document.getElementById('mute').checked ? '1' : '0');
+        let v = document.getElementById('yt').value;
+        let m = v.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+        p.set('zene', (m && m[2].length===11) ? m[2] : v);
+
+        const finalUrl = window.location.href.split('admin.html')[0] + 'index.html?' + p.toString();
+        document.getElementById('url-out').innerText = finalUrl;
+        document.getElementById('ifr').src = 'index.html?' + p.toString();
+    }
+
+    function copy() { navigator.clipboard.writeText(document.getElementById('url-out').innerText); alert("Link másolva!"); }
+    window.onload = () => { initFonts(); update(); };
+</script>
+</body>
+</html>
