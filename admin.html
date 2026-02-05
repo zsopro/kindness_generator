@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>NEO ADMIN - PRO WORKSTATION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&family=Pacifico&family=Bebas+Neue&family=Great+Vibes&family=Monoton&family=Press+Start+2P&family=Rajdhani&family=Satisfy&family=Comfortaa&family=Righteous&family=Cinzel&family=Lobster&family=Kaushan+Script&family=Permanent+Marker&family=Exo+2&family=Abril+Fatface&family=Unbounded&family=Special+Elite&family=Russo+One&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: white; display: flex; height: 100vh; margin: 0; overflow: hidden; }
         .settings-panel { width: 420px; background: #181818; padding: 15px; overflow-y: auto; border-right: 2px solid #333; }
@@ -12,104 +12,98 @@
         iframe { width: 340px; height: 600px; border: 12px solid #222; border-radius: 35px; background: #000; }
         .section { background: #222; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #0f0; }
         h4 { margin: 0 0 8px 0; font-size: 0.7rem; color: #0f0; text-transform: uppercase; }
-        label { font-size: 0.6rem; color: #aaa; display: block; }
+        label { font-size: 0.55rem; color: #aaa; text-transform: uppercase; }
         input, select { width: 100%; padding: 6px; background: #333; color: #fff; border: 1px solid #444; border-radius: 4px; margin-top: 2px; font-size: 0.8rem; }
         .row { display: flex; gap: 5px; } .row > div { flex: 1; }
-        .num { text-align: center; color: #0f0; font-weight: bold; }
-        .template-item { background: #2a2a2a; padding: 10px; border-radius: 5px; margin-bottom: 8px; cursor: pointer; border: 1px solid #444; }
+        .num { text-align: center; color: #0f0; font-weight: bold; background: #444; }
         .live-toggle { background: #0f0; color: #000; padding: 10px; text-align: center; font-weight: bold; cursor: pointer; border-radius: 5px; margin-bottom: 15px; }
         .live-toggle.off { background: #444; color: #fff; }
-        button { width: 100%; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 5px; }
-        #save-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #222; padding: 20px; border: 2px solid #0f0; z-index: 1000; display: none; width: 300px; }
+        .template-item { background: #2a2a2a; padding: 10px; border-radius: 5px; margin-bottom: 8px; cursor: pointer; border: 1px solid #444; font-size: 0.8rem; }
+        #save-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #222; padding: 20px; border: 2px solid #0f0; z-index: 1000; display: none; width: 300px; box-shadow: 0 0 50px #000; }
+        #url-display { font-size: 10px; color: #555; margin-top: 10px; word-break: break-all; width: 340px; text-align: center; }
     </style>
 </head>
 <body>
 
     <div id="save-modal">
         <h4>Sablon mentése</h4>
-        <label>Válassz meglévőt (felülírás) vagy új nevet:</label>
-        <select id="modal-name-list" onchange="if(this.value!='NEW') document.getElementById('modal-new-name').style.display='none'; else document.getElementById('modal-new-name').style.display='block';">
-            <option value="NEW">-- ÚJ SABLON LÉTREHOZÁSA --</option>
-        </select>
-        <input type="text" id="modal-new-name" placeholder="Új sablon neve..." style="margin-top:10px;">
-        <button onclick="confirmSave()" style="background:#0f0; color:#000; margin-top:10px;">MENTÉS</button>
-        <button onclick="document.getElementById('save-modal').style.display='none'" style="background:#444; color:#fff;">MÉGSE</button>
+        <label>Válassz meglévőt vagy újat:</label>
+        <select id="modal-name-list" onchange="toggleNewName()"></select>
+        <input type="text" id="modal-new-name" placeholder="Új sablon neve..." style="margin-top:10px; display:none;">
+        <button onclick="confirmSave()" style="background:#0f0; color:#000; margin-top:10px; width:100%; border:none; padding:10px; font-weight:bold;">MENTÉS</button>
+        <button onclick="document.getElementById('save-modal').style.display='none'" style="background:#444; color:#fff; width:100%; border:none; padding:10px; margin-top:5px;">MÉGSE</button>
     </div>
 
     <div class="settings-panel">
         <div id="edit-toggle" class="live-toggle off" onclick="toggleEdit()">SZERKESZTŐ MÓD: KI</div>
         
         <div class="section">
-            <h4>Szövegek</h4>
-            <input type="text" id="cim" value="NEO" oninput="update()">
+            <h4>Gomb & Cím</h4>
+            <input type="text" id="btn" placeholder="Gomb felirata (pl. START)" oninput="update()">
+            <input type="text" id="cim" placeholder="Főcím szövege" oninput="update()">
             <div class="row">
-                <div><label>Fő Betű</label><select id="mf" onchange="update()"></select></div>
+                <div><label>Betű</label><select id="mf" onchange="update()"></select></div>
                 <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
-                <div><label>S%</label><input type="number" id="ms" value="5" oninput="update()" class="num"></div>
+                <div><label>S%</label><input type="number" id="ms" placeholder="4" oninput="update()" class="num"></div>
             </div>
             <div class="row">
-                <div><label>X%</label><input type="number" id="mx" value="50" oninput="update()" class="num"></div>
-                <div><label>Y%</label><input type="number" id="my" value="40" oninput="update()" class="num"></div>
+                <div><label>X%</label><input type="number" id="mx" placeholder="50" oninput="update()" class="num"></div>
+                <div><label>Y%</label><input type="number" id="my" placeholder="40" oninput="update()" class="num"></div>
             </div>
-            <label>Alcím</label>
-            <input type="text" id="alcim" oninput="update()">
+        </div>
+
+        <div class="section" style="border-left-color: #0df;">
+            <h4>Alcím</h4>
+            <input type="text" id="alcim" placeholder="Alcím szövege" oninput="update()">
             <div class="row">
-                <div><label>Al Betű</label><select id="sf" onchange="update()"></select></div>
+                <div><label>Betű</label><select id="sf" onchange="update()"></select></div>
                 <div><label>Szín</label><input type="color" id="sc" value="#ffffff" oninput="update()"></div>
-                <div><label>S%</label><input type="number" id="ss" value="2.5" oninput="update()" class="num"></div>
+                <div><label>S%</label><input type="number" id="ss" placeholder="2.5" oninput="update()" class="num"></div>
             </div>
             <div class="row">
-                <div><label>X%</label><input type="number" id="sx" value="50" oninput="update()" class="num"></div>
-                <div><label>Y%</label><input type="number" id="sy" value="60" oninput="update()" class="num"></div>
+                <div><label>X%</label><input type="number" id="sx" placeholder="50" oninput="update()" class="num"></div>
+                <div><label>Y%</label><input type="number" id="sy" placeholder="60" oninput="update()" class="num"></div>
             </div>
         </div>
 
         <div class="section" style="border-left-color: #fff;">
-            <h4>Kép 1</h4>
-            <input type="text" id="d1url" placeholder="URL" oninput="update()">
+            <h4>Képek (W% / H%)</h4>
+            <input type="text" id="d1url" placeholder="Kép 1 URL" oninput="update()">
             <div class="row">
-                <div><label>X%</label><input type="number" id="d1x" value="20" oninput="update()" class="num"></div>
-                <div><label>Y%</label><input type="number" id="d1y" value="20" oninput="update()" class="num"></div>
-                <div><label>W%</label><input type="number" id="d1w" value="15" oninput="update()" class="num"></div>
-                <div><label>H%</label><input type="number" id="d1h" value="15" oninput="update()" class="num"></div>
-                <div><label>R%</label><input type="number" id="d1r" value="0" oninput="update()" class="num"></div>
+                <div><label>X%</label><input type="number" id="d1x" placeholder="20" oninput="update()" class="num"></div>
+                <div><label>Y%</label><input type="number" id="d1y" placeholder="20" oninput="update()" class="num"></div>
+                <div><label>W%</label><input type="number" id="d1w" placeholder="15" oninput="update()" class="num"></div>
+                <div><label>H%</label><input type="number" id="d1h" placeholder="15" oninput="update()" class="num"></div>
+                <div><label>R%</label><input type="number" id="d1r" placeholder="0" oninput="update()" class="num"></div>
             </div>
-            <h4>Kép 2</h4>
-            <input type="text" id="d2url" placeholder="URL" oninput="update()">
+            <input type="text" id="d2url" placeholder="Kép 2 URL" style="margin-top:10px;" oninput="update()">
             <div class="row">
-                <div><label>X%</label><input type="number" id="d2x" value="80" oninput="update()" class="num"></div>
-                <div><label>Y%</label><input type="number" id="d2y" value="20" oninput="update()" class="num"></div>
-                <div><label>W%</label><input type="number" id="d2w" value="15" oninput="update()" class="num"></div>
-                <div><label>H%</label><input type="number" id="d2h" value="15" oninput="update()" class="num"></div>
-                <div><label>R%</label><input type="number" id="d2r" value="0" oninput="update()" class="num"></div>
+                <div><label>X%</label><input type="number" id="d2x" placeholder="80" oninput="update()" class="num"></div>
+                <div><label>Y%</label><input type="number" id="d2y" placeholder="20" oninput="update()" class="num"></div>
+                <div><label>W%</label><input type="number" id="d2w" placeholder="15" oninput="update()" class="num"></div>
+                <div><label>H%</label><input type="number" id="d2h" placeholder="15" oninput="update()" class="num"></div>
+                <div><label>R%</label><input type="number" id="d2r" placeholder="0" oninput="update()" class="num"></div>
             </div>
         </div>
 
         <div class="section" style="border-left-color: #f0f;">
-            <h4>Effekt</h4>
+            <h4>Effekt & Videó</h4>
             <select id="eff" onchange="update()">
-                <option value="none">Nincs</option><option value="heart">Szív</option><option value="bday">🎉</option><option value="custom">EGYEDI</option>
+                <option value="none">Nincs Effekt</option><option value="heart">Szív</option><option value="snow">Hó</option><option value="bday">🎉</option><option value="custom">EGYEDI</option>
             </select>
-            <input type="text" id="eff_url" placeholder="Egyedi PNG URL" oninput="update()">
+            <input type="text" id="eff_url" placeholder="Egyedi effekt PNG URL" oninput="update()">
+            <input type="text" id="yt" placeholder="YouTube Video ID" oninput="update()" style="margin-top:10px;">
             <div class="row">
-                <div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
-                <div><label>Sűrűség</label><input type="number" id="intens" value="8" oninput="update()" class="num"></div>
-            </div>
-        </div>
-
-        <div class="section" style="border-left-color: #ff0;">
-            <h4>Videó (YT ID)</h4>
-            <input type="text" id="yt" value="YgQPz42mUH0" oninput="update()">
-            <div class="row">
-                <div><label>W%</label><input type="number" id="vw" value="100" oninput="update()" class="num"></div>
-                <div><label>H%</label><input type="number" id="vh" value="100" oninput="update()" class="num"></div>
-                <div><label>Mute</label><input type="checkbox" id="mute" onchange="update()"></div>
+                <div><label>VW%</label><input type="number" id="vw" placeholder="100" oninput="update()" class="num"></div>
+                <div><label>VH%</label><input type="number" id="vh" placeholder="100" oninput="update()" class="num"></div>
+                <div style="text-align:center;"><label>Mute</label><input type="checkbox" id="mute" onchange="update()"></div>
             </div>
         </div>
     </div>
 
     <div class="preview-panel">
         <iframe id="ifr" src="index.html"></iframe>
+        <div id="url-display">Várakozás...</div>
     </div>
 
     <div class="templates-panel">
@@ -117,28 +111,39 @@
         <select id="main-cat" onchange="updateSubCats()"></select>
         <select id="sub-cat" onchange="renderTemplates()" style="margin-top:5px;"></select>
         <div id="template-list" style="margin: 15px 0;"></div>
-        <button onclick="copyLink()" style="background:#0f0;">LINK MÁSOLÁSA</button>
-        <button onclick="openSaveModal()" style="background:#007bff; color:#fff;">SABLON MENTÉSE</button>
-        <textarea id="json-out" style="width:100%; height:100px; font-size:10px; margin-top:10px; display:none;"></textarea>
+        <button onclick="copyLink()" style="background:#0f0; border:none; padding:10px; font-weight:bold; cursor:pointer; width:100%;">LINK MÁSOLÁSA</button>
+        <button onclick="openSaveModal()" style="background:#007bff; color:#fff; border:none; padding:10px; font-weight:bold; cursor:pointer; width:100%; margin-top:5px;">SABLON MENTÉSE</button>
+        <textarea id="json-out" style="width:100%; height:80px; font-size:10px; margin-top:10px; display:none;"></textarea>
     </div>
 
 <script>
     let editMode = false;
     const fonts = ["Orbitron", "Dancing Script", "Pacifico", "Bebas Neue", "Great Vibes", "Monoton", "Press Start 2P", "Rajdhani", "Satisfy", "Comfortaa", "Righteous", "Cinzel", "Lobster", "Kaushan Script", "Permanent Marker", "Exo 2", "Abril Fatface", "Unbounded", "Special Elite", "Russo One"];
-    const inputIds = ['cim','mc','ms','mf','mx','my','alcim','sc','ss','sf','sx','sy','eff','eff_url','ec','intens','yt','vw','vh','mute','d1url','d1x','d1y','d1w','d1h','d1r','d2url','d2x','d2y','d2w','d2h','d2r'];
+    const inputIds = ['btn','cim','mc','ms','mf','mx','my','alcim','sc','ss','sf','sx','sy','eff','eff_url','yt','vw','vh','mute','d1url','d1x','d1y','d1w','d1h','d1r','d2url','d2x','d2y','d2w','d2h','d2r'];
     let catData = {}, templates = [];
 
     async function init() {
+        // Mezők ürítése
+        inputIds.forEach(id => { 
+            const el = document.getElementById(id); 
+            if(el.type === 'checkbox') el.checked = false; 
+            else if(el.type === 'color') el.value = (id==='mc'?'#00ff00':'#ffffff');
+            else el.value = ''; 
+        });
+
+        // Betűtípusok feltöltése
         ['mf','sf'].forEach(id => fonts.forEach(f => document.getElementById(id).add(new Option(f, f))));
+
         try {
             const cRes = await fetch('categories.json');
             catData = (await cRes.json()).categories;
             Object.keys(catData).forEach(k => document.getElementById('main-cat').add(new Option(k, k)));
             updateSubCats();
+
             const tRes = await fetch('templates.json');
             templates = (await tRes.json()).templates;
             renderTemplates();
-        } catch(e) {}
+        } catch(e) { console.warn("JSON fájlok nem találhatók."); }
         update();
     }
 
@@ -152,7 +157,8 @@
 
     function updateSubCats() {
         const sub = document.getElementById('sub-cat'); sub.innerHTML = "";
-        catData[document.getElementById('main-cat').value].forEach(s => sub.add(new Option(s, s)));
+        const main = document.getElementById('main-cat').value;
+        if(catData[main]) catData[main].forEach(s => sub.add(new Option(s, s)));
         renderTemplates();
     }
 
@@ -161,7 +167,7 @@
         const list = document.getElementById('template-list'); list.innerHTML = "";
         templates.filter(t => t.subCategory === sub).forEach(t => {
             const d = document.createElement('div'); d.className = 'template-item';
-            d.onclick = () => loadT(t.params); d.innerHTML = `<h5>${t.name}</h5>`;
+            d.onclick = () => loadT(t.params); d.innerText = t.name;
             list.appendChild(d);
         });
     }
@@ -169,8 +175,13 @@
     function loadT(pStr) {
         const p = new URLSearchParams(pStr);
         p.forEach((v, k) => {
-            const el = document.getElementById(k==='effect'?'eff':k);
-            if(el) { if(el.type==='checkbox') el.checked = v==='1'; else if(el.type==='color') el.value='#'+v; else el.value=v; }
+            const id = k==='effect'?'eff':k;
+            const el = document.getElementById(id);
+            if(el) { 
+                if(el.type==='checkbox') el.checked = v==='1'; 
+                else if(el.type==='color') el.value = '#' + v;
+                else el.value = v; 
+            }
         });
         update();
     }
@@ -178,29 +189,35 @@
     function openSaveModal() {
         const sub = document.getElementById('sub-cat').value;
         const list = document.getElementById('modal-name-list');
-        list.innerHTML = '<option value="NEW">-- ÚJ SABLON LÉTREHOZÁSA --</option>';
+        list.innerHTML = '<option value="NEW">-- ÚJ SABLON --</option>';
         templates.filter(t => t.subCategory === sub).forEach(t => list.add(new Option(t.name, t.name)));
         document.getElementById('save-modal').style.display = 'block';
+        toggleNewName();
+    }
+
+    function toggleNewName() {
+        document.getElementById('modal-new-name').style.display = (document.getElementById('modal-name-list').value === 'NEW' ? 'block' : 'none');
     }
 
     function confirmSave() {
         const sub = document.getElementById('sub-cat').value;
-        const list = document.getElementById('modal-name-list');
-        let name = list.value === 'NEW' ? document.getElementById('modal-new-name').value : list.value;
-        if(!name) return alert("Adj nevet!");
+        const sel = document.getElementById('modal-name-list').value;
+        const name = (sel === 'NEW' ? document.getElementById('modal-new-name').value : sel);
+        if(!name) return;
 
         const p = new URLSearchParams();
         inputIds.forEach(id => {
             const el = document.getElementById(id);
-            p.set(id==='eff'?'effect':id, el.type==='checkbox' ? (el.checked?'1':'0') : el.value.replace('#',''));
+            const val = el.type==='checkbox' ? (el.checked?'1':'0') : el.value.replace('#','');
+            if(val) p.set(id==='eff'?'effect':id, val);
         });
 
-        // Ha létezik, töröljük a régit (felülírás)
         templates = templates.filter(t => !(t.name === name && t.subCategory === sub));
         templates.push({ name, subCategory: sub, params: p.toString() });
 
-        document.getElementById('json-out').style.display = 'block';
-        document.getElementById('json-out').value = JSON.stringify({templates}, null, 2);
+        const out = document.getElementById('json-out');
+        out.style.display = 'block';
+        out.value = JSON.stringify({templates}, null, 2);
         document.getElementById('save-modal').style.display = 'none';
         renderTemplates();
     }
@@ -209,15 +226,18 @@
         const p = new URLSearchParams();
         inputIds.forEach(id => {
             const el = document.getElementById(id);
-            p.set(id==='eff'?'effect':id, el.type==='checkbox' ? (el.checked?'1':'0') : el.value.replace('#',''));
+            const val = el.type==='checkbox' ? (el.checked?'1':'0') : el.value.replace('#','');
+            if(val) p.set(id==='eff'?'effect':id, val);
         });
         if(editMode) p.set('edit', '1');
-        document.getElementById('ifr').src = 'index.html?' + p.toString();
+        const finalUrl = 'index.html?' + p.toString();
+        document.getElementById('ifr').src = finalUrl;
+        document.getElementById('url-display').innerText = window.location.href.replace('admin.html', finalUrl.replace('&edit=1',''));
     }
 
     function copyLink() {
-        const url = window.location.href.split('admin.html')[0] + 'index.html?' + new URLSearchParams(document.getElementById('ifr').src.split('?')[1]).toString().replace('&edit=1','');
-        navigator.clipboard.writeText(url); alert("Link másolva!");
+        navigator.clipboard.writeText(document.getElementById('url-display').innerText);
+        alert("Link másolva!");
     }
 
     window.onload = init;
