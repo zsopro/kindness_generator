@@ -1,1 +1,11 @@
-{ "templates": [] }
+
+{
+  "templates": [
+    {
+      "id": 1770304092927,
+      "name": "Karácsony_1",
+      "subCategory": "Karácsony",
+      "params": "btn=Ind%C3%ADt%C3%A1s&cim=Boldog+Kar%C3%A1csonyt&mc=ff0000&ms=6&mf=Russo+One&mx=50&my=10&alcim=A+legjobbakat+k%C3%ADv%C3%A1nom%21&sc=00ff00&ss=4&sf=Cinzel&sx=50&sy=20&effect=snow&eff_url=&ec=ffffff&intens=2&yt=YgQPz42mUH0&vw=100&vh=100&mute=0&d1url=https%3A%2F%2Fimg1.picmix.com%2Foutput%2Fstamp%2Fnormal%2F6%2F5%2F2%2F0%2F2880256_d1629.gif&d1x=30&d1s=50&d1r=0&d1y=79&d2url=&d2x=100&d2s=25&d2r=0&d2y=20"
+    }
+  ]
+}
