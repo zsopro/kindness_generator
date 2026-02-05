@@ -238,9 +238,11 @@
     }
     function openSaveModal() { document.getElementById('save-modal').style.display = 'block'; }
 
-    function confirmSave() {
-        const sub = document.getElementById('modal-cat-list').value;
+        function confirmSave() {
+        const mainCat = document.getElementById('main-cat').value; // Fő kategória
+        const subCat = document.getElementById('sub-cat').value;   // Alkategória
         const name = document.getElementById('modal-new-name').value;
+        
         if(!name) { alert("Adj meg egy nevet!"); return; }
         
         const currentSrc = document.getElementById('ifr_p').src;
@@ -249,26 +251,28 @@
         const p = new URLSearchParams(currentSrc.split('?')[1]);
         p.delete('edit');
         
-        // Új sablon hozzáadása a memóriában lévő listához
-        const newTemplate = { name, subCategory: sub, params: p.toString() };
+        // ÚJ: Most már mentjük a fő kategóriát is (category), így pontos lesz az azonosítás
+        const newTemplate = { 
+            name: name, 
+            category: mainCat, 
+            subCategory: subCat, 
+            params: p.toString() 
+        };
+        
         templates.push(newTemplate);
         
-        // Teljes JSON struktúra generálása
         const fullJson = JSON.stringify({ templates: templates }, null, 2);
         
-        // Kiírás konzolra és vágólapra másolás
-        console.log("--- ÚJ TEMPLATES.JSON TARTALOM ---");
-        console.log(fullJson);
+        console.log("--- ÚJ TEMPLATES.JSON ---", fullJson);
         
         navigator.clipboard.writeText(fullJson).then(() => {
-            alert("Sablon elmentve a listába és a teljes JSON a vágólapra másolva!\nIlleszd be a templates.json fájlba.");
-        }).catch(err => {
-            alert("Hiba a másoláskor, de a konzolban megtalálod a kódot!");
+            alert("Sikeres mentés! A teljes JSON a vágólapon.");
         });
         
         document.getElementById('save-modal').style.display = 'none';
         renderTemplates();
-    }
+            }
+    
 
     function copyLink() {
         const p = new URLSearchParams(document.getElementById('ifr_p').src.split('?')[1]);
