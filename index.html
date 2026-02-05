@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEO Project - Business & Gift Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&family=Pacifico&family=Bebas+Neue&family=Great+Vibes&family=Monoton&family=Press+Start+2P&family=Rajdhani&family=Satisfy&family=Comfortaa&family=Righteous&family=Cinzel&family=Lobster&family=Kaushan+Script&family=Permanent+Marker&family=Exo+2&family=Abril+Fatface&family=Unbounded&family=Special+Elite&family=Russo+One&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; position: fixed; }
+        #video-container { position: fixed; z-index: 0; transform: translate(-50%, -50%); pointer-events: none; display: none; border-radius: 10px; overflow: hidden; }
+        #yt-placeholder { width: 100% !important; height: 100% !important; }
+        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 1; }
+        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); object-fit: cover; }
+        #content-wrapper { position: relative; z-index: 10; width: 100%; height: 100vh; pointer-events: none; }
+        .text-box { position: absolute; transform: translate(-50%, -50%); text-align: center; width: 95%; pointer-events: none; line-height: 1.1; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
+        #canvas-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100; pointer-events: none; }
+        #loader-wrapper { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #00ff00; z-index: 200; text-align: center; font-family: 'Orbitron'; }
+        #enter-btn { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 35px; background: rgba(0,0,0,0.9); border: 2px solid #00ff00; color: #00ff00; cursor: pointer; z-index: 201; box-shadow: 0 0 20px #00ff00; pointer-events: auto; font-family: 'Orbitron'; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div id="video-container"><div id="yt-placeholder"></div></div>
+    <div id="overlay"></div>
+    <canvas id="canvas-overlay"></canvas>
+    <div id="content-wrapper">
+        <div id="loader-wrapper"><p>NEO BETÖLTÉS...</p></div>
+        <button id="enter-btn" onclick="initializeSystem()"></button>
+        <h1 id="main-title" class="text-box"></h1>
+        <div id="sub-title" class="text-box"></div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        let isStarted = false;
+
+        function applyStyle(el, prefix, defSize, defFont) {
+            if(!el) return;
+            el.style.left = (urlParams.get(prefix+'x') || 50) + '%';
+            el.style.top = (urlParams.get(prefix+'y') || 50) + '%';
+            el.style.fontSize = (urlParams.get(prefix+'s') || defSize) + 'vmax';
+            el.style.color = '#' + (urlParams.get(prefix+'c') || '00ff00');
+            el.style.fontFamily = "'" + (urlParams.get(prefix+'f') || defFont) + "', sans-serif";
+        }
+
+        applyStyle(document.getElementById('main-title'), 'm', 5, 'Orbitron');
+        applyStyle(document.getElementById('sub-title'), 's', 2.5, 'Dancing Script');
+        document.getElementById('enter-btn').innerText = urlParams.get('btn') || 'INDÍTÁS';
+
+        const vCont = document.getElementById('video-container');
+        vCont.style.left = (urlParams.get('vx') || 50) + '%';
+        vCont.style.top = (urlParams.get('vy') || 50) + '%';
+        vCont.style.width = (urlParams.get('vw') || 100) + 'vw';
+        vCont.style.height = (urlParams.get('vh') || 100) + 'vh';
+
+        for(let i=1; i<=2; i++) {
+            let dUrl = urlParams.get('d'+i+'url');
+            if(dUrl && dUrl !== "undefined" && dUrl.trim() !== "") {
+                let img = document.createElement('img');
+                img.src = dUrl; img.className = 'deco-img';
+                img.style.left = (urlParams.get('d'+i+'x') || (i==1?20:80)) + '%';
+                img.style.top = (urlParams.get('d'+i+'y') || 20) + '%';
+                let size = (urlParams.get('d'+i+'s') || 15) + 'vmax';
+                img.style.width = size; img.style.height = size;
+                img.style.borderRadius = (urlParams.get('d'+i+'r') || 0) + '%';
+                document.body.appendChild(img);
+            }
+        }
+
+        var player;
+        function onYouTubeIframeAPIReady() {
+            const id = urlParams.get('zene');
+            if(!id) { showBtn(); return; }
+            document.getElementById('video-container').style.display = 'block';
+            player = new YT.Player('yt-placeholder', {
+                videoId: id,
+                playerVars: { 'autoplay': 1, 'mute': 1, 'loop': 1, 'playlist': id, 'controls': 0, 'playsinline': 1 },
+                events: { 'onReady': showBtn }
+            });
+        }
+        function showBtn() { document.getElementById('loader-wrapper').style.display='none'; document.getElementById('enter-btn').style.display='block'; }
+
+        function initializeSystem() {
+            isStarted = true;
+            document.getElementById('enter-btn').style.display = 'none';
+            if(player) {
+                if(urlParams.get('mute') === '1') player.mute(); else { player.unMute(); player.setVolume(100); }
+                player.playVideo();
+            }
+            let idx = 0; const pCim = urlParams.get('cim') || "";
+            function type() {
+                if(idx < pCim.length) { document.getElementById('main-title').innerHTML += pCim.charAt(idx); idx++; setTimeout(type, 70); }
+                else { document.getElementById('sub-title').innerText = urlParams.get('alcim') || ""; }
+            }
+            type(); 
+        }
+
+        const canvas = document.getElementById('canvas-overlay');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function initEff() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            let eff = urlParams.get('effect'), intens = parseInt(urlParams.get('intens')) || 8, es = parseFloat(urlParams.get('esize')) || 2;
+            if(!eff || eff === 'none') return;
+            const chars = { heart:'❤', snow:'❄', flower:'🌸', grad:'🎓', bday:'🎉', party:'🥂' };
+            for (let i=0; i<intens*10; i++) particles.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, s:(Math.random()*es+1)+'vmax', v:Math.random()*1.5+0.5, char:chars[eff]||'●', color:eff==='bday' ? `hsl(${Math.random()*360},100%,50%)` : null });
+        }
+        function draw() {
+            ctx.clearRect(0,0,canvas.width, canvas.height); 
+            if(isStarted && urlParams.get('effect') !== 'none') {
+                const globalColor = '#' + (urlParams.get('ec') || 'ffffff');
+                particles.forEach(p => { ctx.font = p.s + " Arial"; ctx.fillStyle = p.color || globalColor; ctx.fillText(p.char, p.x, p.y); p.y += p.v; if(p.y > canvas.height) p.y = -50; });
+            }
+            requestAnimationFrame(draw);
+        }
+        initEff(); draw();
+        var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
+    </script>
+</body>
+</html>
