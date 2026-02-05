@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEO Project - Ultimate</title>
+    <title>NEO Project</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&family=Pacifico&family=Bebas+Neue&family=Great+Vibes&family=Monoton&family=Press+Start+2P&family=Rajdhani&family=Satisfy&family=Comfortaa&family=Righteous&family=Cinzel&family=Lobster&family=Kaushan+Script&family=Permanent+Marker&family=Exo+2&family=Abril+Fatface&family=Unbounded&family=Special+Elite&family=Russo+One&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,8 +11,8 @@
         #video-container { position: fixed; z-index: 0; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity 1s; }
         #yt-placeholder { width: 100% !important; height: 100% !important; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 1; display: none; }
-        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); object-fit: cover; visibility: hidden; }
-        .text-box { position: absolute; transform: translate(-50%, -50%); text-align: center; width: 95%; pointer-events: none; z-index: 10; visibility: hidden; }
+        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); object-fit: cover; display: none; }
+        .text-box { position: absolute; transform: translate(-50%, -50%); text-align: center; width: 95%; pointer-events: none; z-index: 10; display: none; white-space: pre-wrap; }
         #canvas-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100; pointer-events: none; }
         #enter-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 35px; background: #000; border: 2px solid #0f0; color: #0f0; cursor: pointer; z-index: 201; font-family: 'Orbitron'; display: none; }
     </style>
@@ -27,23 +27,23 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        let player, isStarted = false, effImg = new Image();
         const isEditMode = urlParams.get('edit') === '1';
+        let player, isStarted = false, effImg = new Image();
 
         function applyStyles() {
-            // Címek
-            const config = [{ id:'main-title', p:'m' }, { id:'sub-title', p:'s' }];
+            // Szöveg beállítások
+            const config = [{id:'main-title', p:'m'}, {id:'sub-title', p:'s'}];
             config.forEach(c => {
                 const el = document.getElementById(c.id);
                 el.style.left = (urlParams.get(c.p+'x') || 50) + '%';
-                el.style.top = (urlParams.get(c.p+'y') || 50) + '%';
-                el.style.fontSize = (urlParams.get(c.p+'s') || 3) + 'vmax';
+                el.style.top = (urlParams.get(c.p+'y') || (c.id==='main-title'?40:60)) + '%';
+                el.style.fontSize = (urlParams.get(c.p+'s') || 4) + 'vmax';
                 el.style.color = '#' + (urlParams.get(c.p+'c') || '0f0');
                 el.style.fontFamily = "'" + (urlParams.get(c.p+'f') || 'Orbitron') + "', sans-serif";
-                if(isEditMode) el.style.visibility = 'visible';
+                if(isEditMode) { el.style.display = 'block'; el.innerText = urlParams.get(c.p==='m'?'cim':'alcim') || ''; }
             });
 
-            // Videó konténer
+            // Videó méret
             const vc = document.getElementById('video-container');
             vc.style.left = (urlParams.get('vx') || 50) + '%';
             vc.style.top = (urlParams.get('vy') || 50) + '%';
@@ -51,17 +51,18 @@
             vc.style.height = (urlParams.get('vh') || 100) + 'vh';
             if(isEditMode) vc.style.opacity = '1';
 
-            // Képek (D1, D2)
+            // Képek
             for(let i=1; i<=2; i++) {
-                let url = urlParams.get('d'+i+'url');
-                if(url && url.length > 5) {
-                    let img = document.createElement('img'); img.src = url; img.className = 'deco-img';
-                    img.style.left = (urlParams.get('d'+i+'x') || (i==1?20:80)) + '%';
+                const url = urlParams.get('d'+i+'url');
+                if(url && url !== "undefined") {
+                    const img = document.createElement('img');
+                    img.src = url; img.className = 'deco-img';
+                    img.style.left = (urlParams.get('d'+i+'x') || (i===1?20:80)) + '%';
                     img.style.top = (urlParams.get('d'+i+'y') || 20) + '%';
                     img.style.width = (urlParams.get('d'+i+'w') || 15) + 'vw';
                     img.style.height = (urlParams.get('d'+i+'h') || 15) + 'vh';
                     img.style.borderRadius = (urlParams.get('d'+i+'r') || 0) + '%';
-                    if(isEditMode) img.style.visibility = 'visible';
+                    if(isEditMode) img.style.display = 'block';
                     document.body.appendChild(img);
                 }
             }
@@ -74,67 +75,59 @@
             player = new YT.Player('yt-placeholder', {
                 videoId: z,
                 playerVars: { 'autoplay': 1, 'mute': (isEditMode ? 0 : 1), 'controls': 0, 'loop': 1, 'playlist': z },
-                events: { 'onReady': () => { if(!isEditMode) document.getElementById('enter-btn').style.display = 'block'; } }
+                events: { 'onReady': (e) => { 
+                    if(!isEditMode) document.getElementById('enter-btn').style.display = 'block';
+                    else e.target.playVideo();
+                }}
             });
         }
 
         function startSystem() {
-            isStarted = true;
+            if(isStarted) return; isStarted = true;
             document.getElementById('enter-btn').style.display = 'none';
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('video-container').style.opacity = '1';
+            document.querySelectorAll('.deco-img').forEach(img => img.style.display = 'block');
             if(player) { if(urlParams.get('mute') !== '1') player.unMute(); player.playVideo(); }
-            
-            document.querySelectorAll('.deco-img').forEach(img => img.style.visibility = 'visible');
 
-            const mt = document.getElementById('main-title');
-            mt.style.visibility = 'visible';
+            const mt = document.getElementById('main-title'); mt.style.display = 'block';
             let txt = urlParams.get('cim') || "", idx = 0;
             function type() {
                 if(idx < txt.length) { mt.innerHTML += txt.charAt(idx); idx++; setTimeout(type, 70); }
                 else { 
-                    const st = document.getElementById('sub-title');
-                    st.style.visibility = 'visible';
+                    const st = document.getElementById('sub-title'); st.style.display = 'block';
                     st.innerText = urlParams.get('alcim') || ""; 
                 }
             }
-            if(!isEditMode) type(); else { mt.innerHTML = txt; document.getElementById('sub-title').innerText = urlParams.get('alcim') || ""; }
+            type();
         }
 
-        // Effektek
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function initEff() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            let eff = urlParams.get('effect');
-            if(!eff || eff === 'none') return;
+            const eff = urlParams.get('effect'); if(!eff || eff==='none') return;
             if(urlParams.get('eff_url')) effImg.src = urlParams.get('eff_url');
-            const chars = { heart:'❤', snow:'❄', flower:'🌸', grad:'🎓', bday:'🎉' };
-            for (let i=0; i<(parseInt(urlParams.get('intens')) || 8)*10; i++) {
+            const chars = { heart:'❤', snow:'❄', flower:'🌸', bday:'🎉' };
+            for(let i=0; i<(parseInt(urlParams.get('intens')) || 8)*10; i++) {
                 particles.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, s:Math.random()*2+1, v:Math.random()*1.5+0.5, char:chars[eff]||'' });
             }
         }
+
         function draw() {
             ctx.clearRect(0,0,canvas.width, canvas.height);
             if((isStarted || isEditMode) && urlParams.get('effect') !== 'none') {
-                const sizeBase = Math.min(canvas.width, canvas.height) / 100;
+                const sb = Math.min(canvas.width, canvas.height) / 100;
                 particles.forEach(p => {
-                    if(urlParams.get('eff_url')) {
-                        let ds = p.s * sizeBase * 2;
-                        ctx.drawImage(effImg, p.x, p.y, ds, ds);
-                    } else {
-                        ctx.fillStyle = '#' + (urlParams.get('ec') || 'fff');
-                        ctx.font = (p.s * 2) + "vmax Arial";
-                        ctx.fillText(p.char, p.x, p.y);
-                    }
+                    if(urlParams.get('eff_url')) { ctx.drawImage(effImg, p.x, p.y, p.s*sb*2, p.s*sb*2); }
+                    else { ctx.fillStyle='#'+(urlParams.get('ec')||'fff'); ctx.font=(p.s*2)+'vmax Arial'; ctx.fillText(p.char, p.x, p.y); }
                     p.y += p.v; if(p.y > canvas.height) p.y = -50;
                 });
             }
             requestAnimationFrame(draw);
         }
         applyStyles(); initEff(); draw();
-        if(isEditMode) window.onload = () => { if(player) player.playVideo(); };
         var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
     </script>
 </body>
