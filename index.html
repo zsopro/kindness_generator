@@ -11,7 +11,7 @@
         #video-container { position: fixed; z-index: 0; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity 1s; }
         #yt-placeholder { width: 100% !important; height: 100% !important; }
         #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 1; display: none; }
-        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); object-fit: cover; }
+        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); object-fit: cover; visibility: hidden; }
         .text-box { position: absolute; transform: translate(-50%, -50%); text-align: center; width: 95%; pointer-events: none; z-index: 10; visibility: hidden; }
         #canvas-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100; pointer-events: none; }
         #enter-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 35px; background: #000; border: 2px solid #0f0; color: #0f0; cursor: pointer; z-index: 201; font-family: 'Orbitron'; display: none; }
@@ -28,49 +28,53 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         let player, isStarted = false, effImg = new Image();
+        const isEditMode = urlParams.get('edit') === '1';
 
         function applyStyles() {
-            const config = [
-                { id: 'main-title', p: 'm', ds: 5, df: 'Orbitron' },
-                { id: 'sub-title', p: 's', ds: 2.5, df: 'Dancing Script' }
-            ];
+            // Címek
+            const config = [{ id:'main-title', p:'m' }, { id:'sub-title', p:'s' }];
             config.forEach(c => {
                 const el = document.getElementById(c.id);
                 el.style.left = (urlParams.get(c.p+'x') || 50) + '%';
                 el.style.top = (urlParams.get(c.p+'y') || 50) + '%';
-                el.style.fontSize = (urlParams.get(c.p+'s') || c.ds) + 'vmax';
-                el.style.color = '#' + (urlParams.get(c.p+'c') || '00ff00');
-                el.style.fontFamily = "'" + (urlParams.get(c.p+'f') || c.df) + "', sans-serif";
+                el.style.fontSize = (urlParams.get(c.p+'s') || 3) + 'vmax';
+                el.style.color = '#' + (urlParams.get(c.p+'c') || '0f0');
+                el.style.fontFamily = "'" + (urlParams.get(c.p+'f') || 'Orbitron') + "', sans-serif";
+                if(isEditMode) el.style.visibility = 'visible';
             });
 
+            // Videó konténer
             const vc = document.getElementById('video-container');
             vc.style.left = (urlParams.get('vx') || 50) + '%';
             vc.style.top = (urlParams.get('vy') || 50) + '%';
             vc.style.width = (urlParams.get('vw') || 100) + 'vw';
             vc.style.height = (urlParams.get('vh') || 100) + 'vh';
-            document.getElementById('enter-btn').innerText = urlParams.get('btn') || 'START';
+            if(isEditMode) vc.style.opacity = '1';
 
+            // Képek (D1, D2)
             for(let i=1; i<=2; i++) {
                 let url = urlParams.get('d'+i+'url');
                 if(url && url.length > 5) {
                     let img = document.createElement('img'); img.src = url; img.className = 'deco-img';
                     img.style.left = (urlParams.get('d'+i+'x') || (i==1?20:80)) + '%';
                     img.style.top = (urlParams.get('d'+i+'y') || 20) + '%';
-                    img.style.width = (urlParams.get('d'+i+'s') || 15) + 'vmax';
-                    img.style.height = img.style.width;
+                    img.style.width = (urlParams.get('d'+i+'w') || 15) + 'vw';
+                    img.style.height = (urlParams.get('d'+i+'h') || 15) + 'vh';
                     img.style.borderRadius = (urlParams.get('d'+i+'r') || 0) + '%';
+                    if(isEditMode) img.style.visibility = 'visible';
                     document.body.appendChild(img);
                 }
             }
+            if(!isEditMode) document.getElementById('enter-btn').innerText = urlParams.get('btn') || 'START';
         }
 
         function onYouTubeIframeAPIReady() {
             const z = urlParams.get('zene');
-            if(!z) { document.getElementById('enter-btn').style.display = 'block'; return; }
+            if(!z) { if(!isEditMode) document.getElementById('enter-btn').style.display = 'block'; return; }
             player = new YT.Player('yt-placeholder', {
                 videoId: z,
-                playerVars: { 'autoplay': 1, 'mute': 1, 'controls': 0, 'loop': 1, 'playlist': z, 'playsinline': 1 },
-                events: { 'onReady': () => document.getElementById('enter-btn').style.display = 'block' }
+                playerVars: { 'autoplay': 1, 'mute': (isEditMode ? 0 : 1), 'controls': 0, 'loop': 1, 'playlist': z },
+                events: { 'onReady': () => { if(!isEditMode) document.getElementById('enter-btn').style.display = 'block'; } }
             });
         }
 
@@ -80,6 +84,8 @@
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('video-container').style.opacity = '1';
             if(player) { if(urlParams.get('mute') !== '1') player.unMute(); player.playVideo(); }
+            
+            document.querySelectorAll('.deco-img').forEach(img => img.style.visibility = 'visible');
 
             const mt = document.getElementById('main-title');
             mt.style.visibility = 'visible';
@@ -92,42 +98,33 @@
                     st.innerText = urlParams.get('alcim') || ""; 
                 }
             }
-            type();
+            if(!isEditMode) type(); else { mt.innerHTML = txt; document.getElementById('sub-title').innerText = urlParams.get('alcim') || ""; }
         }
 
+        // Effektek
         const canvas = document.getElementById('canvas-overlay');
         const ctx = canvas.getContext('2d');
         let particles = [];
         function initEff() {
             canvas.width = window.innerWidth; canvas.height = window.innerHeight;
             let eff = urlParams.get('effect');
-            let customEff = urlParams.get('eff_url');
             if(!eff || eff === 'none') return;
-
-            const chars = { heart:'❤', snow:'❄', flower:'🌸', grad:'🎓', bday:'🎉', party:'🥂' };
-            if(customEff) effImg.src = customEff;
-
-            for (let i=0; i< (parseInt(urlParams.get('intens')) || 8)*10; i++) {
-                particles.push({
-                    x: Math.random()*canvas.width,
-                    y: Math.random()*canvas.height,
-                    s: (Math.random()*2+1), // Vmax scale
-                    v: Math.random()*1.5+0.5,
-                    char: chars[eff] || ''
-                });
+            if(urlParams.get('eff_url')) effImg.src = urlParams.get('eff_url');
+            const chars = { heart:'❤', snow:'❄', flower:'🌸', grad:'🎓', bday:'🎉' };
+            for (let i=0; i<(parseInt(urlParams.get('intens')) || 8)*10; i++) {
+                particles.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, s:Math.random()*2+1, v:Math.random()*1.5+0.5, char:chars[eff]||'' });
             }
         }
-
         function draw() {
             ctx.clearRect(0,0,canvas.width, canvas.height);
-            if(isStarted && urlParams.get('effect') !== 'none') {
+            if((isStarted || isEditMode) && urlParams.get('effect') !== 'none') {
                 const sizeBase = Math.min(canvas.width, canvas.height) / 100;
                 particles.forEach(p => {
                     if(urlParams.get('eff_url')) {
-                        let drawS = p.s * sizeBase * 2;
-                        ctx.drawImage(effImg, p.x, p.y, drawS, drawS);
+                        let ds = p.s * sizeBase * 2;
+                        ctx.drawImage(effImg, p.x, p.y, ds, ds);
                     } else {
-                        ctx.fillStyle = '#' + (urlParams.get('ec') || 'ffffff');
+                        ctx.fillStyle = '#' + (urlParams.get('ec') || 'fff');
                         ctx.font = (p.s * 2) + "vmax Arial";
                         ctx.fillText(p.char, p.x, p.y);
                     }
@@ -136,8 +133,8 @@
             }
             requestAnimationFrame(draw);
         }
-
         applyStyles(); initEff(); draw();
+        if(isEditMode) window.onload = () => { if(player) player.playVideo(); };
         var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
     </script>
 </body>
