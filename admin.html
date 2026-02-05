@@ -2,7 +2,7 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO ADMIN - FIX & DYNAMIC</title>
+    <title>NEO ADMIN - TOTAL RESET VERSION</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: white; display: flex; height: 100vh; margin: 0; overflow: hidden; }
@@ -23,87 +23,65 @@
         .btn-del { position: absolute; top: 5px; right: 5px; background: #f00; border: none; color: #fff; font-size: 10px; border-radius: 3px; cursor: pointer; }
         #save-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #222; padding: 20px; border: 2px solid #0f0; z-index: 1000; display: none; width: 320px; }
         .template-item { background: #333; padding: 8px; margin-bottom: 5px; cursor: pointer; font-size: 0.8rem; border-radius: 4px; border-left: 3px solid #0f0; }
-        .template-item:hover { background: #444; }
     </style>
 </head>
 <body>
 
     <div id="save-modal">
         <h4>💾 Mentés Sablonként</h4>
-        <label>Kategória:</label>
-        <select id="modal-cat-list"></select>
-        <label style="margin-top:10px;">Sablon neve:</label>
-        <input type="text" id="modal-new-name" placeholder="Írd be a nevet...">
-        <button onclick="confirmSave()" style="background:#0f0; color:#000; border:none; padding:10px; font-weight:bold; width:100%; margin-top:15px; cursor:pointer;">MENTÉS</button>
-        <button onclick="document.getElementById('save-modal').style.display='none'" style="background:#444; color:#fff; border:none; padding:10px; width:100%; margin-top:5px; cursor:pointer;">MÉGSE</button>
+        <label>Kategória:</label><select id="modal-cat-list"></select>
+        <label style="margin-top:10px;">Név:</label><input type="text" id="modal-new-name">
+        <button onclick="confirmSave()" style="background:#0f0; color:#000; padding:10px; width:100%; margin-top:15px; cursor:pointer;">MENTÉS</button>
+        <button onclick="document.getElementById('save-modal').style.display='none'" style="background:#444; color:#fff; padding:10px; width:100%; margin-top:5px; cursor:pointer;">MÉGSE</button>
     </div>
 
     <div class="settings-panel">
         <div id="edit-toggle" class="live-toggle off" onclick="toggleEdit()">SZERKESZTŐ MÓD: KI</div>
-        
         <div class="section">
-            <h4>Rendszer & Videó</h4>
-            <label>Gomb / Videó ID</label>
+            <h4>Videó & Alap</h4>
             <div class="row">
-                <input type="text" id="btn" placeholder="START" oninput="update()">
-                <input type="text" id="yt" placeholder="YouTube ID" oninput="update()">
+                <div><label>Gomb</label><input type="text" id="btn" oninput="update()"></div>
+                <div><label>YT ID</label><input type="text" id="yt" oninput="update()"></div>
             </div>
             <div class="row">
-                <div><label>VX%</label><input type="number" id="vx" placeholder="50" oninput="update()"></div>
-                <div><label>VY%</label><input type="number" id="vy" placeholder="50" oninput="update()"></div>
-                <div><label>VW%</label><input type="number" id="vw" placeholder="100" oninput="update()"></div>
-                <div><label>VH%</label><input type="number" id="vh" placeholder="100" oninput="update()"></div>
+                <div><label>VX%</label><input type="number" id="vx" oninput="update()"></div>
+                <div><label>VY%</label><input type="number" id="vy" oninput="update()"></div>
+                <div><label>VW%</label><input type="number" id="vw" oninput="update()"></div>
+                <div><label>VH%</label><input type="number" id="vh" oninput="update()"></div>
             </div>
             <label>Mute: <input type="checkbox" id="mute" onchange="update()"></label>
         </div>
-
-        <div class="section" style="border-left-color: #ff0;">
+        <div class="section">
             <h4>Főcím</h4>
-            <input type="text" id="cim" placeholder="Főcím szövege..." oninput="update()">
+            <input type="text" id="cim" oninput="update()">
             <div class="row">
                 <div><label>Betű</label><select id="mf" onchange="update()"></select></div>
-                <div><label>S%</label><input type="number" id="ms" placeholder="5" oninput="update()"></div>
+                <div><label>S%</label><input type="number" id="ms" oninput="update()"></div>
                 <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
             </div>
-            <div class="row">
-                <div><label>X%</label><input type="number" id="mx" placeholder="50" oninput="update()"></div>
-                <div><label>Y%</label><input type="number" id="my" placeholder="30" oninput="update()"></div>
-            </div>
+            <div class="row"><div><label>X%</label><input type="number" id="mx" oninput="update()"></div><div><label>Y%</label><input type="number" id="my" oninput="update()"></div></div>
         </div>
-
-        <div class="section" style="border-left-color: #ff0;">
+        <div class="section">
             <h4>Alcím</h4>
-            <input type="text" id="alcim" placeholder="Alcím szövege..." oninput="update()">
+            <input type="text" id="alcim" oninput="update()">
             <div class="row">
                 <div><label>Betű</label><select id="sf" onchange="update()"></select></div>
-                <div><label>S%</label><input type="number" id="ss" placeholder="3" oninput="update()"></div>
+                <div><label>S%</label><input type="number" id="ss" oninput="update()"></div>
                 <div><label>Szín</label><input type="color" id="sc" value="#00ff00" oninput="update()"></div>
             </div>
-            <div class="row">
-                <div><label>X%</label><input type="number" id="sx" placeholder="50" oninput="update()"></div>
-                <div><label>Y%</label><input type="number" id="sy" placeholder="40" oninput="update()"></div>
-            </div>
+            <div class="row"><div><label>X%</label><input type="number" id="sx" oninput="update()"></div><div><label>Y%</label><input type="number" id="sy" oninput="update()"></div></div>
         </div>
-
         <div id="dynamic-texts"></div>
         <button class="btn-add" onclick="addTextField()">[+] ÚJ SZÖVEGMEZŐ</button>
-
-        <div class="section" style="border-left-color: #f0f;">
-            <h4>Effektek</h4>
-            <select id="eff" onchange="update()">
-                <option value="none">Nincs</option><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option><option value="bday">🎉</option>
-            </select>
-            <div class="row">
-                <div><label>Intenzitás</label><input type="number" id="intens" placeholder="8" oninput="update()"></div>
-                <div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
-            </div>
-            <label>Egyedi Effekt Kép URL</label>
-            <input type="text" id="eff_url" placeholder="https://..." oninput="update()">
+        <div class="section">
+            <h4>Effekt</h4>
+            <select id="eff" onchange="update()"><option value="none">Nincs</option><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option><option value="bday">🎉</option></select>
+            <div class="row"><div><label>Intenz.</label><input type="number" id="intens" oninput="update()"></div><div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div></div>
+            <label>Egyedi URL</label><input type="text" id="eff_url" oninput="update()">
         </div>
-
-        <div class="section" style="border-left-color: #fff;">
-            <h4>Képek</h4>
-            <label>Kép 1 URL</label><input type="text" id="d1url" oninput="update()">
+        <div class="section">
+            <h4>Kép 1</h4>
+            <input type="text" id="d1url" oninput="update()">
             <div class="row">
                 <div><label>X</label><input type="number" id="d1x" oninput="update()"></div>
                 <div><label>Y</label><input type="number" id="d1y" oninput="update()"></div>
@@ -119,11 +97,11 @@
     </div>
 
     <div class="templates-panel">
-        <h4>📁 Sablon Kezelő</h4>
+        <h4>📁 Sablonok</h4>
         <select id="main-cat" onchange="updateSubCats()"></select>
         <select id="sub-cat" onchange="renderTemplates()" style="margin-top:5px;"></select>
         <div id="template-list" style="margin-top:10px;"></div>
-        <button onclick="copyLink()" style="background:#0f0; width:100%; border:none; padding:10px; cursor:pointer; font-weight:bold; margin-top:10px;">LINK MÁSOLÁSA</button>
+        <button onclick="copyLink()" style="background:#0f0; width:100%; border:none; padding:10px; font-weight:bold; margin-top:10px;">LINK MÁSOLÁSA</button>
         <button onclick="openSaveModal()" style="background:#007bff; color:#fff; width:100%; border:none; padding:10px; margin-top:5px; cursor:pointer;">MENTÉS</button>
     </div>
 
@@ -132,23 +110,28 @@
     const fonts = ["Orbitron", "Dancing Script", "Pacifico", "Bebas Neue", "Great Vibes", "Monoton", "Press Start 2P", "Rajdhani", "Satisfy", "Comfortaa", "Righteous", "Cinzel", "Lobster", "Kaushan Script", "Permanent Marker", "Exo 2", "Abril Fatface", "Unbounded", "Special Elite", "Russo One"];
     let catData = {}, templates = [];
 
+    function resetAllFields() {
+        // Minden input és select ürítése
+        document.querySelectorAll('.settings-panel input').forEach(i => {
+            if(i.type === 'checkbox') i.checked = false;
+            else if(i.type === 'color') i.value = (i.id === 'ec' ? '#ffffff' : '#00ff00');
+            else i.value = '';
+        });
+        document.querySelectorAll('.settings-panel select').forEach(s => s.selectedIndex = 0);
+        // Dinamikus mezők teljes törlése
+        document.getElementById('dynamic-texts').innerHTML = '';
+        textCount = 0;
+    }
+
     function addTextField(data = null) {
         textCount++;
         const id = textCount;
         const div = document.createElement('div');
         div.className = 'section text-block'; div.id = `tg-${id}`;
         div.innerHTML = `<button class="btn-del" onclick="this.parentElement.remove();update()">X</button>
-            <h4>EXTRA MEZŐ #${id}</h4>
-            <input type="text" id="txt${id}" oninput="update()">
-            <div class="row">
-                <div><label>F</label><select id="f${id}" onchange="update()"></select></div>
-                <div><label>S%</label><input type="number" id="s${id}" placeholder="2" oninput="update()"></div>
-                <div><label>C</label><input type="color" id="c${id}" value="#ffffff" oninput="update()"></div>
-            </div>
-            <div class="row">
-                <div><label>X%</label><input type="number" id="x${id}" placeholder="50" oninput="update()"></div>
-                <div><label>Y%</label><input type="number" id="y${id}" placeholder="60" oninput="update()"></div>
-            </div>`;
+            <h4>EXTRA MEZŐ #${id}</h4><input type="text" id="txt${id}" oninput="update()">
+            <div class="row"><div><label>F</label><select id="f${id}" onchange="update()"></select></div><div><label>S%</label><input type="number" id="s${id}" oninput="update()"></div><div><label>C</label><input type="color" id="c${id}" value="#ffffff" oninput="update()"></div></div>
+            <div class="row"><div><label>X%</label><input type="number" id="x${id}" oninput="update()"></div><div><label>Y%</label><input type="number" id="y${id}" oninput="update()"></div></div>`;
         document.getElementById('dynamic-texts').appendChild(div);
         fonts.forEach(f => document.getElementById(`f${id}`).add(new Option(f, f)));
         if(data) {
@@ -159,11 +142,11 @@
             document.getElementById(`x${id}`).value = data.x || '';
             document.getElementById(`y${id}`).value = data.y || '';
         }
-        update();
     }
 
     async function init() {
         ['mf','sf'].forEach(id => fonts.forEach(f => document.getElementById(id).add(new Option(f, f))));
+        resetAllFields(); // Induláskor minden üres
         try {
             const cRes = await fetch('categories.json');
             catData = (await cRes.json()).categories;
@@ -177,7 +160,27 @@
             const tRes = await fetch('templates.json');
             templates = (await tRes.json()).templates;
             renderTemplates();
-        } catch(e) { console.error("Adat hiba", e); }
+        } catch(e) {}
+    }
+
+    function loadT(pStr) {
+        resetAllFields(); // Új sablon előtt KÖTELEZŐ teljes takarítás
+        const p = new URLSearchParams(pStr);
+        const basics = ['btn','yt','vx','vy','vw','vh','mute','cim','mf','ms','mc','mx','my','alcim','sf','ss','sc','sx','sy','eff','intens','ec','eff_url','d1url','d1x','d1y','d1w','d1h'];
+        basics.forEach(id => {
+            const tid = id === 'eff' ? 'effect' : id;
+            const el = document.getElementById(id);
+            if(el && p.has(tid)) {
+                if(el.type === 'checkbox') el.checked = p.get(tid) === '1';
+                else el.value = (el.type === 'color' ? '#' : '') + p.get(tid);
+            }
+        });
+        let i = 1;
+        while(p.has('txt'+i)) {
+            addTextField({txt:p.get('txt'+i), f:p.get('f'+i), c:p.get('c'+i), s:p.get('s'+i), x:p.get('x'+i), y:p.get('y'+i)});
+            i++;
+        }
+        update();
     }
 
     function update() {
@@ -187,10 +190,9 @@
             const el = document.getElementById(id);
             if(el) {
                 const val = el.type==='checkbox' ? (el.checked?'1':'0') : el.value.replace('#','');
-                if(val) p.set(id==='eff'?'effect':id, val);
+                if(val && val !== '0' && val !== '') p.set(id==='eff'?'effect':id, val);
             }
         });
-        
         document.querySelectorAll('.text-block').forEach((block, idx) => {
             const oldId = block.id.split('-')[1];
             const newId = idx + 1;
@@ -204,63 +206,19 @@
                 p.set(`y${newId}`, document.getElementById(`y${oldId}`).value);
             }
         });
-
         if(editMode) p.set('edit', '1');
         const url = 'index.html?' + p.toString();
         document.getElementById('ifr_p').src = url;
         document.getElementById('ifr_l').src = url;
     }
 
-    function loadT(pStr) {
-        // Töröljük a meglévő extra mezőket
-        document.getElementById('dynamic-texts').innerHTML = '';
-        textCount = 0;
-        
-        const p = new URLSearchParams(pStr);
-        
-        // Alap mezők betöltése
-        const basics = ['btn','yt','vx','vy','vw','vh','mute','cim','mf','ms','mc','mx','my','alcim','sf','ss','sc','sx','sy','eff','intens','ec','eff_url','d1url','d1x','d1y','d1w','d1h'];
-        basics.forEach(id => {
-            const targetId = id === 'eff' ? 'effect' : id;
-            const el = document.getElementById(id);
-            if(el) {
-                if(el.type === 'checkbox') el.checked = p.get(targetId) === '1';
-                else if(p.has(targetId)) el.value = (el.type === 'color' ? '#' : '') + p.get(targetId);
-                else el.value = '';
-            }
-        });
-
-        // Dinamikus mezők FELISMERÉSE és LÉTREHOZÁSA
-        let i = 1;
-        while(p.has('txt'+i)) {
-            addTextField({
-                txt: p.get('txt'+i),
-                f: p.get('f'+i),
-                c: p.get('c'+i),
-                s: p.get('s'+i),
-                x: p.get('x'+i),
-                y: p.get('y'+i)
-            });
-            i++;
-        }
-        update();
-    }
-
-    function toggleEdit() {
-        editMode = !editMode;
-        const btn = document.getElementById('edit-toggle');
-        btn.innerText = "SZERKESZTŐ MÓD: " + (editMode ? "BE" : "KI");
-        btn.className = "live-toggle " + (editMode ? "" : "off");
-        update();
-    }
-
+    function toggleEdit() { editMode = !editMode; update(); }
     function updateSubCats() {
         const sub = document.getElementById('sub-cat'); sub.innerHTML = "";
         const main = document.getElementById('main-cat').value;
         if(catData[main]) catData[main].forEach(s => sub.add(new Option(s, s)));
         renderTemplates();
     }
-
     function renderTemplates() {
         const sub = document.getElementById('sub-cat').value;
         const list = document.getElementById('template-list'); list.innerHTML = "";
@@ -270,7 +228,6 @@
             list.appendChild(d);
         });
     }
-
     function openSaveModal() { document.getElementById('save-modal').style.display = 'block'; }
     function confirmSave() {
         const sub = document.getElementById('modal-cat-list').value;
@@ -279,19 +236,16 @@
         const p = new URLSearchParams(document.getElementById('ifr_p').src.split('?')[1]);
         p.delete('edit');
         templates.push({ name, subCategory: sub, params: p.toString() });
-        console.log("MENTSD EZT A JSON-T:", JSON.stringify({templates}, null, 2));
+        console.log(JSON.stringify({templates}, null, 2));
         document.getElementById('save-modal').style.display = 'none';
         renderTemplates();
-        alert("Sikeres mentés! A kód a konzolban (F12).");
     }
-
     function copyLink() {
         const p = new URLSearchParams(document.getElementById('ifr_p').src.split('?')[1]);
         p.delete('edit');
         navigator.clipboard.writeText(window.location.href.replace('admin.html', 'index.html?' + p.toString()));
         alert("Link másolva!");
     }
-
     window.onload = init;
 </script>
 </body>
