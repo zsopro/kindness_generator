@@ -2,97 +2,129 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO ADMIN - DYNAMIC ENGINE</title>
+    <title>NEO ADMIN - FIX & DYNAMIC</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: white; display: flex; height: 100vh; margin: 0; overflow: hidden; }
-        .settings-panel { width: 450px; background: #181818; padding: 15px; overflow-y: auto; border-right: 2px solid #333; }
-        .preview-panel { flex: 1; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; padding: 10px; }
+        .settings-panel { width: 420px; background: #181818; padding: 15px; overflow-y: auto; border-right: 2px solid #333; }
+        .preview-panel { flex: 1; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; overflow: hidden; }
         .templates-panel { width: 300px; background: #181818; padding: 15px; border-left: 2px solid #333; overflow-y: auto; }
-        
-        .preview-container { display: flex; flex-direction: column; gap: 10px; align-items: center; }
-        .phone-p { width: 260px; height: 460px; border: 6px solid #222; border-radius: 20px; background: #000; }
-        .phone-l { width: 460px; height: 260px; border: 6px solid #222; border-radius: 20px; background: #000; }
-        
+        .preview-box { transform-origin: center; zoom: 0.6; }
+        .phone-p { width: 360px; height: 640px; border: 10px solid #222; border-radius: 40px; background: #000; overflow: hidden; }
+        .phone-l { width: 640px; height: 360px; border: 10px solid #222; border-radius: 40px; background: #000; overflow: hidden; }
         .section { background: #222; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #0f0; position: relative; }
-        .section.text-block { border-left-color: #0df; }
-        h4 { margin: 0 0 5px 0; font-size: 0.65rem; color: #0f0; text-transform: uppercase; }
-        label { font-size: 0.5rem; color: #aaa; text-transform: uppercase; }
-        input, select { width: 100%; padding: 4px; background: #333; color: #fff; border: 1px solid #444; border-radius: 4px; font-size: 0.75rem; }
-        .row { display: flex; gap: 4px; margin-top: 4px; } .row > div { flex: 1; }
-        .num { text-align: center; color: #0f0; font-weight: bold; }
-        
+        h4 { margin: 0 0 5px 0; font-size: 0.7rem; color: #0f0; text-transform: uppercase; }
+        label { font-size: 0.55rem; color: #aaa; text-transform: uppercase; display: block; margin-top: 5px; }
+        input, select { width: 100%; padding: 5px; background: #333; color: #fff; border: 1px solid #444; border-radius: 4px; font-size: 0.75rem; }
+        .row { display: flex; gap: 5px; } .row > div { flex: 1; }
         .live-toggle { background: #0f0; color: #000; padding: 10px; text-align: center; font-weight: bold; cursor: pointer; border-radius: 5px; margin-bottom: 10px; }
         .live-toggle.off { background: #444; color: #fff; }
-        .btn-add { background: #0df; color: #000; border: none; padding: 10px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%; margin-bottom: 15px; }
-        .btn-del { position: absolute; top: 5px; right: 5px; background: #f00; color: #fff; border: none; font-size: 9px; cursor: pointer; border-radius: 3px; }
-        
-        #save-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #222; padding: 20px; border: 2px solid #0f0; z-index: 1000; display: none; width: 300px; }
-        .template-item { background: #333; padding: 8px; margin-bottom: 5px; cursor: pointer; font-size: 0.8rem; border-radius: 4px; }
+        .btn-add { background: #0df; color: #000; border: none; padding: 10px; font-weight: bold; width: 100%; cursor: pointer; border-radius: 5px; margin: 10px 0; }
+        .btn-del { position: absolute; top: 5px; right: 5px; background: #f00; border: none; color: #fff; font-size: 10px; border-radius: 3px; cursor: pointer; }
+        #save-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #222; padding: 20px; border: 2px solid #0f0; z-index: 1000; display: none; width: 320px; }
+        .template-item { background: #333; padding: 8px; margin-bottom: 5px; cursor: pointer; font-size: 0.8rem; border-radius: 4px; border-left: 3px solid #0f0; }
+        .template-item:hover { background: #444; }
     </style>
 </head>
 <body>
 
     <div id="save-modal">
-        <h4>Sablon Mentése</h4>
-        <select id="modal-name-list" onchange="document.getElementById('modal-new-name').style.display=(this.value==='NEW'?'block':'none')"></select>
-        <input type="text" id="modal-new-name" placeholder="Új név..." style="margin-top:10px;">
-        <button onclick="confirmSave()" style="background:#0f0; color:#000; border:none; padding:10px; width:100%; margin-top:10px; cursor:pointer;">OK</button>
+        <h4>💾 Mentés Sablonként</h4>
+        <label>Kategória:</label>
+        <select id="modal-cat-list"></select>
+        <label style="margin-top:10px;">Sablon neve:</label>
+        <input type="text" id="modal-new-name" placeholder="Írd be a nevet...">
+        <button onclick="confirmSave()" style="background:#0f0; color:#000; border:none; padding:10px; font-weight:bold; width:100%; margin-top:15px; cursor:pointer;">MENTÉS</button>
         <button onclick="document.getElementById('save-modal').style.display='none'" style="background:#444; color:#fff; border:none; padding:10px; width:100%; margin-top:5px; cursor:pointer;">MÉGSE</button>
     </div>
 
     <div class="settings-panel">
-        <div id="edit-toggle" class="live-toggle off" onclick="toggleEdit()">EDIT MODE: OFF</div>
+        <div id="edit-toggle" class="live-toggle off" onclick="toggleEdit()">SZERKESZTŐ MÓD: KI</div>
         
         <div class="section">
-            <h4>Fő Rendszer</h4>
+            <h4>Rendszer & Videó</h4>
+            <label>Gomb / Videó ID</label>
             <div class="row">
-                <div><label>Gomb</label><input type="text" id="btn" oninput="update()"></div>
-                <div><label>Video ID</label><input type="text" id="yt" oninput="update()"></div>
+                <input type="text" id="btn" placeholder="START" oninput="update()">
+                <input type="text" id="yt" placeholder="YouTube ID" oninput="update()">
             </div>
             <div class="row">
-                <div><label>VW%</label><input type="number" id="vw" value="100" oninput="update()" class="num"></div>
-                <div><label>VH%</label><input type="number" id="vh" value="100" oninput="update()" class="num"></div>
-                <div style="text-align:center"><label>Mute</label><input type="checkbox" id="mute" onchange="update()"></div>
+                <div><label>VX%</label><input type="number" id="vx" placeholder="50" oninput="update()"></div>
+                <div><label>VY%</label><input type="number" id="vy" placeholder="50" oninput="update()"></div>
+                <div><label>VW%</label><input type="number" id="vw" placeholder="100" oninput="update()"></div>
+                <div><label>VH%</label><input type="number" id="vh" placeholder="100" oninput="update()"></div>
+            </div>
+            <label>Mute: <input type="checkbox" id="mute" onchange="update()"></label>
+        </div>
+
+        <div class="section" style="border-left-color: #ff0;">
+            <h4>Főcím</h4>
+            <input type="text" id="cim" placeholder="Főcím szövege..." oninput="update()">
+            <div class="row">
+                <div><label>Betű</label><select id="mf" onchange="update()"></select></div>
+                <div><label>S%</label><input type="number" id="ms" placeholder="5" oninput="update()"></div>
+                <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
+            </div>
+            <div class="row">
+                <div><label>X%</label><input type="number" id="mx" placeholder="50" oninput="update()"></div>
+                <div><label>Y%</label><input type="number" id="my" placeholder="30" oninput="update()"></div>
+            </div>
+        </div>
+
+        <div class="section" style="border-left-color: #ff0;">
+            <h4>Alcím</h4>
+            <input type="text" id="alcim" placeholder="Alcím szövege..." oninput="update()">
+            <div class="row">
+                <div><label>Betű</label><select id="sf" onchange="update()"></select></div>
+                <div><label>S%</label><input type="number" id="ss" placeholder="3" oninput="update()"></div>
+                <div><label>Szín</label><input type="color" id="sc" value="#00ff00" oninput="update()"></div>
+            </div>
+            <div class="row">
+                <div><label>X%</label><input type="number" id="sx" placeholder="50" oninput="update()"></div>
+                <div><label>Y%</label><input type="number" id="sy" placeholder="40" oninput="update()"></div>
             </div>
         </div>
 
         <div id="dynamic-texts"></div>
         <button class="btn-add" onclick="addTextField()">[+] ÚJ SZÖVEGMEZŐ</button>
 
-        <div class="section" style="border-left-color: #fff;">
-            <h4>Kép 1 & 2</h4>
-            <input type="text" id="d1url" placeholder="URL 1" oninput="update()">
+        <div class="section" style="border-left-color: #f0f;">
+            <h4>Effektek</h4>
+            <select id="eff" onchange="update()">
+                <option value="none">Nincs</option><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option><option value="bday">🎉</option>
+            </select>
             <div class="row">
-                <div><label>X1</label><input type="number" id="d1x" oninput="update()" class="num"></div>
-                <div><label>Y1</label><input type="number" id="d1y" oninput="update()" class="num"></div>
-                <div><label>W1</label><input type="number" id="d1w" oninput="update()" class="num"></div>
-                <div><label>H1</label><input type="number" id="d1h" oninput="update()" class="num"></div>
+                <div><label>Intenzitás</label><input type="number" id="intens" placeholder="8" oninput="update()"></div>
+                <div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div>
             </div>
-            <input type="text" id="d2url" placeholder="URL 2" oninput="update()" style="margin-top:5px;">
+            <label>Egyedi Effekt Kép URL</label>
+            <input type="text" id="eff_url" placeholder="https://..." oninput="update()">
+        </div>
+
+        <div class="section" style="border-left-color: #fff;">
+            <h4>Képek</h4>
+            <label>Kép 1 URL</label><input type="text" id="d1url" oninput="update()">
             <div class="row">
-                <div><label>X2</label><input type="number" id="d2x" oninput="update()" class="num"></div>
-                <div><label>Y2</label><input type="number" id="d2y" oninput="update()" class="num"></div>
-                <div><label>W2</label><input type="number" id="d2w" oninput="update()" class="num"></div>
-                <div><label>H2</label><input type="number" id="d2h" oninput="update()" class="num"></div>
+                <div><label>X</label><input type="number" id="d1x" oninput="update()"></div>
+                <div><label>Y</label><input type="number" id="d1y" oninput="update()"></div>
+                <div><label>W</label><input type="number" id="d1w" oninput="update()"></div>
+                <div><label>H</label><input type="number" id="d1h" oninput="update()"></div>
             </div>
         </div>
     </div>
 
     <div class="preview-panel">
-        <div class="preview-container">
-            <iframe id="ifr_p" class="phone-p" src="index.html"></iframe>
-            <iframe id="ifr_l" class="phone-l" src="index.html"></iframe>
-        </div>
+        <div class="preview-box phone-p"><iframe id="ifr_p" src="index.html" width="100%" height="100%" frameborder="0"></iframe></div>
+        <div class="preview-box phone-l"><iframe id="ifr_l" src="index.html" width="100%" height="100%" frameborder="0"></iframe></div>
     </div>
 
     <div class="templates-panel">
-        <h4>Kategóriák</h4>
+        <h4>📁 Sablon Kezelő</h4>
         <select id="main-cat" onchange="updateSubCats()"></select>
         <select id="sub-cat" onchange="renderTemplates()" style="margin-top:5px;"></select>
-        <div id="template-list" style="margin: 15px 0; max-height: 300px; overflow-y:auto;"></div>
-        <button onclick="copyLink()" style="background:#0f0; width:100%; border:none; padding:10px; cursor:pointer; font-weight:bold;">LINK MÁSOLÁSA</button>
-        <button onclick="openSaveModal()" style="background:#007bff; color:#fff; width:100%; border:none; padding:10px; margin-top:5px; cursor:pointer;">MENTÉS SABLONKÉNT</button>
+        <div id="template-list" style="margin-top:10px;"></div>
+        <button onclick="copyLink()" style="background:#0f0; width:100%; border:none; padding:10px; cursor:pointer; font-weight:bold; margin-top:10px;">LINK MÁSOLÁSA</button>
+        <button onclick="openSaveModal()" style="background:#007bff; color:#fff; width:100%; border:none; padding:10px; margin-top:5px; cursor:pointer;">MENTÉS</button>
     </div>
 
 <script>
@@ -104,78 +136,67 @@
         textCount++;
         const id = textCount;
         const div = document.createElement('div');
-        div.className = 'section text-block';
-        div.id = `text-group-${id}`;
-        div.innerHTML = `
-            <button class="btn-del" onclick="removeTextField(${id})">X</button>
-            <h4>MEZŐ #${id}</h4>
-            <input type="text" id="txt${id}" placeholder="Szöveg..." oninput="update()">
+        div.className = 'section text-block'; div.id = `tg-${id}`;
+        div.innerHTML = `<button class="btn-del" onclick="this.parentElement.remove();update()">X</button>
+            <h4>EXTRA MEZŐ #${id}</h4>
+            <input type="text" id="txt${id}" oninput="update()">
             <div class="row">
-                <div><label>Font</label><select id="f${id}" onchange="update()"></select></div>
-                <div><label>Szín</label><input type="color" id="c${id}" value="#ffffff" oninput="update()"></div>
-                <div><label>S%</label><input type="number" id="s${id}" value="3" oninput="update()" class="num"></div>
+                <div><label>F</label><select id="f${id}" onchange="update()"></select></div>
+                <div><label>S%</label><input type="number" id="s${id}" placeholder="2" oninput="update()"></div>
+                <div><label>C</label><input type="color" id="c${id}" value="#ffffff" oninput="update()"></div>
             </div>
             <div class="row">
-                <div><label>X%</label><input type="number" id="x${id}" value="50" oninput="update()" class="num"></div>
-                <div><label>Y%</label><input type="number" id="y${id}" value="${15 * id}" oninput="update()" class="num"></div>
-            </div>
-        `;
+                <div><label>X%</label><input type="number" id="x${id}" placeholder="50" oninput="update()"></div>
+                <div><label>Y%</label><input type="number" id="y${id}" placeholder="60" oninput="update()"></div>
+            </div>`;
         document.getElementById('dynamic-texts').appendChild(div);
-        const sel = document.getElementById(`f${id}`);
-        fonts.forEach(f => sel.add(new Option(f, f)));
-        
+        fonts.forEach(f => document.getElementById(`f${id}`).add(new Option(f, f)));
         if(data) {
             document.getElementById(`txt${id}`).value = data.txt || '';
             document.getElementById(`f${id}`).value = data.f || 'Orbitron';
             document.getElementById(`c${id}`).value = '#' + (data.c || 'ffffff');
-            document.getElementById(`s${id}`).value = data.s || 3;
-            document.getElementById(`x${id}`).value = data.x || 50;
-            document.getElementById(`y${id}`).value = data.y || 50;
+            document.getElementById(`s${id}`).value = data.s || '';
+            document.getElementById(`x${id}`).value = data.x || '';
+            document.getElementById(`y${id}`).value = data.y || '';
         }
         update();
     }
 
-    function removeTextField(id) {
-        document.getElementById(`text-group-${id}`).remove();
-        update();
-    }
-
     async function init() {
-        // Mezők ürítése
-        document.getElementById('btn').value = '';
-        document.getElementById('yt').value = '';
-        document.getElementById('dynamic-texts').innerHTML = '';
-        
+        ['mf','sf'].forEach(id => fonts.forEach(f => document.getElementById(id).add(new Option(f, f))));
         try {
             const cRes = await fetch('categories.json');
             catData = (await cRes.json()).categories;
-            Object.keys(catData).forEach(k => document.getElementById('main-cat').add(new Option(k, k)));
+            const mc = document.getElementById('main-cat');
+            const mlc = document.getElementById('modal-cat-list');
+            Object.keys(catData).forEach(k => {
+                mc.add(new Option(k, k));
+                catData[k].forEach(sub => mlc.add(new Option(`${k} > ${sub}`, sub)));
+            });
             updateSubCats();
             const tRes = await fetch('templates.json');
             templates = (await tRes.json()).templates;
             renderTemplates();
-        } catch(e) {}
+        } catch(e) { console.error("Adat hiba", e); }
     }
 
     function update() {
         const p = new URLSearchParams();
-        const basics = ['btn','yt','vw','vh','mute','d1url','d1x','d1y','d1w','d1h','d2url','d2x','d2y','d2w','d2h'];
+        const basics = ['btn','yt','vx','vy','vw','vh','mute','cim','mf','ms','mc','mx','my','alcim','sf','ss','sc','sx','sy','eff','intens','ec','eff_url','d1url','d1x','d1y','d1w','d1h'];
         basics.forEach(id => {
             const el = document.getElementById(id);
             if(el) {
-                const val = el.type === 'checkbox' ? (el.checked ? '1' : '0') : el.value.replace('#','');
-                if(val && val !== "0") p.set(id, val);
+                const val = el.type==='checkbox' ? (el.checked?'1':'0') : el.value.replace('#','');
+                if(val) p.set(id==='eff'?'effect':id, val);
             }
         });
-
-        // Dinamikus sorszámozás az URL-ben a folyamatosságért
-        const blocks = document.querySelectorAll('.text-block');
-        blocks.forEach((block, index) => {
-            const oldId = block.id.split('-')[2];
-            const newId = index + 1;
-            const txtVal = document.getElementById(`txt${oldId}`).value;
-            if(txtVal) {
-                p.set(`txt${newId}`, txtVal);
+        
+        document.querySelectorAll('.text-block').forEach((block, idx) => {
+            const oldId = block.id.split('-')[1];
+            const newId = idx + 1;
+            const val = document.getElementById(`txt${oldId}`).value;
+            if(val) {
+                p.set(`txt${newId}`, val);
                 p.set(`f${newId}`, document.getElementById(`f${oldId}`).value);
                 p.set(`c${newId}`, document.getElementById(`c${oldId}`).value.replace('#',''));
                 p.set(`s${newId}`, document.getElementById(`s${oldId}`).value);
@@ -190,33 +211,46 @@
         document.getElementById('ifr_l').src = url;
     }
 
-    function toggleEdit() {
-        editMode = !editMode;
-        const btn = document.getElementById('edit-toggle');
-        btn.innerText = "EDIT MODE: " + (editMode ? "ON" : "OFF");
-        btn.className = "live-toggle " + (editMode ? "" : "off");
-        update();
-    }
-
     function loadT(pStr) {
+        // Töröljük a meglévő extra mezőket
         document.getElementById('dynamic-texts').innerHTML = '';
         textCount = 0;
+        
         const p = new URLSearchParams(pStr);
-        ['btn','yt','vw','vh','mute','d1url','d1x','d1y','d1w','d1h','d2url','d2x','d2y','d2w','d2h'].forEach(id => {
+        
+        // Alap mezők betöltése
+        const basics = ['btn','yt','vx','vy','vw','vh','mute','cim','mf','ms','mc','mx','my','alcim','sf','ss','sc','sx','sy','eff','intens','ec','eff_url','d1url','d1x','d1y','d1w','d1h'];
+        basics.forEach(id => {
+            const targetId = id === 'eff' ? 'effect' : id;
             const el = document.getElementById(id);
             if(el) {
-                if(el.type==='checkbox') el.checked = p.get(id)==='1';
-                else el.value = p.has(id) ? (el.type==='color' ? '#' + p.get(id) : p.get(id)) : '';
+                if(el.type === 'checkbox') el.checked = p.get(targetId) === '1';
+                else if(p.has(targetId)) el.value = (el.type === 'color' ? '#' : '') + p.get(targetId);
+                else el.value = '';
             }
         });
+
+        // Dinamikus mezők FELISMERÉSE és LÉTREHOZÁSA
         let i = 1;
-        while(p.has(`txt${i}`)) {
+        while(p.has('txt'+i)) {
             addTextField({
-                txt: p.get(`txt${i}`), f: p.get(`f${i}`), c: p.get(`c${i}`),
-                s: p.get(`s${i}`), x: p.get(`x${i}`), y: p.get(`y${i}`)
+                txt: p.get('txt'+i),
+                f: p.get('f'+i),
+                c: p.get('c'+i),
+                s: p.get('s'+i),
+                x: p.get('x'+i),
+                y: p.get('y'+i)
             });
             i++;
         }
+        update();
+    }
+
+    function toggleEdit() {
+        editMode = !editMode;
+        const btn = document.getElementById('edit-toggle');
+        btn.innerText = "SZERKESZTŐ MÓD: " + (editMode ? "BE" : "KI");
+        btn.className = "live-toggle " + (editMode ? "" : "off");
         update();
     }
 
@@ -237,27 +271,18 @@
         });
     }
 
-    function openSaveModal() {
-        const sub = document.getElementById('sub-cat').value;
-        const list = document.getElementById('modal-name-list');
-        list.innerHTML = '<option value="NEW">-- ÚJ SABLON --</option>';
-        templates.filter(t => t.subCategory === sub).forEach(t => list.add(new Option(t.name, t.name)));
-        document.getElementById('save-modal').style.display = 'block';
-    }
-
+    function openSaveModal() { document.getElementById('save-modal').style.display = 'block'; }
     function confirmSave() {
-        const sub = document.getElementById('sub-cat').value;
-        const sel = document.getElementById('modal-name-list').value;
-        const name = (sel === 'NEW' ? document.getElementById('modal-new-name').value : sel);
+        const sub = document.getElementById('modal-cat-list').value;
+        const name = document.getElementById('modal-new-name').value;
         if(!name) return;
         const p = new URLSearchParams(document.getElementById('ifr_p').src.split('?')[1]);
         p.delete('edit');
-        templates = templates.filter(t => !(t.name === name && t.subCategory === sub));
         templates.push({ name, subCategory: sub, params: p.toString() });
-        console.log(JSON.stringify({templates}, null, 2));
+        console.log("MENTSD EZT A JSON-T:", JSON.stringify({templates}, null, 2));
         document.getElementById('save-modal').style.display = 'none';
         renderTemplates();
-        alert("Sikeres mentés! A JSON kód a konzolban (F12).");
+        alert("Sikeres mentés! A kód a konzolban (F12).");
     }
 
     function copyLink() {
