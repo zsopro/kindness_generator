@@ -1,4 +1,4 @@
-// transform-module.js
+// transform-module.js Ez a fájl felel az X, Y, Width, Height adatok kezeléséért, figyelembe véve az álló és fekvő nézetet.
 export const TransformModule = {
     // Kinyeri a stílust a paraméterekből az aktuális nézet alapján
     // prefix: pl. 'v' (video), 'd1' (deco1), 'txt1'
