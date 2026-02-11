@@ -8,6 +8,12 @@
         body { margin: 0; display: flex; height: 100vh; background: #000; color: #fff; font-family: sans-serif; }
         .sidebar { width: 400px; background: #1a1a1a; border-right: 2px solid #333; overflow-y: auto; display: flex; flex-direction: column; }
         .preview-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; background: #080808; }
+
+        .live-toggle { 
+            background: #444; color: #fff; padding: 12px; text-align: center; 
+            font-weight: bold; cursor: pointer; transition: 0.3s; margin: 10px; border-radius: 5px;
+        }
+        .live-toggle.on { background: var(--neon); color: #000; }
         
         /* Accordion */
         .accordion-item { border-bottom: 1px solid #333; }
@@ -38,6 +44,7 @@
 <body>
 
 <div class="sidebar">
+    <div id="edit-toggle" class="live-toggle" onclick="toggleEdit()">SZERKESZTŐ MÓD: KI</div>
     <div class="control-bar">
         <button class="btn btn-refresh" onclick="manualRefresh()">🔄 Frissítés</button>
         <button id="play-pause-btn" class="btn btn-pause" onclick="togglePlayback()">⏸ Szünet</button>
@@ -71,7 +78,8 @@
     import { TransformModule } from './transform-module.js';
 
     let isPlaying = true;
-
+    let editMode = false; 
+    
     window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('yt-fields').innerHTML = TransformModule.createUIFields('v');
         document.getElementById('d1-fields').innerHTML = TransformModule.createUIFields('d1');
@@ -81,6 +89,19 @@
         });
     });
 
+    // Szerkesztő mód váltó függvény
+    window.toggleEdit = () => {
+        editMode = !editMode;
+        const btn = document.getElementById('edit-toggle');
+        btn.innerText = "SZERKESZTŐ MÓD: " + (editMode ? "BE" : "KI");
+        btn.classList.toggle('on', editMode);
+        
+        // Értesítjük az iframe-eket a módváltásról
+        [document.getElementById('ifr_p'), document.getElementById('ifr_l')].forEach(ifr => {
+            ifr.contentWindow.postMessage({ type: 'EDIT_MODE', value: editMode }, '*');
+        });
+    };
+    
     window.toggleAccordion = (h) => {
         const c = h.nextElementSibling;
         c.classList.toggle('active');
@@ -98,7 +119,10 @@
 
     window.manualRefresh = () => {
         const p = new URLSearchParams();
-        document.querySelectorAll('input').forEach(i => { if(i.id && i.id !== 'yt_input' && i.value) p.set(i.id, i.value); });
+        document.querySelectorAll('input').forEach(i => { 
+            if(i.id && i.id !== 'yt_input' && i.value) p.set(i.id, i.value); 
+        });
+        if (editMode) p.set('edit', '1'); // Ez fontos!
         const url = 'index.html?' + p.toString();
         document.getElementById('ifr_p').src = url;
         document.getElementById('ifr_l').src = url;
