@@ -1,4 +1,4 @@
-// url-handler.js Ez a fájl kezeli a YouTube linkeket és a jövőben a kép/videó URL-eket is.
+// url-handler.js
 export const URLHandler = {
     // YouTube ID kinyerése
     parseYouTubeID: (url) => {
