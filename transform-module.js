@@ -23,8 +23,38 @@ export const TransformModule = {
         };
     },
 
-    // Segéd függvény az Admin felületre a mezők legenerálásához
-    createUIFields: (label, prefix) => {
+ // Segéd függvény az Admin felületre a mezők legenerálásához
+
+    createUIFields: (prefix) => {
+        return `
+            <div class="view-grid">
+                <div class="view-section portrait">
+                    <h6>ÁLLÓ NÉZET</h6>
+                    <div class="input-group">
+                        <input type="number" id="${prefix}x" placeholder="X%" oninput="update()">
+                        <input type="number" id="${prefix}y" placeholder="Y%" oninput="update()">
+                        <input type="number" id="${prefix}w" placeholder="W%" oninput="update()">
+                        <input type="number" id="${prefix}h" placeholder="H%" oninput="update()">
+                    </div>
+                </div>
+                <div class="view-section landscape">
+                    <h6>FEKVŐ NÉZET</h6>
+                    <div class="input-group">
+                        <input type="number" id="l${prefix}x" placeholder="X%" oninput="update()">
+                        <input type="number" id="l${prefix}y" placeholder="Y%" oninput="update()">
+                        <input type="number" id="l${prefix}w" placeholder="W%" oninput="update()">
+                        <input type="number" id="l${prefix}h" placeholder="H%" oninput="update()">
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+
+
+    
+   
+    /*createUIFields: (label, prefix) => {
         return `
             <div class="transform-group">
                 <h5 style="color: #0df; font-size: 0.7rem; margin: 10px 0 5px;">${label}</h5>
@@ -50,5 +80,5 @@ export const TransformModule = {
                 </div>
             </div>
         `;
-    }
+    }*/
 };
