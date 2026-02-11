@@ -2,288 +2,141 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO ADMIN - JSON AUTO-COPY VERSION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&display=swap" rel="stylesheet">
+    <title>NEO ADMIN - MODULAR & ACCORDION</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: white; display: flex; height: 100vh; margin: 0; overflow: hidden; }
-        .settings-panel { width: 420px; background: #181818; padding: 15px; overflow-y: auto; border-right: 2px solid #333; }
-        .preview-panel { flex: 1; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; overflow: hidden; }
-        .templates-panel { width: 300px; background: #181818; padding: 15px; border-left: 2px solid #333; overflow-y: auto; }
-        .preview-box { transform-origin: center; zoom: 0.6; }
-        .phone-p { width: 360px; height: 640px; border: 10px solid #222; border-radius: 40px; background: #000; overflow: hidden; }
-        .phone-l { width: 640px; height: 360px; border: 10px solid #222; border-radius: 40px; background: #000; overflow: hidden; }
-        .section { background: #222; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #0f0; position: relative; }
-        h4 { margin: 0 0 5px 0; font-size: 0.7rem; color: #0f0; text-transform: uppercase; }
-        label { font-size: 0.55rem; color: #aaa; text-transform: uppercase; display: block; margin-top: 5px; }
-        input, select { width: 100%; padding: 5px; background: #333; color: #fff; border: 1px solid #444; border-radius: 4px; font-size: 0.75rem; }
-        .row { display: flex; gap: 5px; } .row > div { flex: 1; }
-        .live-toggle { background: #444; color: #fff; padding: 10px; text-align: center; font-weight: bold; cursor: pointer; border-radius: 5px; margin-bottom: 10px; transition: 0.3s; }
-        .live-toggle.on { background: #0f0; color: #000; }
-        .btn-add { background: #0df; color: #000; border: none; padding: 10px; font-weight: bold; width: 100%; cursor: pointer; border-radius: 5px; margin: 10px 0; }
-        .btn-del { position: absolute; top: 5px; right: 5px; background: #f00; border: none; color: #fff; font-size: 10px; border-radius: 3px; cursor: pointer; }
-        #save-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #222; padding: 20px; border: 2px solid #0f0; z-index: 1000; display: none; width: 320px; box-shadow: 0 0 50px #000; }
-        .template-item { background: #333; padding: 8px; margin-bottom: 5px; cursor: pointer; font-size: 0.8rem; border-radius: 4px; border-left: 3px solid #0f0; }
+        :root { --neon-green: #0f0; --panel-bg: #181818; }
+        body { margin: 0; display: flex; height: 100vh; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
+
+        /* Két oszlopos elrendezés */
+        .sidebar { width: 450px; background: var(--panel-bg); border-right: 2px solid #333; display: flex; flex-direction: column; }
+        .preview-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; background: #050505; overflow-y: auto; }
+
+        /* Összecsukható menü (Accordion) */
+        .accordion-item { border-bottom: 1px solid #333; }
+        .accordion-header { 
+            padding: 15px; background: #222; cursor: pointer; 
+            display: flex; justify-content: space-between; align-items: center;
+            font-weight: bold; text-transform: uppercase; font-size: 0.8rem;
+        }
+        .accordion-header:hover { background: #2a2a2a; }
+        .accordion-content { padding: 15px; display: none; background: #1a1a1a; }
+        .accordion-content.active { display: block; }
+
+        /* Szerkesztő mód gomb */
+        .live-toggle { 
+            background: #444; color: #fff; padding: 12px; text-align: center; 
+            font-weight: bold; cursor: pointer; transition: 0.3s; margin: 10px; border-radius: 5px;
+        }
+        .live-toggle.on { background: var(--neon-green); color: #000; }
+
+        /* Előnézet dobozok */
+        .preview-container { transform: scale(0.6); transform-origin: center; border: 8px solid #333; border-radius: 20px; overflow: hidden; background: #000; }
+        .p-port { width: 360px; height: 640px; }
+        .p-land { width: 640px; height: 360px; }
+
+        /* Transform Module Grid */
+        .view-grid { display: flex; gap: 10px; margin-top: 10px; }
+        .view-section { flex: 1; background: #222; padding: 8px; border-radius: 4px; }
+        .view-section h6 { margin: 0 0 5px; font-size: 0.6rem; color: #aaa; }
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        input { width: 100%; padding: 5px; background: #333; border: 1px solid #444; color: #fff; border-radius: 3px; font-size: 0.7rem; box-sizing: border-box; }
+        input:focus { border-color: var(--neon-green); outline: none; }
     </style>
 </head>
 <body>
 
-    <div id="save-modal">
-        <h4>💾 Mentés Sablonként</h4>
-        <label>Kategória:</label><select id="modal-cat-list"></select>
-        <label style="margin-top:10px;">Név:</label><input type="text" id="modal-new-name" placeholder="Sablon neve...">
-        <button onclick="confirmSave()" style="background:#0f0; color:#000; padding:10px; width:100%; margin-top:15px; cursor:pointer; font-weight:bold;">MENTÉS & MÁSOLÁS</button>
-        <button onclick="document.getElementById('save-modal').style.display='none'" style="background:#444; color:#fff; padding:10px; width:100%; margin-top:5px; cursor:pointer;">MÉGSE</button>
-    </div>
-
-    <div class="settings-panel">
+    <div class="sidebar">
         <div id="edit-toggle" class="live-toggle" onclick="toggleEdit()">SZERKESZTŐ MÓD: KI</div>
-        <div class="section">
-            <h4>Videó & Alap</h4>
-            <div class="row">
-                <div><label>Gomb</label><input type="text" id="btn" oninput="update()"></div>
-                <div><label>YT ID</label><input type="text" id="yt" oninput="update()"></div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>Média szerkesztése (YouTube)</span>
+                <span class="sign">+</span>
             </div>
-            <div class="row">
-                <div><label>VX%</label><input type="number" id="vx" oninput="update()"></div>
-                <div><label>VY%</label><input type="number" id="vy" oninput="update()"></div>
-                <div><label>VW%</label><input type="number" id="vw" oninput="update()"></div>
-                <div><label>VH%</label><input type="number" id="vh" oninput="update()"></div>
+            <div class="accordion-content" id="yt-section">
+                <label style="font-size:0.7rem;">YouTube URL / ID:</label>
+                <input type="text" id="yt_input" placeholder="Illeszd be a linket..." style="margin-bottom:10px;">
+                <input type="hidden" id="yt"> <div id="yt-transform-container"></div>
             </div>
-            <label>Mute: <input type="checkbox" id="mute" onchange="update()"></label>
         </div>
-        <div class="section">
-            <h4>Főcím</h4>
-            <input type="text" id="cim" oninput="update()">
-            <div class="row">
-                <div><label>Betű</label><select id="mf" onchange="update()"></select></div>
-                <div><label>S%</label><input type="number" id="ms" oninput="update()"></div>
-                <div><label>Szín</label><input type="color" id="mc" value="#00ff00" oninput="update()"></div>
+
+        <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                <span>Képek hozzáadása</span>
+                <span class="sign">+</span>
             </div>
-            <div class="row"><div><label>X%</label><input type="number" id="mx" oninput="update()"></div><div><label>Y%</label><input type="number" id="my" oninput="update()"></div></div>
-        </div>
-        <div class="section">
-            <h4>Alcím</h4>
-            <input type="text" id="alcim" oninput="update()">
-            <div class="row">
-                <div><label>Betű</label><select id="sf" onchange="update()"></select></div>
-                <div><label>S%</label><input type="number" id="ss" oninput="update()"></div>
-                <div><label>Szín</label><input type="color" id="sc" value="#00ff00" oninput="update()"></div>
-            </div>
-            <div class="row"><div><label>X%</label><input type="number" id="sx" oninput="update()"></div><div><label>Y%</label><input type="number" id="sy" oninput="update()"></div></div>
-        </div>
-        <div id="dynamic-texts"></div>
-        <button class="btn-add" onclick="addTextField()">[+] ÚJ SZÖVEGMEZŐ</button>
-        <div class="section">
-            <h4>Effekt</h4>
-            <select id="eff" onchange="update()"><option value="none">Nincs</option><option value="heart">Szív</option><option value="snow">Hó</option><option value="flower">Virág</option><option value="bday">🎉</option></select>
-            <div class="row"><div><label>Intenz.</label><input type="number" id="intens" oninput="update()"></div><div><label>Szín</label><input type="color" id="ec" value="#ffffff" oninput="update()"></div></div>
-            <label>Egyedi URL</label><input type="text" id="eff_url" oninput="update()">
-        </div>
-        <div class="section">
-            <h4>Kép 1</h4>
-            <input type="text" id="d1url" oninput="update()">
-            <div class="row">
-                <div><label>X</label><input type="number" id="d1x" oninput="update()"></div>
-                <div><label>Y</label><input type="number" id="d1y" oninput="update()"></div>
-                <div><label>W</label><input type="number" id="d1w" oninput="update()"></div>
-                <div><label>H</label><input type="number" id="d1h" oninput="update()"></div>
+            <div class="accordion-content">
+                <label style="font-size:0.7rem;">Kép 1 URL:</label>
+                <input type="text" id="d1url" oninput="update()" style="margin-bottom:10px;">
+                <div id="d1-transform-container"></div>
+                <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+                <label style="font-size:0.7rem;">Kép 2 URL:</label>
+                <input type="text" id="d2url" oninput="update()" style="margin-bottom:10px;">
+                <div id="d2-transform-container"></div>
             </div>
         </div>
     </div>
 
-    <div class="preview-panel">
-        <div class="preview-box phone-p"><iframe id="ifr_p" src="about:blank" width="100%" height="100%" frameborder="0"></iframe></div>
-        <div class="preview-box phone-l"><iframe id="ifr_l" src="about:blank" width="100%" height="100%" frameborder="0"></iframe></div>
+    <div class="preview-area">
+        <div class="preview-container p-port"><iframe id="ifr_p" src="index.html" width="100%" height="100%" frameborder="0"></iframe></div>
+        <div class="preview-container p-land"><iframe id="ifr_l" src="index.html" width="100%" height="100%" frameborder="0"></iframe></div>
     </div>
 
-    <div class="templates-panel">
-        <h4>📁 Sablonok</h4>
-        <select id="main-cat" onchange="updateSubCats()"></select>
-        <select id="sub-cat" onchange="renderTemplates()" style="margin-top:5px;"></select>
-        <div id="template-list" style="margin-top:10px;"></div>
-        <button onclick="copyLink()" style="background:#0f0; width:100%; border:none; padding:10px; font-weight:bold; margin-top:10px;">LINK MÁSOLÁSA</button>
-        <button onclick="openSaveModal()" style="background:#007bff; color:#fff; width:100%; border:none; padding:10px; margin-top:5px; cursor:pointer;">MENTÉS</button>
-    </div>
+    <script type="module">
+        import { URLHandler } from './url-handler.js';
+        import { TransformModule } from './transform-module.js';
 
-<script>
-    let editMode = false, textCount = 0;
-    const fonts = ["Orbitron", "Dancing Script", "Pacifico", "Bebas Neue", "Great Vibes", "Monoton", "Press Start 2P", "Rajdhani", "Satisfy", "Comfortaa", "Righteous", "Cinzel", "Lobster", "Kaushan Script", "Permanent Marker", "Exo 2", "Abril Fatface", "Unbounded", "Special Elite", "Russo One"];
-    let catData = {}, templates = [];
+        let editMode = false;
 
-    function resetAllFields() {
-        document.querySelectorAll('.settings-panel input').forEach(i => {
-            if(i.type === 'checkbox') i.checked = false;
-            else if(i.type === 'color') i.value = (i.id === 'ec' ? '#ffffff' : '#00ff00');
-            else i.value = '';
-        });
-        document.querySelectorAll('.settings-panel select').forEach(s => s.selectedIndex = 0);
-        document.getElementById('dynamic-texts').innerHTML = '';
-        textCount = 0;
-        document.getElementById('ifr_p').src = 'about:blank';
-        document.getElementById('ifr_l').src = 'about:blank';
-    }
+        // UI inicializálása
+        window.addEventListener('DOMContentLoaded', () => {
+            // Transform mezők generálása
+            document.getElementById('yt-transform-container').innerHTML = TransformModule.createUIFields('v');
+            document.getElementById('d1-transform-container').innerHTML = TransformModule.createUIFields('d1');
+            document.getElementById('d2-transform-container').innerHTML = TransformModule.createUIFields('d2');
 
-    function addTextField(data = null) {
-        textCount++;
-        const id = textCount;
-        const div = document.createElement('div');
-        div.className = 'section text-block'; div.id = `tg-${id}`;
-        div.innerHTML = `<button class="btn-del" onclick="this.parentElement.remove();update()">X</button>
-            <h4>EXTRA MEZŐ #${id}</h4><input type="text" id="txt${id}" oninput="update()">
-            <div class="row"><div><label>F</label><select id="f${id}" onchange="update()"></select></div><div><label>S%</label><input type="number" id="s${id}" oninput="update()"></div><div><label>C</label><input type="color" id="c${id}" value="#ffffff" oninput="update()"></div></div>
-            <div class="row"><div><label>X%</label><input type="number" id="x${id}" oninput="update()"></div><div><label>Y%</label><input type="number" id="y${id}" oninput="update()"></div></div>`;
-        document.getElementById('dynamic-texts').appendChild(div);
-        fonts.forEach(f => document.getElementById(`f${id}`).add(new Option(f, f)));
-        if(data) {
-            document.getElementById(`txt${id}`).value = data.txt || '';
-            document.getElementById(`f${id}`).value = data.f || 'Orbitron';
-            document.getElementById(`c${id}`).value = '#' + (data.c || 'ffffff');
-            document.getElementById(`s${id}`).value = data.s || '';
-            document.getElementById(`x${id}`).value = data.x || '';
-            document.getElementById(`y${id}`).value = data.y || '';
-        }
-    }
-
-    async function init() {
-        ['mf','sf'].forEach(id => fonts.forEach(f => document.getElementById(id).add(new Option(f, f))));
-        resetAllFields(); 
-        try {
-            const cRes = await fetch('categories.json');
-            catData = (await cRes.json()).categories;
-            const mc = document.getElementById('main-cat');
-            const mlc = document.getElementById('modal-cat-list');
-            Object.keys(catData).forEach(k => {
-                mc.add(new Option(k, k));
-                catData[k].forEach(sub => mlc.add(new Option(`${k} > ${sub}`, sub)));
+            // YouTube input figyelő
+            document.getElementById('yt_input').addEventListener('input', (e) => {
+                document.getElementById('yt').value = URLHandler.parseYouTubeID(e.target.value);
+                update();
             });
-            updateSubCats();
-            const tRes = await fetch('templates.json');
-            const tData = await tRes.json();
-            templates = tData.templates;
-            renderTemplates();
-        } catch(e) { console.error("Adat betöltési hiba", e); }
-    }
+        });
 
-    function loadT(pStr) {
-        resetAllFields(); 
-        const p = new URLSearchParams(pStr);
-        const basics = ['btn','yt','vx','vy','vw','vh','mute','cim','mf','ms','mc','mx','my','alcim','sf','ss','sc','sx','sy','eff','intens','ec','eff_url','d1url','d1x','d1y','d1w','d1h'];
-        basics.forEach(id => {
-            const tid = id === 'eff' ? 'effect' : id;
-            const el = document.getElementById(id);
-            if(el && p.has(tid)) {
-                if(el.type === 'checkbox') el.checked = p.get(tid) === '1';
-                else el.value = (el.type === 'color' ? '#' : '') + p.get(tid);
-            }
-        });
-        let i = 1;
-        while(p.has('txt'+i)) {
-            addTextField({txt:p.get('txt'+i), f:p.get('f'+i), c:p.get('c'+i), s:p.get('s'+i), x:p.get('x'+i), y:p.get('y'+i)});
-            i++;
-        }
-        update();
-    }
-
-    function update() {
-        const p = new URLSearchParams();
-        const basics = ['btn','yt','vx','vy','vw','vh','mute','cim','mf','ms','mc','mx','my','alcim','sf','ss','sc','sx','sy','eff','intens','ec','eff_url','d1url','d1x','d1y','d1w','d1h'];
-        basics.forEach(id => {
-            const el = document.getElementById(id);
-            if(el) {
-                const val = el.type==='checkbox' ? (el.checked?'1':'0') : el.value.replace('#','');
-                if(val && val !== '0' && val !== '') p.set(id==='eff'?'effect':id, val);
-            }
-        });
-        document.querySelectorAll('.text-block').forEach((block, idx) => {
-            const oldId = block.id.split('-')[1];
-            const newId = idx + 1;
-            const val = document.getElementById(`txt${oldId}`).value;
-            if(val) {
-                p.set(`txt${newId}`, val);
-                p.set(`f${newId}`, document.getElementById(`f${oldId}`).value);
-                p.set(`c${newId}`, document.getElementById(`c${oldId}`).value.replace('#',''));
-                p.set(`s${newId}`, document.getElementById(`s${oldId}`).value);
-                p.set(`x${newId}`, document.getElementById(`x${oldId}`).value);
-                p.set(`y${newId}`, document.getElementById(`y${oldId}`).value);
-            }
-        });
-        if(editMode) p.set('edit', '1');
-        const url = 'index.html?' + p.toString();
-        document.getElementById('ifr_p').src = url;
-        document.getElementById('ifr_l').src = url;
-    }
-
-    function toggleEdit() { 
-        editMode = !editMode; 
-        const btn = document.getElementById('edit-toggle');
-        btn.innerText = "SZERKESZTŐ MÓD: " + (editMode ? "BE" : "KI");
-        if(editMode) btn.classList.add('on'); else btn.classList.remove('on');
-        update(); 
-    }
-    
-    function updateSubCats() {
-        const sub = document.getElementById('sub-cat'); sub.innerHTML = "";
-        const main = document.getElementById('main-cat').value;
-        if(catData[main]) catData[main].forEach(s => sub.add(new Option(s, s)));
-        renderTemplates();
-    }
-    function renderTemplates() {
-        const sub = document.getElementById('sub-cat').value;
-        const list = document.getElementById('template-list'); list.innerHTML = "";
-        templates.filter(t => t.subCategory === sub).forEach(t => {
-            const d = document.createElement('div'); d.className = 'template-item';
-            d.onclick = () => loadT(t.params); d.innerText = t.name;
-            list.appendChild(d);
-        });
-    }
-    function openSaveModal() { document.getElementById('save-modal').style.display = 'block'; }
-    
-    
-        function confirmSave() {
-        const mainCat = document.getElementById('main-cat').value; 
-        const subCat = document.getElementById('sub-cat').value;   
-        const name = document.getElementById('modal-new-name').value;
-        
-        if(!name) { alert("Adj meg egy nevet!"); return; }
-        
-        const currentSrc = document.getElementById('ifr_p').src;
-        if(!currentSrc.includes('?')) { alert("Nincs mit menteni!"); return; }
-        
-        const p = new URLSearchParams(currentSrc.split('?')[1]);
-        p.delete('edit');
-        
-        // ÚJ: Egyedi ID hozzáadása (id) a kért formátumban
-        const newTemplate = { 
-            name: name, 
-            id: Date.now(), // Egyedi időbélyeg alapú azonosító
-            category: mainCat, 
-            subCategory: subCat, 
-            params: p.toString() 
+        // Accordion kezelő
+        window.toggleAccordion = (header) => {
+            const content = header.nextElementSibling;
+            const sign = header.querySelector('.sign');
+            const isActive = content.classList.contains('active');
+            
+            content.classList.toggle('active');
+            sign.innerText = isActive ? '+' : '-';
         };
-        
-        templates.push(newTemplate);
-        
-        const fullJson = JSON.stringify({ templates: templates }, null, 2);
-        
-        console.log("--- ÚJ TEMPLATES.JSON (ID-VAL) ---", fullJson);
-        
-        navigator.clipboard.writeText(fullJson).then(() => {
-            alert("Sablon elmentve (ID: " + newTemplate.id + ") és a teljes JSON a vágólapon!");
-        });
-        
-        document.getElementById('save-modal').style.display = 'none';
-        renderTemplates();
-        }
-    
-    
 
-    function copyLink() {
-        const p = new URLSearchParams(document.getElementById('ifr_p').src.split('?')[1]);
-        p.delete('edit');
-        navigator.clipboard.writeText(window.location.href.replace('admin.html', 'index.html?' + p.toString()));
-        alert("Link másolva!");
-    }
-    window.onload = init;
-</script>
+        // Szerkesztő mód váltó
+        window.toggleEdit = () => {
+            editMode = !editMode;
+            const btn = document.getElementById('edit-toggle');
+            btn.innerText = "SZERKESZTŐ MÓD: " + (editMode ? "BE" : "KI");
+            btn.classList.toggle('on', editMode);
+            update();
+        };
+
+        // Előnézet frissítése
+        window.update = () => {
+            const p = new URLSearchParams();
+            // Itt kellene összegyűjteni az összes input ID-t és értékét
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                if(input.id && input.value && input.id !== 'yt_input') {
+                    p.set(input.id, input.value);
+                }
+            });
+
+            if (editMode) p.set('edit', '1');
+            const url = 'index.html?' + p.toString();
+            document.getElementById('ifr_p').src = url;
+            document.getElementById('ifr_l').src = url;
+        };
+    </script>
 </body>
 </html>
