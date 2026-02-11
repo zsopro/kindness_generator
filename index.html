@@ -5,6 +5,7 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
         .element { position: absolute; transform: translate(-50%, -50%); pointer-events: none; }
+        .edit-visual { outline: 2px dashed #0f0; }
     </style>
 </head>
 <body>
@@ -21,7 +22,7 @@
             if(!id) return;
             player = new YT.Player('player', {
                 height: '100%', width: '100%', videoId: id,
-                playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 1, 'loop': 1, 'playlist': id },
+                playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 0, 'loop': 1, 'playlist': id },
                 events: { 'onReady': () => apply(Object.fromEntries(urlP)) }
             });
         }
@@ -47,6 +48,9 @@
 
         window.addEventListener('message', e => {
             if(e.data.type === 'STYLE') apply(e.data.params);
+            if(e.data.type === 'EDIT_MODE') {
+                document.body.classList.toggle('edit-visual', e.data.value);
+            }
             if(e.data.type === 'VIDEO' && player) {
                 e.data.action === 'pause' ? player.pauseVideo() : player.playVideo();
             }
