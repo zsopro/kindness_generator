@@ -3,152 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEO Project - Full Engine</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Dancing+Script&family=Pacifico&family=Bebas+Neue&family=Great+Vibes&family=Monoton&family=Press+Start+2P&family=Rajdhani&family=Satisfy&family=Comfortaa&family=Righteous&family=Cinzel&family=Lobster&family=Kaushan+Script&family=Permanent+Marker&family=Exo+2&family=Abril+Fatface&family=Unbounded&family=Special+Elite&family=Russo+One&display=swap" rel="stylesheet">
+    <title>NEO Preview</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { height: 100%; width: 100%; overflow: hidden; background-color: #000; position: fixed; }
-        #video-container { position: fixed; z-index: 0; transform: translate(-50%, -50%); pointer-events: none; opacity: 0; transition: opacity 1s; }
-        #yt-placeholder { width: 100% !important; height: 100% !important; }
-        #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: 1; display: none; }
-        .deco-img { position: fixed; z-index: 5; pointer-events: none; transform: translate(-50%, -50%); object-fit: cover; display: none; }
-        .text-box { position: absolute; transform: translate(-50%, -50%); text-align: center; width: 95%; pointer-events: none; z-index: 10; display: none; white-space: pre-wrap; }
-        #canvas-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 100; pointer-events: none; }
-        #enter-btn { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 15px 35px; background: #000; border: 2px solid #0f0; color: #0f0; cursor: pointer; z-index: 201; font-family: 'Orbitron'; display: none; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
+        
+        #main-container { position: relative; width: 100vw; height: 100vh; }
+
+        /* Univerzális konténerek */
+        .element-container { position: absolute; transform: translate(-50%, -50%); transition: none; pointer-events: none; }
+        
+        #video-container { z-index: 1; }
+        #deco1-container, #deco2-container { z-index: 2; }
+        
+        iframe, img { width: 100%; height: 100%; display: block; border: none; }
+
+        /* Szerkesztő segédvonalak (csak ha edit=1) */
+        .edit-mode .element-container { outline: 1px dashed rgba(0, 255, 0, 0.5); }
     </style>
 </head>
 <body>
-    <div id="video-container"><div id="yt-placeholder"></div></div>
-    <div id="overlay"></div>
-    <canvas id="canvas-overlay"></canvas>
-    <button id="enter-btn" onclick="startSystem()">START</button>
-    <div id="t_m" class="text-box"></div><div id="t_s" class="text-box"></div>
-    <div id="dynamic-wrapper"></div>
+
+    <div id="main-container">
+        <div id="video-container" class="element-container">
+            <div id="player"></div>
+        </div>
+        <div id="deco1-container" class="element-container"><img id="d1-img" src="" style="display:none;"></div>
+        <div id="deco2-container" class="element-container"><img id="d2-img" src="" style="display:none;"></div>
+    </div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const isEditMode = urlParams.get('edit') === '1';
-        let player, isStarted = false, effImg = new Image();
+        let player;
+        const params = new URLSearchParams(window.location.search);
 
-        function applyStyles() {
-            [['m','cim','t_m'],['s','alcim','t_s']].forEach(cfg => {
-                const [p, key, id] = cfg;
-                const el = document.getElementById(id);
-                if(!urlParams.get(key)) return;
-                el.style.left = (urlParams.get(p+'x') || 50) + '%';
-                el.style.top = (urlParams.get(p+'y') || (p==='m'?30:40)) + '%';
-                el.style.fontSize = (urlParams.get(p+'s') || 4) + 'vmax';
-                el.style.color = '#' + (urlParams.get(p+'c') || '0f0');
-                el.style.fontFamily = "'" + (urlParams.get(p+'f') || 'Orbitron') + "', sans-serif";
-                el.dataset.fulltxt = urlParams.get(key);
-                if(isEditMode) { el.style.display = 'block'; el.innerText = el.dataset.fulltxt; }
-            });
-
-            const wrapper = document.getElementById('dynamic-wrapper');
-            let i = 1;
-            while(urlParams.has('txt'+i)) {
-                const txt = urlParams.get('txt'+i);
-                if(txt) {
-                    const el = document.createElement('div');
-                    el.className = 'text-box'; el.id = 'dyn'+i;
-                    el.style.left = (urlParams.get('x'+i) || 50) + '%';
-                    el.style.top = (urlParams.get('y'+i) || (50 + i*5)) + '%';
-                    el.style.fontSize = (urlParams.get('s'+i) || 2) + 'vmax';
-                    el.style.color = '#' + (urlParams.get('c'+i) || 'fff');
-                    el.style.fontFamily = "'" + (urlParams.get('f'+i) || 'Arial') + "', sans-serif";
-                    el.dataset.fulltxt = txt;
-                    if(isEditMode) { el.style.display = 'block'; el.innerText = txt; }
-                    wrapper.appendChild(el);
-                }
-                i++;
-            }
-
-            const vc = document.getElementById('video-container');
-            vc.style.left = (urlParams.get('vx') || 50) + '%';
-            vc.style.top = (urlParams.get('vy') || 50) + '%';
-            vc.style.width = (urlParams.get('vw') || 100) + 'vw';
-            vc.style.height = (urlParams.get('vh') || 100) + 'vh';
-            if(isEditMode) vc.style.opacity = '1';
-
-            for(let j=1; j<=2; j++) {
-                const url = urlParams.get('d'+j+'url');
-                if(url) {
-                    const img = document.createElement('img');
-                    img.src = url; img.className = 'deco-img';
-                    img.style.left = (urlParams.get('d'+j+'x') || (j===1?20:80)) + '%';
-                    img.style.top = (urlParams.get('d'+j+'y') || 20) + '%';
-                    img.style.width = (urlParams.get('d'+j+'w') || 15) + 'vw';
-                    img.style.height = (urlParams.get('d'+j+'h') || 15) + 'vh';
-                    img.style.borderRadius = (urlParams.get('d'+j+'r') || 0) + '%';
-                    if(isEditMode) img.style.display = 'block';
-                    document.body.appendChild(img);
-                }
-            }
-            if(!isEditMode) document.getElementById('enter-btn').innerText = urlParams.get('btn') || 'START';
-        }
+        // YouTube API betöltése
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         function onYouTubeIframeAPIReady() {
-            const z = urlParams.get('yt');
-            if(!z) { if(!isEditMode) document.getElementById('enter-btn').style.display = 'block'; return; }
-            player = new YT.Player('yt-placeholder', {
-                videoId: z,
-                playerVars: { 'autoplay': 1, 'mute': (isEditMode ? 0 : 1), 'controls': 0, 'loop': 1, 'playlist': z, 'playsinline': 1 },
-                events: { 'onReady': (e) => { if(!isEditMode) document.getElementById('enter-btn').style.display = 'block'; else e.target.playVideo(); }}
+            const videoId = params.get('yt');
+            if (!videoId) return;
+
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: videoId,
+                playerVars: {
+                    'autoplay': 1,
+                    'controls': 0,
+                    'mute': 1,
+                    'loop': 1,
+                    'playlist': videoId
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
             });
         }
 
-        function startSystem() {
-            if(isStarted) return; isStarted = true;
-            document.getElementById('enter-btn').style.display = 'none';
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('video-container').style.opacity = '1';
-            document.querySelectorAll('.deco-img').forEach(img => img.style.display = 'block');
-            if(player) { if(urlParams.get('mute') !== '1') player.unMute(); player.playVideo(); }
-
-            const boxes = Array.from(document.querySelectorAll('.text-box')).filter(b => b.dataset.fulltxt);
-            let idx = 0;
-            function typeNext() {
-                if(idx >= boxes.length) return;
-                const b = boxes[idx];
-                const full = b.dataset.fulltxt;
-                b.style.display = 'block';
-                let cIdx = 0;
-                function charLoop() {
-                    if(cIdx < full.length) { b.innerHTML += full.charAt(cIdx); cIdx++; setTimeout(charLoop, 40); }
-                    else { idx++; setTimeout(typeNext, 200); }
-                }
-                charLoop();
-            }
-            typeNext();
+        function onPlayerReady(event) {
+            applyAllStyles(Object.fromEntries(params));
+            if (params.get('edit') === '1') document.body.classList.add('edit-mode');
         }
 
-        const canvas = document.getElementById('canvas-overlay');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        function initEff() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            const eff = urlParams.get('effect');
-            if(!eff || eff==='none') return;
-            if(urlParams.get('eff_url')) effImg.src = urlParams.get('eff_url');
-            const chars = { heart:'❤', snow:'❄', flower:'🌸', bday:'🎉' };
-            for(let i=0; i<(parseInt(urlParams.get('intens')) || 8)*10; i++) {
-                particles.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, s:Math.random()*2+1, v:Math.random()*1.5+0.5, char:chars[eff]||'' });
-            }
-        }
-        function draw() {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            if((isStarted || isEditMode) && urlParams.get('effect') && urlParams.get('effect') !== 'none') {
-                const sb = Math.min(canvas.width, canvas.height) / 100;
-                particles.forEach(p => {
-                    if(urlParams.get('eff_url')) ctx.drawImage(effImg, p.x, p.y, p.s*sb*2, p.s*sb*2);
-                    else { ctx.fillStyle='#'+(urlParams.get('ec')||'fff'); ctx.font=(p.s*2)+'vmax Arial'; ctx.fillText(p.char, p.x, p.y); }
-                    p.y += p.v; if(p.y > canvas.height) p.y = -50;
-                });
-            }
-            requestAnimationFrame(draw);
-        }
-        applyStyles(); initEff(); draw();
-        var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(tag);
-    </script>
-</body>
-</html>
+        // Stílusok alkalmazása az orientáció alapján (Álló vs Fekvő)
+        function applyAllStyles(p) {
+            const isLand = window.innerWidth > window.innerHeight
