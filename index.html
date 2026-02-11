@@ -2,71 +2,55 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEO Preview</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
-        
-        #main-container { position: relative; width: 100vw; height: 100vh; }
-
-        /* Univerzális konténerek */
-        .element-container { position: absolute; transform: translate(-50%, -50%); transition: none; pointer-events: none; }
-        
-        #video-container { z-index: 1; }
-        #deco1-container, #deco2-container { z-index: 2; }
-        
-        iframe, img { width: 100%; height: 100%; display: block; border: none; }
-
-        /* Szerkesztő segédvonalak (csak ha edit=1) */
-        .edit-mode .element-container { outline: 1px dashed rgba(0, 255, 0, 0.5); }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
+        .element { position: absolute; transform: translate(-50%, -50%); pointer-events: none; }
     </style>
 </head>
 <body>
+    <div id="v-cont" class="element"><div id="player"></div></div>
+    <div id="d1-cont" class="element"><img id="d1-img" style="width:100%; height:100%; display:none;"></div>
 
-    <div id="main-container">
-        <div id="video-container" class="element-container">
-            <div id="player"></div>
-        </div>
-        <div id="deco1-container" class="element-container"><img id="d1-img" src="" style="display:none;"></div>
-        <div id="deco2-container" class="element-container"><img id="d2-img" src="" style="display:none;"></div>
-    </div>
-
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
         let player;
-        const params = new URLSearchParams(window.location.search);
-
-        // YouTube API betöltése
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        const urlP = new URLSearchParams(window.location.search);
 
         function onYouTubeIframeAPIReady() {
-            const videoId = params.get('yt');
-            if (!videoId) return;
-
+            const id = urlP.get('yt');
+            if(!id) return;
             player = new YT.Player('player', {
-                height: '100%',
-                width: '100%',
-                videoId: videoId,
-                playerVars: {
-                    'autoplay': 1,
-                    'controls': 0,
-                    'mute': 1,
-                    'loop': 1,
-                    'playlist': videoId
-                },
-                events: {
-                    'onReady': onPlayerReady
-                }
+                height: '100%', width: '100%', videoId: id,
+                playerVars: { 'autoplay': 1, 'controls': 0, 'mute': 1, 'loop': 1, 'playlist': id },
+                events: { 'onReady': () => apply(Object.fromEntries(urlP)) }
             });
         }
 
-        function onPlayerReady(event) {
-            applyAllStyles(Object.fromEntries(params));
-            if (params.get('edit') === '1') document.body.classList.add('edit-mode');
+        function apply(p) {
+            const isL = window.innerWidth > window.innerHeight;
+            const pr = isL ? 'l' : '';
+            
+            // Stílus frissítése (Video & Kép)
+            const update = (id, k) => {
+                const el = document.getElementById(id);
+                if(!el) return;
+                el.style.left = (p[pr+k+'x'] || p[k+'x'] || 50) + '%';
+                el.style.top = (p[pr+k+'y'] || p[k+'y'] || 50) + '%';
+                el.style.width = (p[pr+k+'w'] || p[k+'w'] || 100) + 'vw';
+                el.style.height = (p[pr+k+'h'] || p[k+'h'] || 100) + 'vh';
+            };
+
+            update('v-cont', 'v');
+            update('d1-cont', 'd1');
+            if(p.d1url) { document.getElementById('d1-img').src = p.d1url; document.getElementById('d1-img').style.display='block'; }
         }
 
-        // Stílusok alkalmazása az orientáció alapján (Álló vs Fekvő)
-        function applyAllStyles(p) {
-            const isLand = window.innerWidth > window.innerHeight
+        window.addEventListener('message', e => {
+            if(e.data.type === 'STYLE') apply(e.data.params);
+            if(e.data.type === 'VIDEO' && player) {
+                e.data.action === 'pause' ? player.pauseVideo() : player.playVideo();
+            }
+        });
+    </script>
+</body>
+</html>
