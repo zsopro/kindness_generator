@@ -11,6 +11,12 @@
         .sidebar { width: 450px; background: var(--panel-bg); border-right: 2px solid #333; display: flex; flex-direction: column; }
         .preview-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; background: #050505; overflow-y: auto; }
 
+        /* Vezérlő gombok */
+        .control-bar { display: flex; gap: 5px; padding: 10px; background: #222; }
+        .btn-ctrl { flex: 1; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.7rem; }
+        .btn-refresh { background: #007bff; color: white; }
+        .btn-pause { background: #ffc107; color: black; }
+
         /* Összecsukható menü (Accordion) */
         .accordion-item { border-bottom: 1px solid #333; }
         .accordion-header { 
@@ -31,112 +37,4 @@
 
         /* Előnézet dobozok */
         .preview-container { transform: scale(0.6); transform-origin: center; border: 8px solid #333; border-radius: 20px; overflow: hidden; background: #000; }
-        .p-port { width: 360px; height: 640px; }
-        .p-land { width: 640px; height: 360px; }
-
-        /* Transform Module Grid */
-        .view-grid { display: flex; gap: 10px; margin-top: 10px; }
-        .view-section { flex: 1; background: #222; padding: 8px; border-radius: 4px; }
-        .view-section h6 { margin: 0 0 5px; font-size: 0.6rem; color: #aaa; }
-        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-        input { width: 100%; padding: 5px; background: #333; border: 1px solid #444; color: #fff; border-radius: 3px; font-size: 0.7rem; box-sizing: border-box; }
-        input:focus { border-color: var(--neon-green); outline: none; }
-    </style>
-</head>
-<body>
-
-    <div class="sidebar">
-        <div id="edit-toggle" class="live-toggle" onclick="toggleEdit()">SZERKESZTŐ MÓD: KI</div>
-
-        <div class="accordion-item">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span>Média szerkesztése (YouTube)</span>
-                <span class="sign">+</span>
-            </div>
-            <div class="accordion-content" id="yt-section">
-                <label style="font-size:0.7rem;">YouTube URL / ID:</label>
-                <input type="text" id="yt_input" placeholder="Illeszd be a linket..." style="margin-bottom:10px;">
-                <input type="hidden" id="yt"> <div id="yt-transform-container"></div>
-            </div>
-        </div>
-
-        <div class="accordion-item">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span>Képek hozzáadása</span>
-                <span class="sign">+</span>
-            </div>
-            <div class="accordion-content">
-                <label style="font-size:0.7rem;">Kép 1 URL:</label>
-                <input type="text" id="d1url" oninput="update()" style="margin-bottom:10px;">
-                <div id="d1-transform-container"></div>
-                <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-                <label style="font-size:0.7rem;">Kép 2 URL:</label>
-                <input type="text" id="d2url" oninput="update()" style="margin-bottom:10px;">
-                <div id="d2-transform-container"></div>
-            </div>
-        </div>
-    </div>
-
-    <div class="preview-area">
-        <div class="preview-container p-port"><iframe id="ifr_p" src="index.html" width="100%" height="100%" frameborder="0"></iframe></div>
-        <div class="preview-container p-land"><iframe id="ifr_l" src="index.html" width="100%" height="100%" frameborder="0"></iframe></div>
-    </div>
-
-    <script type="module">
-        import { URLHandler } from './url-handler.js';
-        import { TransformModule } from './transform-module.js';
-
-        let editMode = false;
-
-        // UI inicializálása
-        window.addEventListener('DOMContentLoaded', () => {
-            // Transform mezők generálása
-            document.getElementById('yt-transform-container').innerHTML = TransformModule.createUIFields('v');
-            document.getElementById('d1-transform-container').innerHTML = TransformModule.createUIFields('d1');
-            document.getElementById('d2-transform-container').innerHTML = TransformModule.createUIFields('d2');
-
-            // YouTube input figyelő
-            document.getElementById('yt_input').addEventListener('input', (e) => {
-                document.getElementById('yt').value = URLHandler.parseYouTubeID(e.target.value);
-                update();
-            });
-        });
-
-        // Accordion kezelő
-        window.toggleAccordion = (header) => {
-            const content = header.nextElementSibling;
-            const sign = header.querySelector('.sign');
-            const isActive = content.classList.contains('active');
-            
-            content.classList.toggle('active');
-            sign.innerText = isActive ? '+' : '-';
-        };
-
-        // Szerkesztő mód váltó
-        window.toggleEdit = () => {
-            editMode = !editMode;
-            const btn = document.getElementById('edit-toggle');
-            btn.innerText = "SZERKESZTŐ MÓD: " + (editMode ? "BE" : "KI");
-            btn.classList.toggle('on', editMode);
-            update();
-        };
-
-        // Előnézet frissítése
-        window.update = () => {
-            const p = new URLSearchParams();
-            // Itt kellene összegyűjteni az összes input ID-t és értékét
-            const inputs = document.querySelectorAll('input');
-            inputs.forEach(input => {
-                if(input.id && input.value && input.id !== 'yt_input') {
-                    p.set(input.id, input.value);
-                }
-            });
-
-            if (editMode) p.set('edit', '1');
-            const url = 'index.html?' + p.toString();
-            document.getElementById('ifr_p').src = url;
-            document.getElementById('ifr_l').src = url;
-        };
-    </script>
-</body>
-</html>
+        .p-port { width: 360px; height:
