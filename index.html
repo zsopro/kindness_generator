@@ -31,19 +31,50 @@
             const isL = window.innerWidth > window.innerHeight;
             const pr = isL ? 'l' : '';
             
-            // Stílus frissítése (Video & Kép)
-            const update = (id, k) => {
-                const el = document.getElementById(id);
-                if(!el) return;
-                el.style.left = (p[pr+k+'x'] || p[k+'x'] || 50) + '%';
-                el.style.top = (p[pr+k+'y'] || p[k+'y'] || 50) + '%';
-                el.style.width = (p[pr+k+'w'] || p[k+'w'] || 100) + 'vw';
-                el.style.height = (p[pr+k+'h'] || p[k+'h'] || 100) + 'vh';
-            };
-
-            update('v-cont', 'v');
-            update('d1-cont', 'd1');
-            if(p.d1url) { document.getElementById('d1-img').src = p.d1url; document.getElementById('d1-img').style.display='block'; }
+            // 1. Videó frissítése
+            updateElementStyle('v-cont', 'v', p, pr);
+        
+            // 2. Dinamikus képek kezelése
+            const count = parseInt(p.imgCount) || 0;
+            for (let i = 1; i <= count; i++) {
+                const id = `d${i}`;
+                let cont = document.getElementById(`${id}-cont`);
+                
+                // Ha még nincs ilyen konténer, létrehozzuk
+                if (!cont) {
+                    cont = document.createElement('div');
+                    cont.id = `${id}-cont`;
+                    cont.className = 'element';
+                    cont.innerHTML = `<img id="${id}-img" style="width:100%; height:100%; display:none; object-fit: contain;">`;
+                    document.body.appendChild(cont);
+                }
+        
+                // Pozíció és tartalom frissítése
+                updateElementStyle(`${id}-cont`, id, p, pr);
+                const img = document.getElementById(`${id}-img`);
+                if (p[`${id}url`]) {
+                    img.src = p[`${id}url`];
+                    img.style.display = 'block';
+                } else {
+                    img.style.display = 'none';
+                }
+            }
+        
+            // Opcionális: a törölt képek eltávolítása a DOM-ból
+            const allExisting = document.querySelectorAll('[id$="-cont"]');
+            allExisting.forEach(el => {
+                const num = parseInt(el.id.replace(/\D/g, ''));
+                if (num > count && el.id !== 'v-cont') el.remove();
+            });
+        }
+        
+        function updateElementStyle(id, k, p, pr) {
+            const el = document.getElementById(id);
+            if(!el) return;
+            el.style.left = (p[pr+k+'x'] || p[k+'x'] || 50) + '%';
+            el.style.top = (p[pr+k+'y'] || p[k+'y'] || 50) + '%';
+            el.style.width = (p[pr+k+'w'] || p[k+'w'] || 100) + 'vw';
+            el.style.height = (p[pr+k+'h'] || p[k+'h'] || 100) + 'vh';
         }
 
         window.addEventListener('message', e => {
