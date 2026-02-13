@@ -27,44 +27,38 @@
             });
         }
 
+        // index.html apply függvény részlet
         function apply(p) {
             const isL = window.innerWidth > window.innerHeight;
             const pr = isL ? 'l' : '';
             
-            // 1. Videó frissítése
             updateElementStyle('v-cont', 'v', p, pr);
         
-            // 2. Dinamikus képek kezelése
-            const count = parseInt(p.imgCount) || 0;
-            for (let i = 1; i <= count; i++) {
-                const id = `d${i}`;
-                let cont = document.getElementById(`${id}-cont`);
-                
-                // Ha még nincs ilyen konténer, létrehozzuk
-                if (!cont) {
-                    cont = document.createElement('div');
-                    cont.id = `${id}-cont`;
-                    cont.className = 'element';
-                    cont.innerHTML = `<img id="${id}-img" style="width:100%; height:100%; display:none; object-fit: contain;">`;
-                    document.body.appendChild(cont);
+            // Keressünk meg minden paramétert, ami "url"-re végződik (pl. d1url, d3url)
+            Object.keys(p).forEach(key => {
+                if (key.endsWith('url')) {
+                    const id = key.replace('url', ''); // pl. "d1"
+                    let cont = document.getElementById(`${id}-cont`);
+                    
+                    if (!cont) {
+                        cont = document.createElement('div');
+                        cont.id = `${id}-cont`;
+                        cont.className = 'element';
+                        cont.innerHTML = `<img id="${id}-img" style="width:100%; height:100%; object-fit: contain;">`;
+                        document.body.appendChild(cont);
+                    }
+                    
+                    updateElementStyle(`${id}-cont`, id, p, pr);
+                    document.getElementById(`${id}-img`).src = p[key];
                 }
+            });
         
-                // Pozíció és tartalom frissítése
-                updateElementStyle(`${id}-cont`, id, p, pr);
-                const img = document.getElementById(`${id}-img`);
-                if (p[`${id}url`]) {
-                    img.src = p[`${id}url`];
-                    img.style.display = 'block';
-                } else {
-                    img.style.display = 'none';
+            // Törölt elemek eltávolítása az előnézetből
+            document.querySelectorAll('[id$="-cont"]').forEach(el => {
+                const idBase = el.id.replace('-cont', '');
+                if (idBase !== 'v' && !p[idBase + 'url']) {
+                    el.remove();
                 }
-            }
-        
-            // Opcionális: a törölt képek eltávolítása a DOM-ból
-            const allExisting = document.querySelectorAll('[id$="-cont"]');
-            allExisting.forEach(el => {
-                const num = parseInt(el.id.replace(/\D/g, ''));
-                if (num > count && el.id !== 'v-cont') el.remove();
             });
         }
         
