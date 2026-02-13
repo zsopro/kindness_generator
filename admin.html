@@ -2,54 +2,42 @@
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
-    <title>NEO Admin - Modular</title>
+    <title>NEO Admin - Dinamikus Képek</title>
     <style>
         :root { --neon: #0f0; --bg: #111; }
-        body { margin: 0; display: flex; height: 100vh; background: #000; color: #fff; font-family: sans-serif; }
-        .sidebar { width: 400px; background: #1a1a1a; border-right: 2px solid #333; overflow-y: auto; display: flex; flex-direction: column; }
+        body { margin: 0; display: flex; height: 100vh; background: #000; color: #fff; font-family: sans-serif; overflow: hidden; }
+        .sidebar { width: 450px; background: #1a1a1a; border-right: 2px solid #333; overflow-y: auto; display: flex; flex-direction: column; }
         .preview-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; background: #080808; }
-
-        .live-toggle { 
-            background: #444; color: #fff; padding: 12px; text-align: center; 
-            font-weight: bold; cursor: pointer; transition: 0.3s; margin: 10px; border-radius: 5px;
-        }
-        .live-toggle.on { background: var(--neon); color: #000; }
         
         /* Accordion */
-       /* .accordion-item { border-bottom: 1px solid #333; }
-        .accordion-header { padding: 15px; background: #222; cursor: pointer; display: flex; justify-content: space-between; }
+        .accordion-item { border-bottom: 1px solid #333; }
+        .accordion-header { padding: 15px; background: #222; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; font-size: 0.8rem; }
         .accordion-content { padding: 15px; display: none; background: #151515; }
-        .accordion-content.active { display: block; }*/
-        
-        <div class="accordion-item">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                <span>Képek / Dekorációk</span>
-                <span class="sign">+</span>
-            </div>
-            <div class="accordion-content">
-                <div id="image-list"></div> <div style="display: flex; gap: 5px; margin-top: 10px;">
-                    <button onclick="ImageManager.add()" style="flex:1; background:#28a745; color:white; border:none; padding:8px; cursor:pointer; border-radius:3px;">+ ÚJ KÉP</button>
-                    <button onclick="ImageManager.remove()" style="flex:1; background:#dc3545; color:white; border:none; padding:8px; cursor:pointer; border-radius:3px;">- UTOLSÓ TÖRLÉSE</button>
-                </div>
-            </div>
-        </div>
+        .accordion-content.active { display: block; }
+
         /* Controls */
+        .live-toggle { background: #444; color: #fff; padding: 12px; text-align: center; font-weight: bold; cursor: pointer; margin: 10px; border-radius: 5px; }
+        .live-toggle.on { background: var(--neon); color: #000; }
         .control-bar { padding: 10px; display: flex; gap: 5px; background: #222; }
-        .btn { flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.7rem; }
         .btn-refresh { background: #007bff; color: white; }
         .btn-pause { background: #ffc107; color: #000; }
         
+        /* Dinamikus gombok */
+        .btn-add { background: #28a745; color: white; margin-top: 10px; }
+        .btn-rem { background: #dc3545; color: white; margin-top: 10px; }
+
         /* Transform Grid */
-        .view-grid { display: flex; gap: 5px; margin-top: 10px; }
-        .view-section { flex: 1; background: #252525; padding: 5px; border-radius: 4px; }
+        .view-grid { display: flex; gap: 5px; margin-top: 10px; border: 1px dashed #444; padding: 5px; }
+        .view-section { flex: 1; }
         .view-section h6 { margin: 0 0 5px; font-size: 0.6rem; color: #888; }
         .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-        input { background: #333; border: 1px solid #444; color: #fff; padding: 4px; font-size: 0.7rem; width: 100%; box-sizing: border-box; }
+        input { background: #333; border: 1px solid #444; color: #fff; padding: 5px; font-size: 0.7rem; width: 100%; box-sizing: border-box; }
 
-        /* Iframes */
-        .preview-container { border: 5px solid #333; border-radius: 10px; overflow: hidden; background: #000; position: relative; }
-        .p-port { width: 270px; height: 480px; } /* 9:16 skálázva */
-        .p-land { width: 480px; height: 270px; } /* 16:9 skálázva */
+        /* Preview Iframes */
+        .preview-container { border: 5px solid #333; border-radius: 10px; overflow: hidden; background: #000; }
+        .p-port { width: 240px; height: 426px; }
+        .p-land { width: 426px; height: 240px; }
         iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
@@ -57,6 +45,7 @@
 
 <div class="sidebar">
     <div id="edit-toggle" class="live-toggle" onclick="toggleEdit()">SZERKESZTŐ MÓD: KI</div>
+
     <div class="control-bar">
         <button class="btn btn-refresh" onclick="manualRefresh()">🔄 Frissítés</button>
         <button id="play-pause-btn" class="btn btn-pause" onclick="togglePlayback()">⏸ Szünet</button>
@@ -65,17 +54,20 @@
     <div class="accordion-item">
         <div class="accordion-header" onclick="toggleAccordion(this)"><span>Média (YouTube)</span><span class="sign">+</span></div>
         <div class="accordion-content">
-            <input type="text" id="yt_input" placeholder="YouTube Link..." style="margin-bottom:10px;">
+            <input type="text" id="yt_input" placeholder="YouTube URL..." style="margin-bottom:10px;">
             <input type="hidden" id="yt">
             <div id="yt-fields"></div>
         </div>
     </div>
 
     <div class="accordion-item">
-        <div class="accordion-header" onclick="toggleAccordion(this)"><span>Kép 1 (D1)</span><span class="sign">+</span></div>
+        <div class="accordion-header" onclick="toggleAccordion(this)"><span>Képek / Dekorációk</span><span class="sign">+</span></div>
         <div class="accordion-content">
-            <input type="text" id="d1url" placeholder="Kép URL..." oninput="update()">
-            <div id="d1-fields"></div>
+            <div id="image-list"></div>
+            <div style="display: flex; gap: 5px;">
+                <button class="btn btn-add" onclick="ImageManager.add()">+ Új kép</button>
+                <button class="btn btn-rem" onclick="ImageManager.remove()">- Törlés</button>
+            </div>
         </div>
     </div>
 </div>
@@ -88,87 +80,73 @@
 <script type="module">
     import { URLHandler } from './url-handler.js';
     import { TransformModule } from './transform-module.js';
-    
-    let isPlaying = true;
-    let imageCount = 0;
-    let editMode = false;
-    
-    window.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('yt-fields').innerHTML = TransformModule.createUIFields('v');
-        document.getElementById('d1-fields').innerHTML = TransformModule.createUIFields('d1');
 
-        document.getElementById('yt_input').addEventListener('input', (e) => {
-            document.getElementById('yt').value = URLHandler.parseYouTubeID(e.target.value);
-        });
-    });
+    let isPlaying = true;
+    let editMode = false;
+    let imageCount = 0;
+
+    // Globális ImageManager objektum
     window.ImageManager = {
         add: () => {
             imageCount++;
             const id = `d${imageCount}`;
-            const container = document.createElement('div');
-            container.id = `${id}-group`;
-            container.style.marginBottom = "20px";
-            container.style.borderBottom = "1px solid #333";
-            container.style.paddingBottom = "10px";
-            
-            container.innerHTML = `
-                <label style="font-size:0.7rem; color:var(--neon)">Kép #${imageCount} URL:</label>
+            const div = document.createElement('div');
+            div.id = `${id}-group`;
+            div.style.padding = "10px 0";
+            div.style.borderBottom = "1px solid #333";
+            div.innerHTML = `
+                <label style="font-size:0.6rem; color:var(--neon)">KÉP #${imageCount} URL:</label>
                 <input type="text" id="${id}url" placeholder="https://..." oninput="update()">
                 ${TransformModule.createUIFields(id)}
             `;
-            document.getElementById('image-list').appendChild(container);
+            document.getElementById('image-list').appendChild(div);
+            window.update();
         },
         remove: () => {
             if (imageCount > 0) {
-                const last = document.getElementById(`d${imageCount}-group`);
-                if (last) last.remove();
+                document.getElementById(`d${imageCount}-group`).remove();
                 imageCount--;
-                update();
+                window.update();
             }
         }
     };
-    
-    // Az update függvényt is módosítani kell, hogy átadja az imageCount-ot
-      window.update = () => {
-        const params = { imgCount: imageCount };
-        document.querySelectorAll('input').forEach(i => { 
-            if(i.id && i.id !== 'yt_input') params[i.id] = i.value; 
-        });
-        
-        [document.getElementById('ifr_p'), document.getElementById('ifr_l')].forEach(ifr => {
-            ifr.contentWindow.postMessage({ type: 'STYLE', params }, '*');
-        });
-    };
 
-    
-    
-    // Szerkesztő mód váltó függvény
-    window.toggleEdit = () => {
-        editMode = !editMode;
-        const btn = document.getElementById('edit-toggle');
-        btn.innerText = "SZERKESZTŐ MÓD: " + (editMode ? "BE" : "KI");
-        btn.classList.toggle('on', editMode);
-        
-        // Értesítjük az iframe-eket a módváltásról
-        [document.getElementById('ifr_p'), document.getElementById('ifr_l')].forEach(ifr => {
-            ifr.contentWindow.postMessage({ type: 'EDIT_MODE', value: editMode }, '*');
-        });
-    };
-    
     window.toggleAccordion = (h) => {
         const c = h.nextElementSibling;
         c.classList.toggle('active');
         h.querySelector('.sign').innerText = c.classList.contains('active') ? '-' : '+';
     };
 
+    window.toggleEdit = () => {
+        editMode = !editMode;
+        const btn = document.getElementById('edit-toggle');
+        btn.innerText = "SZERKESZTŐ MÓD: " + (editMode ? "BE" : "KI");
+        btn.classList.toggle('on', editMode);
+        window.update();
+    };
 
+    window.update = () => {
+        const params = { imgCount: imageCount };
+        document.querySelectorAll('input').forEach(i => { 
+            if(i.id && i.id !== 'yt_input') params[i.id] = i.value; 
+        });
+        if (editMode) params.edit = '1';
+
+        [document.getElementById('ifr_p'), document.getElementById('ifr_l')].forEach(ifr => {
+            if (ifr.contentWindow) {
+                ifr.contentWindow.postMessage({ type: 'STYLE', params }, '*');
+            }
+        });
+    };
 
     window.manualRefresh = () => {
         const p = new URLSearchParams();
+        p.set('imgCount', imageCount);
         document.querySelectorAll('input').forEach(i => { 
             if(i.id && i.id !== 'yt_input' && i.value) p.set(i.id, i.value); 
         });
-        if (editMode) p.set('edit', '1'); // Ez fontos!
+        if (editMode) p.set('edit', '1');
+        
         const url = 'index.html?' + p.toString();
         document.getElementById('ifr_p').src = url;
         document.getElementById('ifr_l').src = url;
@@ -181,6 +159,14 @@
             ifr.contentWindow.postMessage({ type: 'VIDEO', action: isPlaying ? 'play' : 'pause' }, '*');
         });
     };
+
+    // Kezdő mezők
+    window.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('yt-fields').innerHTML = TransformModule.createUIFields('v');
+        document.getElementById('yt_input').addEventListener('input', (e) => {
+            document.getElementById('yt').value = URLHandler.parseYouTubeID(e.target.value);
+        });
+    });
 </script>
 </body>
 </html>
