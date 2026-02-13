@@ -32,30 +32,39 @@
             const isL = window.innerWidth > window.innerHeight;
             const pr = isL ? 'l' : '';
             
+            // 1. Videó pozicionálása
             updateElementStyle('v-cont', 'v', p, pr);
         
-            // Keressünk meg minden paramétert, ami "url"-re végződik (pl. d1url, d3url)
+            // 2. Minden olyan kulcs keresése, ami "url"-re végződik (pl. d1url, d2url)
             Object.keys(p).forEach(key => {
                 if (key.endsWith('url')) {
-                    const id = key.replace('url', ''); // pl. "d1"
-                    let cont = document.getElementById(`${id}-cont`);
+                    const idBase = key.replace('url', ''); // pl. "d1"
+                    let cont = document.getElementById(`${idBase}-cont`);
                     
+                    // Ha még nincs konténer az előnézetben, létrehozzuk
                     if (!cont) {
                         cont = document.createElement('div');
-                        cont.id = `${id}-cont`;
-                        cont.className = 'element';
-                        cont.innerHTML = `<img id="${id}-img" style="width:100%; height:100%; object-fit: contain;">`;
+                        cont.id = `${idBase}-cont`;
+                        cont.className = 'element'; // Az alap stílusunk (absolute, translate stb.)
+                        cont.innerHTML = `<img id="${idBase}-img" style="width:100%; height:100%; object-fit: contain; display: block;">`;
                         document.body.appendChild(cont);
                     }
                     
-                    updateElementStyle(`${id}-cont`, id, p, pr);
-                    document.getElementById(`${id}-img`).src = p[key];
+                    // Pozíció és méret frissítése
+                    updateElementStyle(`${idBase}-cont`, idBase, p, pr);
+                    
+                    // Kép forrásának frissítése
+                    const img = document.getElementById(`${idBase}-img`);
+                    if (img.src !== p[key]) {
+                        img.src = p[key];
+                    }
                 }
             });
         
-            // Törölt elemek eltávolítása az előnézetből
+            // 3. Törölt képek eltávolítása az előnézetből
             document.querySelectorAll('[id$="-cont"]').forEach(el => {
                 const idBase = el.id.replace('-cont', '');
+                // Ha nem a videóról van szó, és már nincs ilyen URL az adatokban, töröljük a DOM-ból
                 if (idBase !== 'v' && !p[idBase + 'url']) {
                     el.remove();
                 }
