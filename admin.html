@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>NEO Admin</title>
+<style>
+    :root { --neon: #0f0; }
+    body { margin: 0; display: flex; height: 100dvh; background: #000; color: #fff; font-family: sans-serif; }
+    .sidebar { width: 450px; max-width: 100%; background: #1a1a1a; border-right: 2px solid #333; overflow-y: auto; }
+    .preview-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; background: #080808; padding: 10px; box-sizing: border-box; min-height: 0; }
+    .accordion-header { width: 100%; padding: 15px; background: #222; color: #fff; border: 0; border-bottom: 1px solid #333; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; font-size: .8rem; text-align: left; }
+    .accordion-content { padding: 15px; display: none; background: #151515; }
+    .accordion-content.active { display: block; }
+    .live-toggle { width: calc(100% - 20px); margin: 10px; background: #444; color: #fff; padding: 12px; font-weight: bold; cursor: pointer; border: 0; border-radius: 5px; }
+    .live-toggle.on { background: var(--neon); color: #000; }
+    .control-bar { padding: 10px; display: flex; gap: 5px; background: #222; }
+    .btn { flex: 1; padding: 10px; border: 0; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: .7rem; }
+    .btn-refresh { background: #007bff; color: #fff; } .btn-pause { background: #ffc107; color: #000; } .btn-copy { background: #6f42c1; color: #fff; }
+    .btn-add { background: #28a745; color: #fff; width: 100%; margin-top: 10px; }
+    label { display: block; font-size: .7rem; margin-bottom: 8px; color: #bbb; }
+    .view-grid { display: flex; gap: 5px; margin-top: 10px; border: 1px dashed #444; padding: 5px; }
+    .view-section { flex: 1; } .view-section h6 { margin: 0 0 5px; font-size: .6rem; color: #888; }
+    .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+    input, select { background: #333; border: 1px solid #444; color: #fff; padding: 5px; font-size: .75rem; width: 100%; box-sizing: border-box; }
+    input[type=color] { padding: 0; height: 28px; }
+    :focus-visible { outline: 2px solid var(--neon); outline-offset: 1px; }
+    .preview-container { border: 5px solid #333; border-radius: 10px; overflow: hidden; background: #000; max-width: 100%; }
+    .p-port { height: min(426px, 44vh); aspect-ratio: 9 / 16; }
+    .p-land { height: min(240px, 28vh); aspect-ratio: 16 / 9; }
+    iframe { width: 100%; height: 100%; border: 0; }
+    @media (max-width: 800px) { body { flex-direction: column; overflow: auto; height: auto; } .sidebar { width: 100%; overflow: visible; } .preview-area { gap: 12px; } .p-port { height: 60vh; } .p-land { height: 35vh; } }
+</style>
+</head>
+<body>
+<div class="sidebar" id="side">
+    <button type="button" id="edit-toggle" class="live-toggle">SZERKESZTŐ MÓD: KI</button>
+    <div class="control-bar">
+        <button type="button" class="btn btn-refresh" id="b-refresh">🔄 Frissítés</button>
+        <button type="button" class="btn btn-pause" id="b-pause">⏸ Szünet</button>
+        <button type="button" class="btn btn-copy" id="b-copy">🔗 Link másolása</button>
+    </div>
+
+    <div>
+        <button type="button" class="accordion-header"><span>Szöveg és effekt</span><span class="sign">+</span></button>
+        <div class="accordion-content">
+            <label>Cím<input id="cim" maxlength="120"></label>
+            <label>Cím színe<input type="color" id="mc" value="#ffffff"></label>
+            <label>Alcím<input id="alcim" maxlength="120"></label>
+            <label>Alcím színe<input type="color" id="sc" value="#ffffff"></label>
+            <label>Gomb felirata<input id="btn" maxlength="30" placeholder="Indítás"></label>
+            <label>Effekt
+                <select id="effect"><option value="none">Nincs</option><option value="snow">Hóesés</option><option value="bday">Konfetti</option></select>
+            </label>
+        </div>
+    </div>
+
+    <div>
+        <button type="button" class="accordion-header"><span>Média (YouTube)</span><span class="sign">+</span></button>
+        <div class="accordion-content">
+            <label>YouTube link vagy azonosító<input type="text" id="yt_input" placeholder="https://youtu.be/..."></label>
+            <input type="hidden" id="yt">
+            <div id="yt-fields"></div>
+        </div>
+    </div>
+
+    <div>
+        <button type="button" class="accordion-header"><span>Képek / Dekorációk</span><span class="sign">+</span></button>
+        <div class="accordion-content">
+            <div id="image-list"></div>
+            <button type="button" class="btn btn-add" id="b-add">+ ÚJ KÉP HOZZÁADÁSA</button>
+        </div>
+    </div>
+</div>
+
+<div class="preview-area">
+    <div class="preview-container p-port"><iframe id="ifr_p" src="index.html" title="Álló előnézet"></iframe></div>
+    <div class="preview-container p-land"><iframe id="ifr_l" src="index.html" title="Fekvő előnézet"></iframe></div>
+</div>
+
+<script type="module">
+import { URLHandler as U } from './url-handler.js';
+import { TransformModule as T } from './transform-module.js';
+
+const $ = id => document.getElementById(id);
+const frames = () => [$('ifr_p'), $('ifr_l')];
+let playing = true, edit = false, imgCount = 0;
+
+// Egyetlen forrás a konfigurációhoz: az előnézet és a link is ebből készül
+function collect() {
+    const p = {};
+    document.querySelectorAll('#side input[id], #side select[id]').forEach(i => {
+        if (i.id === 'yt_input' || i.value === '') return;
+        p[i.id] = i.type === 'color' ? i.value.slice(1) : i.value;
+    });
+    if (edit) p.edit = '1';
+    return p;
+}
+const send = m => frames().forEach(f => f.contentWindow && f.contentWindow.postMessage(m, location.origin));
+const update = () => send({ type: 'STYLE', params: collect() });
+const cardURL = () => new URL('index.html?' + new URLSearchParams(collect()), location.href).href;
+
+$('side').addEventListener('input', update);                 // minden mezőre (az újonnan hozzáadottakra is)
+addEventListener('message', e => {                           // az előnézet jelzi, ha betöltött
+    if (e.origin === location.origin && e.data && e.data.type === 'READY') update();
+});
+
+$('side').addEventListener('click', e => {
+    const h = e.target.closest('.accordion-header');
+    if (!h) return;
+    const c = h.nextElementSibling;
+    c.classList.toggle('active');
+    h.querySelector('.sign').textContent = c.classList.contains('active') ? '−' : '+';
+});
+
+$('edit-toggle').addEventListener('click', e => {
+    edit = !edit;
+    e.currentTarget.textContent = 'SZERKESZTŐ MÓD: ' + (edit ? 'BE' : 'KI');
+    e.currentTarget.classList.toggle('on', edit);
+    update();
+});
+$('b-refresh').addEventListener('click', () => frames().forEach(f => { f.src = cardURL(); }));
+$('b-pause').addEventListener('click', e => {
+    playing = !playing;
+    e.currentTarget.textContent = playing ? '⏸ Szünet' : '▶ Lejátszás';
+    send({ type: 'VIDEO', action: playing ? 'play' : 'pause' });
+});
+$('b-copy').addEventListener('click', async e => {
+    const b = e.currentTarget, old = b.textContent;
+    try { await navigator.clipboard.writeText(cardURL()); b.textContent = '✔ Másolva'; }
+    catch { prompt('Másold ki a linket:', cardURL()); }
+    setTimeout(() => { b.textContent = old; }, 1500);
+});
+
+// YouTube mező: érvénytelen bemenetnél jelzés, és az előnézet frissül
+$('yt_input').addEventListener('input', e => {
+    const id = U.parseYouTubeID(e.target.value);
+    $('yt').value = id;
+    e.target.style.borderColor = (e.target.value && !id) ? '#dc3545' : '';
+    e.target.title = (e.target.value && !id) ? 'Érvénytelen YouTube link' : '';
+});
+$('yt-fields').innerHTML = T.createUIFields('v');
+
+// Képek (az azonosító belső, sorszámból áll)
+$('b-add').addEventListener('click', () => {
+    const id = 'd' + (++imgCount), g = document.createElement('div');
+    g.id = id + '-group';
+    g.style.cssText = 'padding:15px 10px;border-bottom:1px solid #444;background:#1d1d1d;margin-bottom:5px;position:relative';
+    g.innerHTML = `
+        <button type="button" data-rm="${g.id}" aria-label="Kép törlése" style="position:absolute;right:5px;top:5px;background:#dc3545;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:.7rem;padding:3px 8px">X</button>
+        <label>Kép (${id}) – https:// cím<input type="text" id="${id}url" placeholder="https://..."></label>
+        ${T.createUIFields(id)}`;
+    $('image-list').appendChild(g);
+    for (const k of ['x', 'y', 'w', 'h']) { $(id + k).value = 50; $('l' + id + k).value = 50; }
+    update();
+});
+$('image-list').addEventListener('click', e => {
+    const g = e.target.dataset.rm && $(e.target.dataset.rm);
+    if (g) { g.remove(); update(); }
+});
+</script>
+</body>
+</html>
