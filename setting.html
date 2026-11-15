@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:,">
+<title>Beállítások</title>
+<style>
+    body { margin: 0; background: #111; color: #fff; font-family: sans-serif; }
+    main { max-width: 760px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 1.2rem; } h2 { font-size: .95rem; color: #0f0; margin: 22px 0 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: .8rem; } th { text-align: left; color: #888; font-weight: normal; }
+    td, th { padding: 3px 4px; }
+    input, select, textarea { background: #333; border: 1px solid #444; color: #fff; padding: 5px; box-sizing: border-box; width: 100%; font-size: .8rem; }
+    input[type=checkbox] { width: auto; } input[type=number] { width: 80px; }
+    button, .btn { background: #28a745; color: #fff; border: 0; border-radius: 4px; padding: 9px 14px; cursor: pointer; font-weight: bold; font-size: .75rem; text-decoration: none; display: inline-block; }
+    .bar { display: flex; gap: 8px; flex-wrap: wrap; margin: 22px 0; align-items: center; }
+    .gray { background: #555; } .red { background: #dc3545; } .hint { color: #888; font-size: .7rem; }
+    :focus-visible { outline: 2px solid #0f0; }
+</style>
+</head>
+<body><main>
+<h1>⚙ Beállítások (settings.json)</h1>
+<p class="hint">Itt döntöd el, melyik betűtípus és effekt ingyenes vagy fizetős, mennyi szöveg, kép és emoji fér egy kártyára, és mi legyen az emoji-palettán. A mentett fájl a többi JSON-hoz hasonlóan adatbázisba importálható.</p>
+
+<h2>Korlátok (üres mező = korlátlan)</h2><table id="lim"></table>
+<h2>Betűtípusok (Google Fonts név)</h2><table id="fonts"></table><p><button type="button" id="addf" class="gray">+ Betűtípus</button></p>
+<h2>Effektek</h2><table id="fx"></table>
+<h2>Médiaforrások (a jogi megjegyzés üresen az alapszöveget használja)</h2><table id="prov"></table>
+<h2>AI szerver címe (aiEndpoint, https)</h2><input id="ai" placeholder="https://… (üres = kikapcsolva)">
+<h2>Emoji paletta (szóközzel elválasztva)</h2><textarea id="emo" rows="4"></textarea>
+
+<div class="bar">
+    <button type="button" id="save">💾 Mentés (settings.json)</button>
+    <label class="btn gray">📂 Betöltés fájlból<input type="file" id="imp" accept=".json" hidden></label>
+    <button type="button" id="reset" class="red">Alapértékek</button>
+    <a class="btn gray" href="admin.html">← Admin</a>
+</div>
+
+<script type="module">
+import { DEFAULTS, merge, loadSettings } from './settings.js';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
+const tier = v => `<select data-k="tier"><option value="free"${v === 'free' ? ' selected' : ''}>ingyenes</option><option value="paid"${v === 'paid' ? ' selected' : ''}>🔒 fizetős</option></select>`;
+const chk = v => `<input type="checkbox" data-k="enabled" aria-label="Engedélyezett"${v ? ' checked' : ''}>`;
+let S;
+
+function fontRow(f) {
+    return `<tr data-row><td><input data-k="id" value="${esc(f.id)}" aria-label="Google Fonts név"></td><td><input data-k="label" value="${esc(f.label)}" aria-label="Megjelenő név"></td><td>${tier(f.tier)}</td><td>${chk(f.enabled)}</td><td><button type="button" class="red" data-del aria-label="Törlés">✕</button></td></tr>`;
+}
+function render() {
+    $('lim').innerHTML = '<tr><th></th><th>Szövegek</th><th>Képek</th><th>Emojik</th></tr>' + ['free', 'paid'].map(p =>
+        `<tr data-p="${p}"><td>${p === 'free' ? 'Ingyenes' : 'Fizetős'}</td>${['texts', 'images', 'emojis'].map(t =>
+            `<td><input type="number" min="0" data-t="${t}" value="${esc(S.limits?.[p]?.[t] ?? '')}" placeholder="∞"></td>`).join('')}</tr>`).join('');
+    $('fonts').innerHTML = '<tr><th>Azonosító</th><th>Felirat</th><th>Csomag</th><th>Aktív</th><th></th></tr>' + S.fonts.map(fontRow).join('');
+    $('fx').innerHTML = '<tr><th>Azonosító</th><th>Felirat</th><th>Ikon</th><th>Csomag</th><th>Aktív</th></tr>' + S.effects.map(e =>
+        `<tr data-row data-id="${esc(e.id)}"><td>${esc(e.id)}</td><td><input data-k="label" value="${esc(e.label)}"></td><td><input data-k="icon" value="${esc(e.icon)}" style="width:60px"></td><td>${tier(e.tier)}</td><td>${e.id === 'none' ? '' : chk(e.enabled)}</td></tr>`).join('');
+    $('ai').value = S.aiEndpoint || '';
+    $('emo').value = S.emojis.join(' ');
+    $('prov').innerHTML = '<tr><th>Azonosító</th><th>Felirat</th><th>Ikon</th><th>Csomag</th><th>Aktív</th></tr>' + S.providers.map(e =>
+        `<tr data-row data-id="${esc(e.id)}"><td>${esc(e.id)}</td><td><input data-k="label" value="${esc(e.label)}"></td><td><input data-k="icon" value="${esc(e.icon)}" style="width:60px"></td><td>${tier(e.tier)}</td><td>${chk(e.enabled)}</td></tr>` +
+        `<tr><td></td><td colspan="4"><input data-k="legal" placeholder="Jogi megjegyzés" value="${esc(e.legal)}"></td></tr>`).join('');
+}
+const g = (tr, k) => tr.querySelector(`[data-k="${k}"]`);
+function read() {
+    const limits = {};
+    document.querySelectorAll('#lim tr[data-p]').forEach(tr => {
+        limits[tr.dataset.p] = {};
+        tr.querySelectorAll('input').forEach(i => { limits[tr.dataset.p][i.dataset.t] = i.value === '' ? null : Math.max(0, +i.value); });
+    });
+    const fonts = [...$('fonts').querySelectorAll('tr[data-row]')].map(tr => ({
+        id: g(tr, 'id').value.trim(), label: g(tr, 'label').value.trim() || g(tr, 'id').value.trim(),
+        tier: g(tr, 'tier').value, enabled: g(tr, 'enabled').checked
+    })).filter(f => /^[A-Za-z0-9 ]{2,40}$/.test(f.id));
+    const effects = [...$('fx').querySelectorAll('tr[data-row]')].map(tr => ({
+        id: tr.dataset.id, label: g(tr, 'label').value.trim() || tr.dataset.id, icon: g(tr, 'icon').value.trim(),
+        tier: g(tr, 'tier').value, enabled: tr.dataset.id === 'none' ? true : g(tr, 'enabled').checked
+    }));
+    const providers = [...$('prov').querySelectorAll('tr[data-row]')].map(tr => ({
+        id: tr.dataset.id, label: g(tr, 'label').value.trim() || tr.dataset.id, icon: g(tr, 'icon').value.trim(),
+        tier: g(tr, 'tier').value, enabled: g(tr, 'enabled').checked, legal: g(tr.nextElementSibling, 'legal').value.trim()
+    }));
+    return { schemaVersion: 1, limits, fonts, effects, providers, aiEndpoint: /^https:\/\//.test($('ai').value.trim()) ? $('ai').value.trim() : '', emojis: $('emo').value.split(/\s+/).filter(Boolean) };
+}
+$('fonts').addEventListener('click', e => { if (e.target.dataset.del !== undefined) e.target.closest('tr').remove(); });
+$('addf').addEventListener('click', () => $('fonts').insertAdjacentHTML('beforeend', fontRow({ id: '', label: '', tier: 'paid', enabled: true })));
+$('save').addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(read(), null, 2)], { type: 'application/json' }));
+    a.download = 'settings.json'; a.click(); URL.revokeObjectURL(a.href);
+});
+$('imp').addEventListener('change', async e => {
+    try { S = merge(JSON.parse(await e.target.files[0].text())); render(); } catch { alert('Érvénytelen JSON fájl.'); }
+});
+$('reset').addEventListener('click', () => { if (confirm('Visszaállítod az alapértékeket?')) { S = merge(null); render(); } });
+
+S = await loadSettings(); render();
+</script>
+</main></body>
+</html>
