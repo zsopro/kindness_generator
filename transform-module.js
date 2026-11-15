@@ -5,9 +5,16 @@ export const TransformModule = {
     // get: kulcs => érték (URLSearchParams és sima objektum is jó)
     // Fekvő nézetben az "l" előtagú érték elsőbbséget élvez (pl. ld1x), ha van.
     apply(el, get, prefix, landscape = innerWidth > innerHeight) {
+        const has = v => v !== null && v !== undefined && v !== '';
         const pick = k => {
-            const l = landscape ? get('l' + prefix + k) : null;
-            return (l !== null && l !== undefined && l !== '') ? l : get(prefix + k);
+            const base = get(prefix + k);
+            if (!landscape) return base;
+            const l = get('l' + prefix + k);
+            if (has(l)) return l;
+            // automatikus fekvő nézet: ugyanakkora fizikai méret az álló nézethez képest (9:16 -> 16:9)
+            if (has(base) && k === 'w') return Number(base) * 0.5625;
+            if (has(base) && k === 'h') return Number(base) * 1.778;
+            return base;
         };
         el.style.left = U.num(pick('x'), -50, 150, 50) + '%';
         el.style.top = U.num(pick('y'), -50, 150, 50) + '%';
