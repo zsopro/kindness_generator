@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "limits": {
+    "free": {
+      "texts": 5,
+      "images": 2,
+      "emojis": 3
+    },
+    "paid": {
+      "texts": 30,
+      "images": 20,
+      "emojis": 20
+    }
+  },
+  "fonts": [
+    {
+      "id": "Orbitron",
+      "label": "Orbitron",
+      "tier": "free",
+      "enabled": true
+    },
+    {
+      "id": "Exo 2",
+      "label": "Exo 2",
+      "tier": "free",
+      "enabled": true
+    },
+    {
+      "id": "Russo One",
+      "label": "Russo One",
+      "tier": "free",
+      "enabled": true
+    },
+    {
+      "id": "Cinzel",
+      "label": "Cinzel",
+      "tier": "free",
+      "enabled": true
+    },
+    {
+      "id": "Great Vibes",
+      "label": "Great Vibes",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "Permanent Marker",
+      "label": "Permanent Marker",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "Special Elite",
+      "label": "Special Elite",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "Pacifico",
+      "label": "Pacifico",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "Lobster",
+      "label": "Lobster",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "Bangers",
+      "label": "Bangers",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "Dancing Script",
+      "label": "Dancing Script",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "Playfair Display",
+      "label": "Playfair Display",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "Caveat",
+      "label": "Caveat",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "Press Start 2P",
+      "label": "Press Start 2P",
+      "tier": "paid",
+      "enabled": true
+    }
+  ],
+  "effects": [
+    {
+      "id": "none",
+      "label": "Nincs",
+      "icon": "🚫",
+      "tier": "free",
+      "enabled": true
+    },
+    {
+      "id": "snow",
+      "label": "Hóesés",
+      "icon": "❄️",
+      "tier": "free",
+      "enabled": true
+    },
+    {
+      "id": "bday",
+      "label": "Konfetti",
+      "icon": "🎉",
+      "tier": "free",
+      "enabled": true
+    },
+    {
+      "id": "hearts",
+      "label": "Szívek",
+      "icon": "❤️",
+      "tier": "free",
+      "enabled": true
+    },
+    {
+      "id": "rain",
+      "label": "Eső",
+      "icon": "🌧️",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "stars",
+      "label": "Csillagok",
+      "icon": "⭐",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "sparkles",
+      "label": "Szikrák",
+      "icon": "✨",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "leaves",
+      "label": "Őszi levelek",
+      "icon": "🍂",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "flowers",
+      "label": "Virágszirmok",
+      "icon": "🌸",
+      "tier": "paid",
+      "enabled": true
+    },
+    {
+      "id": "bubbles",
+      "label": "Buborékok",
+      "icon": "🫧",
+      "tier": "paid",
+      "enabled": true
+    }
+  ],
+  "providers": [
+    {
+      "id": "youtube",
+      "label": "YouTube",
+      "icon": "▶️",
+      "tier": "free",
+      "enabled": true,
+      "legal": ""
+    },
+    {
+      "id": "file",
+      "label": "Saját fájl (mp3/mp4)",
+      "icon": "📁",
+      "tier": "free",
+      "enabled": true,
+      "legal": ""
+    },
+    {
+      "id": "tiktok",
+      "label": "TikTok",
+      "icon": "🎵",
+      "tier": "paid",
+      "enabled": true,
+      "legal": ""
+    },
+    {
+      "id": "videa",
+      "label": "Videa (kísérleti)",
+      "icon": "🎞️",
+      "tier": "paid",
+      "enabled": false,
+      "legal": ""
+    }
+  ],
+  "aiEndpoint": "",
+  "emojis": [
+    "😀",
+    "😍",
+    "🥰",
+    "😘",
+    "🥳",
+    "😊",
+    "😎",
+    "🤗",
+    "🙏",
+    "👍",
+    "🎉",
+    "🎂",
+    "🎁",
+    "🎈",
+    "🎄",
+    "❄️",
+    "🐣",
+    "🎓",
+    "🌸",
+    "💐",
+    "❤️",
+    "💖",
+    "✨",
+    "⭐",
+    "🌟",
+    "🔥",
+    "🍀",
+    "☀️",
+    "🌈",
+    "🎶",
+    "📞",
+    "✉️",
+    "📍",
+    "🏠",
+    "💼",
+    "🚗",
+    "🍾",
+    "🥂",
+    "🕯️",
+    "🎅"
+  ]
+}
