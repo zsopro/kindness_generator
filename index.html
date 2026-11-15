@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💌</text></svg>">
+<link rel="icon" href="data:,">
 <title>Kártya</title>
 <style>
     html, body { margin: 0; height: 100%; background: #000; overflow: hidden; color: #fff; font-family: sans-serif; }
@@ -12,9 +12,9 @@
     .txt { max-width: 92vw; text-align: center; line-height: 1.1; white-space: pre-wrap; text-shadow: 0 0 8px #000; }
     .img img { width: 100%; height: 100%; object-fit: contain; display: block; }
     #v-cont { display: none; } #v-cont iframe { width: 100%; height: 100%; border: 0; }
-    #fx { position: fixed; inset: 0; pointer-events: none; }
+    #fx { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
     body.edit .element { outline: 2px dashed #0f0; }
-    #start { position: fixed; inset: 0; z-index: 9; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.55); }
+    #start { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.55); }
     #go { font: 700 1.1rem 'Orbitron', sans-serif; padding: 16px 34px; color: #0f0; background: #000; border: 2px solid #0f0; border-radius: 8px; cursor: pointer; }
     #go:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 </style>
@@ -47,29 +47,30 @@ function loadFont(f) {                       // csak engedélyezett betűtípus 
 function render(p) {
     last = p;
     const seen = new Set(), land = innerWidth > innerHeight;
+    const pk = k => (land && p['l' + k] != null && p['l' + k] !== '') ? p['l' + k] : p[k];
     const put = (id, cls) => {
         let el = els.get(id);
         if (!el) { el = document.createElement('div'); el.id = id; layer.appendChild(el); els.set(id, el); }
         el.className = 'element ' + cls; seen.add(id); return el;
     };
-    const text = (id, t, c, f, s, x, y, dy) => {
+    const text = (id, t, c, f, s, x, y, dy, z) => {
         if (!t) return;
         const el = put(id, 'txt'), font = U.font(f);
         loadFont(font);
         el.textContent = String(t).slice(0, 300);          // csak textContent: nincs HTML-injektálás
         Object.assign(el.style, {
             left: U.num(x, -50, 150, 50) + '%', top: U.num(y, -50, 150, dy) + '%',
-            color: U.hex(c) || '#fff', fontSize: U.num(s, 1, 30, 5) + 'vmin',
+            zIndex: U.num(z, 0, 99, 20), color: U.hex(c) || '#fff', fontSize: U.num(s, 1, 30, 5) + 'vmin',
             fontFamily: font ? `"${font}", sans-serif` : 'sans-serif'
         });
     };
 
-    text('t-m', p.cim, p.mc, p.mf, p.ms, p.mx, p.my, 10);
-    text('t-s', p.alcim, p.sc, p.sf, p.ss, p.sx, p.sy, 20);
+    text('t-m', p.cim, p.mc, p.mf, p.ms, pk('mx'), pk('my'), 10, p.mz);
+    text('t-s', p.alcim, p.sc, p.sf, p.ss, pk('sx'), pk('sy'), 20, p.sz);
 
     for (const k of Object.keys(p)) {
         let m = k.match(/^txt(\d{1,2})$/);                  // szabad szövegek: txtN, fN, cN, sN, xN, yN
-        if (m) { const n = m[1]; text('t-' + n, p[k], p['c' + n], p['f' + n], p['s' + n], p['x' + n], p['y' + n], 50); continue; }
+        if (m) { const n = m[1]; text('t-' + n, p[k], p['c' + n], p['f' + n], p['s' + n], pk('x' + n), pk('y' + n), 50, p['z' + n]); continue; }
 
         m = k.match(/^(d\d{1,2})url$/);                     // képek: dNurl, dNx/y/w/h vagy dNs, dNr
         const u = m && U.cleanImageURL(p[k]);
@@ -80,6 +81,8 @@ function render(p) {
         if (i.getAttribute('src') !== u) i.src = u;
         T.apply(el, x => p[x], b, land);
         if (!p[b + 'w'] && !p[b + 'h']) { el.style.width = U.num(p[b + 's'], 1, 200, 40) + 'vw'; el.style.height = 'auto'; }
+        else if (!p[b + 'h']) el.style.height = 'auto';
+        el.style.zIndex = U.num(p[b + 'z'], 0, 99, 10);
         el.style.transform = `translate(-50%,-50%) rotate(${U.num(p[b + 'r'], -360, 360, 0)}deg)`;
     }
     els.forEach((el, id) => { if (!seen.has(id)) { el.remove(); els.delete(id); } });   // törölt elemek
@@ -87,6 +90,7 @@ function render(p) {
     const id = U.parseYouTubeID(p.yt), vc = $('v-cont');
     vc.style.display = id ? 'block' : 'none';
     if (id) T.apply(vc, x => p[x], 'v', land);
+    vc.style.zIndex = U.num(p.vz, 0, 99, 0);
     if (id !== ytId) {
         ytId = id;
         if (player && player.loadVideoById) id ? player.loadVideoById(id) : player.stopVideo();
