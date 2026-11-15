@@ -4,75 +4,69 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💌</text></svg>">
+<link rel="icon" href="data:,">
 <title>NEO Admin</title>
 <style>
     :root { --neon: #0f0; }
     body { margin: 0; display: flex; height: 100dvh; background: #000; color: #fff; font-family: sans-serif; }
     .sidebar { width: 450px; max-width: 100%; background: #1a1a1a; border-right: 2px solid #333; overflow-y: auto; }
     .preview-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; background: #080808; padding: 10px; box-sizing: border-box; min-height: 0; }
-    .accordion-header { width: 100%; padding: 15px; background: #222; color: #fff; border: 0; border-bottom: 1px solid #333; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; font-size: .8rem; text-align: left; }
-    .accordion-content { padding: 15px; display: none; background: #151515; }
+    .accordion-header { width: 100%; padding: 15px; background: #222; color: #fff; border: 0; border-bottom: 1px solid #333; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; font-size: .8rem; }
+    .accordion-content { padding: 12px; display: none; background: #151515; }
     .accordion-content.active { display: block; }
     .live-toggle { width: calc(100% - 20px); margin: 10px; background: #444; color: #fff; padding: 12px; font-weight: bold; cursor: pointer; border: 0; border-radius: 5px; }
     .live-toggle.on { background: var(--neon); color: #000; }
-    .control-bar { padding: 10px; display: flex; gap: 5px; background: #222; }
-    .btn { flex: 1; padding: 10px; border: 0; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: .7rem; }
-    .btn-refresh { background: #007bff; color: #fff; } .btn-pause { background: #ffc107; color: #000; } .btn-copy { background: #6f42c1; color: #fff; }
-    .btn-add { background: #28a745; color: #fff; width: 100%; margin-top: 10px; }
-    label { display: block; font-size: .7rem; margin-bottom: 8px; color: #bbb; }
-    .view-grid { display: flex; gap: 5px; margin-top: 10px; border: 1px dashed #444; padding: 5px; }
+    .control-bar { padding: 10px; display: flex; flex-wrap: wrap; gap: 5px; background: #222; }
+    .btn { flex: 1 1 45%; padding: 10px; border: 0; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: .7rem; color: #fff; }
+    .b-blue { background: #007bff; } .b-yel { background: #ffc107; color: #000; } .b-pur { background: #6f42c1; } .b-grn { background: #28a745; } .b-red { background: #dc3545; }
+    .btn-add { width: 100%; margin-top: 8px; }
+    label { display: block; font-size: .65rem; margin-bottom: 6px; color: #bbb; flex: 1; }
+    .row { display: flex; gap: 5px; }
+    .view-grid { display: flex; gap: 5px; margin-top: 6px; border: 1px dashed #444; padding: 5px; }
     .view-section { flex: 1; } .view-section h6 { margin: 0 0 5px; font-size: .6rem; color: #888; }
     .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-    input, select { background: #333; border: 1px solid #444; color: #fff; padding: 5px; font-size: .75rem; width: 100%; box-sizing: border-box; }
+    input, select, textarea { background: #333; border: 1px solid #444; color: #fff; padding: 5px; font-size: .75rem; width: 100%; box-sizing: border-box; }
     input[type=color] { padding: 0; height: 28px; }
+    .group { padding: 12px 10px; border: 1px solid #333; background: #1d1d1d; margin-bottom: 8px; position: relative; }
+    .rm { position: absolute; right: 5px; top: 5px; background: #dc3545; color: #fff; border: 0; border-radius: 3px; cursor: pointer; padding: 3px 8px; font-size: .7rem; }
+    .hint { font-size: .6rem; color: #888; margin: 6px 0 0; }
     :focus-visible { outline: 2px solid var(--neon); outline-offset: 1px; }
     .preview-container { border: 5px solid #333; border-radius: 10px; overflow: hidden; background: #000; max-width: 100%; }
-    .p-port { height: min(426px, 44vh); aspect-ratio: 9 / 16; }
-    .p-land { height: min(240px, 28vh); aspect-ratio: 16 / 9; }
+    .p-port { height: min(426px, 44vh); aspect-ratio: 9 / 16; } .p-land { height: min(240px, 28vh); aspect-ratio: 16 / 9; }
     iframe { width: 100%; height: 100%; border: 0; }
     @media (max-width: 800px) { body { flex-direction: column; overflow: auto; height: auto; } .sidebar { width: 100%; overflow: visible; } .preview-area { gap: 12px; } .p-port { height: 60vh; } .p-land { height: 35vh; } }
 </style>
 </head>
 <body>
 <div class="sidebar" id="side">
+    <div style="padding:10px 10px 0"><label>Sablon (kiindulópont)<select id="tpl"><option value="">– Üres kártya –</option></select></label></div>
     <button type="button" id="edit-toggle" class="live-toggle">SZERKESZTŐ MÓD: KI</button>
     <div class="control-bar">
-        <button type="button" class="btn btn-refresh" id="b-refresh">🔄 Frissítés</button>
-        <button type="button" class="btn btn-pause" id="b-pause">⏸ Szünet</button>
-        <button type="button" class="btn btn-copy" id="b-copy">🔗 Link másolása</button>
+        <button type="button" class="btn b-blue" id="b-refresh">🔄 Frissítés</button>
+        <button type="button" class="btn b-yel" id="b-pause">⏸ Szünet</button>
+        <button type="button" class="btn b-pur" id="b-copy">🔗 Link másolása</button>
+        <button type="button" class="btn b-grn" id="b-save">💾 Mentés sablonként</button>
     </div>
 
-    <div>
-        <button type="button" class="accordion-header"><span>Szöveg és effekt</span><span class="sign">+</span></button>
-        <div class="accordion-content">
-            <label>Cím<input id="cim" maxlength="120"></label>
-            <label>Cím színe<input type="color" id="mc" value="#ffffff"></label>
-            <label>Alcím<input id="alcim" maxlength="120"></label>
-            <label>Alcím színe<input type="color" id="sc" value="#ffffff"></label>
-            <label>Gomb felirata<input id="btn" maxlength="30" placeholder="Indítás"></label>
-            <label>Effekt
-                <select id="effect"><option value="none">Nincs</option><option value="snow">Hóesés</option><option value="bday">Konfetti</option></select>
-            </label>
-        </div>
-    </div>
+    <div><button type="button" class="accordion-header"><span>Szövegek</span><span class="sign">+</span></button>
+        <div class="accordion-content"><div id="text-list"></div>
+            <button type="button" class="btn b-grn btn-add" id="b-addt">+ ÚJ SZÖVEG</button></div></div>
 
-    <div>
-        <button type="button" class="accordion-header"><span>Média (YouTube)</span><span class="sign">+</span></button>
+    <div><button type="button" class="accordion-header"><span>Képek</span><span class="sign">+</span></button>
+        <div class="accordion-content"><div id="image-list"></div>
+            <button type="button" class="btn b-grn btn-add" id="b-addi">+ ÚJ KÉP</button>
+            <p class="hint">A fekvő nézet üresen hagyva automatikusan az álló nézetből számolódik.</p></div></div>
+
+    <div><button type="button" class="accordion-header"><span>Videó és effekt</span><span class="sign">+</span></button>
         <div class="accordion-content">
-            <label>YouTube link vagy azonosító<input type="text" id="yt_input" placeholder="https://youtu.be/..."></label>
+            <label>YouTube link vagy azonosító<input id="yt_input" placeholder="https://youtu.be/..."></label>
             <input type="hidden" id="yt">
             <div id="yt-fields"></div>
-        </div>
-    </div>
-
-    <div>
-        <button type="button" class="accordion-header"><span>Képek / Dekorációk</span><span class="sign">+</span></button>
-        <div class="accordion-content">
-            <div id="image-list"></div>
-            <button type="button" class="btn btn-add" id="b-add">+ ÚJ KÉP HOZZÁADÁSA</button>
-        </div>
-    </div>
+            <div class="row" style="margin-top:10px">
+                <label>Gomb felirata<input id="btn" maxlength="30" placeholder="Indítás"></label>
+                <label>Effekt<select id="effect"><option value="none">Nincs</option><option value="snow">Hóesés</option><option value="bday">Konfetti</option></select></label>
+            </div></div></div>
+    <p class="hint" style="padding:0 12px 20px">Réteg: nagyobb szám = feljebb (kép alapból 10, szöveg 20, videó 0). A letöltött templates.json fájlt másold a tárolóba a régi helyére.</p>
 </div>
 
 <div class="preview-area">
@@ -85,14 +79,14 @@ import { URLHandler as U } from './url-handler.js';
 import { TransformModule as T } from './transform-module.js';
 
 const $ = id => document.getElementById(id);
+const set = (id, v) => { const e = $(id); if (e && v !== undefined && v !== null) e.value = v; };
 const frames = () => [$('ifr_p'), $('ifr_l')];
-let playing = true, edit = false, imgCount = 0;
+let playing = true, edit = false, tN = 0, iN = 0, tpls = [];
 
-// Egyetlen forrás a konfigurációhoz: az előnézet és a link is ebből készül
-function collect() {
+function collect() {                                   // egyetlen forrás: az előnézet és a link is ebből készül
     const p = {};
-    document.querySelectorAll('#side input[id], #side select[id]').forEach(i => {
-        if (i.id === 'yt_input' || i.value === '') return;
+    document.querySelectorAll('#side input[id], #side select[id], #side textarea[id]').forEach(i => {
+        if (['yt_input', 'tpl'].includes(i.id) || i.value === '') return;
         p[i.id] = i.type === 'color' ? i.value.slice(1) : i.value;
     });
     if (edit) p.edit = '1';
@@ -101,30 +95,102 @@ function collect() {
 const send = m => frames().forEach(f => f.contentWindow && f.contentWindow.postMessage(m, location.origin));
 const update = () => send({ type: 'STYLE', params: collect() });
 const cardURL = () => new URL('index.html?' + new URLSearchParams(collect()), location.href).href;
+const group = id => { const g = document.createElement('div'); g.className = 'group'; g.id = id; return g; };
+const rm = id => `<button type="button" class="rm" data-rm="${id}" aria-label="Törlés">X</button>`;
 
-$('side').addEventListener('input', update);                 // minden mezőre (az újonnan hozzáadottakra is)
-addEventListener('message', e => {                           // az előnézet jelzi, ha betöltött
-    if (e.origin === location.origin && e.data && e.data.type === 'READY') update();
+function addText(o = {}) {
+    const n = ++tN, g = group('t' + n + '-group');
+    g.innerHTML = `${rm(g.id)}
+        <label>Szöveg<textarea id="txt${n}" rows="2" maxlength="300"></textarea></label>
+        <div class="row"><label>Betűtípus<select id="f${n}">${U.FONTS.map(f => `<option>${f}</option>`).join('')}</select></label>
+            <label>Szín<input type="color" id="c${n}" value="#ffffff"></label></div>
+        <div class="row"><label>Méret<input type="number" id="s${n}" min="1" max="30" step="0.5"></label>
+            <label>X %<input type="number" id="x${n}"></label><label>Y %<input type="number" id="y${n}"></label>
+            <label>Réteg<input type="number" id="z${n}" min="0" max="99"></label></div>`;
+    $('text-list').appendChild(g);
+    set('txt' + n, o.t ?? ''); set('f' + n, U.FONTS.includes(o.f) ? o.f : U.FONTS[0]); set('c' + n, U.hex(o.c) || '#ffffff');
+    set('s' + n, o.s ?? ''); set('x' + n, o.x ?? ''); set('y' + n, o.y ?? ''); set('z' + n, o.z ?? '');
+}
+function addImage(o = {}) {
+    const n = ++iN, id = 'd' + n, g = group(id + '-group');
+    g.innerHTML = `${rm(g.id)}
+        <label>Kép (https:// cím)<input id="${id}url" placeholder="https://..."></label>
+        ${T.createUIFields(id)}
+        <div class="row" style="margin-top:6px"><label>Réteg<input type="number" id="${id}z" min="0" max="99"></label>
+            <label>Forgatás °<input type="number" id="${id}r" min="-360" max="360"></label></div>`;
+    $('image-list').appendChild(g);
+    set(id + 'url', o.u ?? ''); set(id + 'z', o.z ?? ''); set(id + 'r', o.r ?? '');
+    for (const a of ['x', 'y', 'w', 'h']) { set(id + a, o[a] ?? ''); set('l' + id + a, o['l' + a] ?? ''); }
+}
+
+function loadParams(str) {                              // sablon / régi link → rétegek (cim, alcim is szövegréteggé alakul)
+    const p = Object.fromEntries(new URLSearchParams(str));
+    $('text-list').innerHTML = ''; $('image-list').innerHTML = ''; tN = iN = 0;
+    set('btn', p.btn ?? ''); set('effect', ['snow', 'bday'].includes(p.effect) ? p.effect : 'none');
+    set('yt_input', p.yt ?? ''); set('yt', U.parseYouTubeID(p.yt));
+    for (const a of ['x', 'y', 'w', 'h']) { set('v' + a, p['v' + a] ?? ''); set('lv' + a, p['lv' + a] ?? ''); }
+    const tx = [];
+    if (p.cim) tx.push({ t: p.cim, c: p.mc, f: p.mf, s: p.ms, x: p.mx, y: p.my ?? 10 });
+    if (p.alcim) tx.push({ t: p.alcim, c: p.sc, f: p.sf, s: p.ss, x: p.sx, y: p.sy ?? 20 });
+    for (const k of Object.keys(p)) {
+        const m = k.match(/^txt(\d{1,2})$/);
+        if (m) { const n = m[1]; tx.push({ t: p[k], c: p['c' + n], f: p['f' + n], s: p['s' + n], x: p['x' + n], y: p['y' + n], z: p['z' + n] }); }
+    }
+    tx.forEach(addText);
+    for (const k of Object.keys(p)) {
+        const m = k.match(/^(d\d{1,2})url$/);
+        if (!m || !p[k]) continue;
+        const b = m[1], o = { u: p[k], r: p[b + 'r'], z: p[b + 'z'] };
+        for (const a of ['x', 'y', 'w', 'h']) { o[a] = p[b + a]; o['l' + a] = p['l' + b + a]; }
+        if (o.w == null && o.h == null && p[b + 's']) o.w = p[b + 's'];
+        addImage(o);
+    }
+    update();
+}
+
+function fillTpl() {
+    const t = $('tpl'); t.length = 1;
+    const groups = {};
+    tpls.forEach((x, i) => { (groups[x.subCategory || 'Egyéb'] ||= []).push([x.name, i]); });
+    for (const [g, list] of Object.entries(groups)) {
+        const og = document.createElement('optgroup'); og.label = g;
+        list.forEach(([name, i]) => { const o = document.createElement('option'); o.value = i; o.textContent = name; og.appendChild(o); });
+        t.appendChild(og);
+    }
+}
+function download(name, text) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+    a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+
+$('tpl').addEventListener('change', e => { e.target.value === '' ? loadParams('') : loadParams(tpls[+e.target.value].params); });
+$('b-addt').addEventListener('click', () => { addText({ s: 5, x: 50, y: 50, z: 20 }); update(); });
+$('b-addi').addEventListener('click', () => { addImage({ x: 50, y: 50, w: 50, h: 50, z: 10 }); update(); });
+$('b-save').addEventListener('click', () => {
+    const name = prompt('Sablon neve:'); if (!name) return;
+    const sub = prompt('Alkategória (pl. Születésnap, Magán):') || '';
+    const q = new URLSearchParams(collect()); q.delete('edit');
+    tpls.push({ id: Date.now(), name, category: '', subCategory: sub, params: q.toString() });
+    fillTpl(); download('templates.json', JSON.stringify({ templates: tpls }, null, 2));
 });
 
+$('side').addEventListener('input', update);
+addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.type === 'READY') update(); });
 $('side').addEventListener('click', e => {
-    const h = e.target.closest('.accordion-header');
-    if (!h) return;
-    const c = h.nextElementSibling;
-    c.classList.toggle('active');
+    const r = e.target.dataset.rm;
+    if (r) { $(r).remove(); update(); return; }
+    const h = e.target.closest('.accordion-header'); if (!h) return;
+    const c = h.nextElementSibling; c.classList.toggle('active');
     h.querySelector('.sign').textContent = c.classList.contains('active') ? '−' : '+';
 });
-
 $('edit-toggle').addEventListener('click', e => {
-    edit = !edit;
-    e.currentTarget.textContent = 'SZERKESZTŐ MÓD: ' + (edit ? 'BE' : 'KI');
-    e.currentTarget.classList.toggle('on', edit);
-    update();
+    edit = !edit; e.currentTarget.textContent = 'SZERKESZTŐ MÓD: ' + (edit ? 'BE' : 'KI');
+    e.currentTarget.classList.toggle('on', edit); update();
 });
 $('b-refresh').addEventListener('click', () => frames().forEach(f => { f.src = cardURL(); }));
 $('b-pause').addEventListener('click', e => {
-    playing = !playing;
-    e.currentTarget.textContent = playing ? '⏸ Szünet' : '▶ Lejátszás';
+    playing = !playing; e.currentTarget.textContent = playing ? '⏸ Szünet' : '▶ Lejátszás';
     send({ type: 'VIDEO', action: playing ? 'play' : 'pause' });
 });
 $('b-copy').addEventListener('click', async e => {
@@ -133,33 +199,17 @@ $('b-copy').addEventListener('click', async e => {
     catch { prompt('Másold ki a linket:', cardURL()); }
     setTimeout(() => { b.textContent = old; }, 1500);
 });
-
-// YouTube mező: érvénytelen bemenetnél jelzés, és az előnézet frissül
 $('yt_input').addEventListener('input', e => {
-    const id = U.parseYouTubeID(e.target.value);
-    $('yt').value = id;
+    const id = U.parseYouTubeID(e.target.value); $('yt').value = id;
     e.target.style.borderColor = (e.target.value && !id) ? '#dc3545' : '';
     e.target.title = (e.target.value && !id) ? 'Érvénytelen YouTube link' : '';
 });
 $('yt-fields').innerHTML = T.createUIFields('v');
 
-// Képek (az azonosító belső, sorszámból áll)
-$('b-add').addEventListener('click', () => {
-    const id = 'd' + (++imgCount), g = document.createElement('div');
-    g.id = id + '-group';
-    g.style.cssText = 'padding:15px 10px;border-bottom:1px solid #444;background:#1d1d1d;margin-bottom:5px;position:relative';
-    g.innerHTML = `
-        <button type="button" data-rm="${g.id}" aria-label="Kép törlése" style="position:absolute;right:5px;top:5px;background:#dc3545;color:#fff;border:0;border-radius:3px;cursor:pointer;font-size:.7rem;padding:3px 8px">X</button>
-        <label>Kép (${id}) – https:// cím<input type="text" id="${id}url" placeholder="https://..."></label>
-        ${T.createUIFields(id)}`;
-    $('image-list').appendChild(g);
-    for (const k of ['x', 'y', 'w', 'h']) { $(id + k).value = 50; $('l' + id + k).value = 50; }
-    update();
-});
-$('image-list').addEventListener('click', e => {
-    const g = e.target.dataset.rm && $(e.target.dataset.rm);
-    if (g) { g.remove(); update(); }
-});
+try {                                                  // sablonok külön fájlból
+    const r = await fetch('templates.json', { cache: 'no-cache' });
+    tpls = (await r.json()).templates || []; fillTpl();
+} catch { /* nincs sablonfájl: üres kártyával indulunk */ }
 </script>
 </body>
 </html>
