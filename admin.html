@@ -57,6 +57,11 @@
     iframe { width: 100%; height: 100%; border: 0; }
     @media (max-width: 800px) { .rail { flex-direction: row; width: 100%; overflow-x: auto; flex-shrink: 0; } body { flex-direction: column; overflow: auto; height: auto; } .sidebar { width: 100%; overflow: visible; } .preview-area { gap: 12px; } .p-port { height: 60vh; } .p-land { height: 35vh; } }
 </style>
+<script>
+    setTimeout(() => {
+        if (!window.__adminOk) { const m = document.getElementById('msg'); if (m) m.textContent = 'A szerkesztő nem indult el. Frissíts erővel (Ctrl+F5), és ellenőrizd, hogy az admin.html, url-handler.js, transform-module.js és settings.js is fel van töltve.'; }
+    }, 2500);
+</script>
 </head>
 <body>
 <nav class="rail" id="rail" aria-label="Eszközök">
@@ -135,6 +140,7 @@
 import { URLHandler as U } from './url-handler.js';
 import { TransformModule as T } from './transform-module.js';
 import { loadSettings, isLocked, limitFor } from './settings.js';
+window.__adminOk = true;
 
 const $ = id => document.getElementById(id);
 const set = (id, v) => { const e = $(id); if (e && v !== undefined && v !== null) e.value = v; };
@@ -426,30 +432,6 @@ $('mlink').addEventListener('input', e => {
 });
 $('vfields').innerHTML = T.createUIFields('v');
 
-const getJSON = async f => { try { const r = await fetch(f, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch { return null; } };
-cats = ((await getJSON('categories.json')) || {}).categories || [];
-tpls = (((await getJSON('templates.json')) || {}).templates || []).map(normTpl);
-fillTpl();
-
-S = await loadSettings();
-fillEffect('none'); fillMed(''); refreshLimits();
-$('b-adde').addEventListener('click', () => { addEmoji({ e: '🎉', x: 50, y: 50, s: 12, z: 15 }); refreshLimits(); update(); });
-$('emo-x').addEventListener('click', () => $('emo').close());
-S.emojis.forEach(em => {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'emo'; b.textContent = em;
-    b.addEventListener('click', () => {
-        const el = emoT; if (!el) return;
-        if (el.tagName === 'TEXTAREA') { const a = el.selectionStart ?? el.value.length; el.value = el.value.slice(0, a) + em + el.value.slice(el.selectionEnd ?? a); }
-        else el.value = em;
-        el.dispatchEvent(new Event('input', { bubbles: true })); $('emo').close();
-    });
-    $('emo-grid').appendChild(b);
-});
-$('plan').addEventListener('change', e => {            // Nézet: admin = minden, ingyenes / fizetős = a felhasználó látványa
-    plan = e.target.value;
-    document.querySelectorAll('#text-list select[id^="f"]').forEach(sel => fillFont(sel));
-    fillEffect(); fillMed(); refreshLimits(); update();
-});
 $('grid').addEventListener('click', e => { const b = e.target.closest('.thumb'); if (b) loadParams(tpls[+b.dataset.tpl].params); });
 $('rail').addEventListener('click', e => {             // Canva-szerű eszköztár: egyszerre egy panel látszik
     const b = e.target.closest('button[data-t]'); if (!b) return;
@@ -468,6 +450,36 @@ $('b-ai').addEventListener('click', async () => {      // a szerver csak javasla
         aiLog('a', String(j.reply || 'Kész, nézd meg az előnézetet. Szabadon módosíthatod.').slice(0, 600));
     } catch { aiLog('a', 'Az AI most nem érhető el.'); }
 });
+try {                                                  // sablonok és kategóriák
+const getJSON = async f => { try { const r = await fetch(f, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch { return null; } };
+cats = ((await getJSON('categories.json')) || {}).categories || [];
+tpls = (((await getJSON('templates.json')) || {}).templates || []).map(normTpl);
+fillTpl();
+
+} catch (err) { console.error(err); flash('Indítási hiba: ' + err.message + ' – frissíts erővel (Ctrl+F5), és ellenőrizd a feltöltött fájlokat.'); }
+try {                                                  // beállítások és az ezektől függő felület
+S = await loadSettings();
+S.providers = (S.providers && S.providers.length) ? S.providers : [{ id: 'youtube', label: 'YouTube', icon: '▶️', tier: 'free', enabled: true }, { id: 'file', label: 'Saját fájl', icon: '📁', tier: 'free', enabled: true }, { id: 'tiktok', label: 'TikTok', icon: '🎵', tier: 'paid', enabled: true }];
+S.fonts ||= []; S.effects ||= []; S.emojis ||= []; S.limits ||= {};
+fillEffect('none'); fillMed(''); refreshLimits();
+$('b-adde').addEventListener('click', () => { addEmoji({ e: '🎉', x: 50, y: 50, s: 12, z: 15 }); refreshLimits(); update(); });
+$('emo-x').addEventListener('click', () => $('emo').close());
+S.emojis.forEach(em => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'emo'; b.textContent = em;
+    b.addEventListener('click', () => {
+        const el = emoT; if (!el) return;
+        if (el.tagName === 'TEXTAREA') { const a = el.selectionStart ?? el.value.length; el.value = el.value.slice(0, a) + em + el.value.slice(el.selectionEnd ?? a); }
+        else el.value = em;
+        el.dispatchEvent(new Event('input', { bubbles: true })); $('emo').close();
+    });
+    $('emo-grid').appendChild(b);
+});
+$('plan').addEventListener('change', e => {            // Nézet: admin = minden, ingyenes / fizetős = a felhasználó látványa
+    plan = e.target.value;
+    document.querySelectorAll('#text-list select[id^="f"]').forEach(sel => fillFont(sel));
+    fillEffect(); fillMed(); refreshLimits(); update();
+});
+} catch (err) { console.error(err); flash('Indítási hiba: ' + err.message + ' – frissíts erővel (Ctrl+F5), és ellenőrizd a feltöltött fájlokat.'); }
 </script>
 </body>
 </html>
