@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Kártya</title>
+<style>
+    html, body { margin: 0; height: 100%; background: #000; overflow: hidden; color: #fff; font-family: sans-serif; }
+    .element { position: absolute; transform: translate(-50%, -50%); pointer-events: none; }
+    .txt { max-width: 92vw; text-align: center; line-height: 1.1; white-space: pre-wrap; text-shadow: 0 0 8px #000; }
+    .img img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    #v-cont { display: none; } #v-cont iframe { width: 100%; height: 100%; border: 0; }
+    #fx { position: fixed; inset: 0; pointer-events: none; }
+    body.edit .element { outline: 2px dashed #0f0; }
+    #start { position: fixed; inset: 0; z-index: 9; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.55); }
+    #go { font: 700 1.1rem 'Orbitron', sans-serif; padding: 16px 34px; color: #0f0; background: #000; border: 2px solid #0f0; border-radius: 8px; cursor: pointer; }
+    #go:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+</style>
+</head>
+<body>
+<div id="layer"></div>
+<div id="v-cont" class="element"><div id="player"></div></div>
+<canvas id="fx"></canvas>
+<div id="start"><button id="go" type="button">Indítás</button></div>
+
+<script type="module">
+import { URLHandler as U } from './url-handler.js';
+import { TransformModule as T } from './transform-module.js';
+
+const $ = id => document.getElementById(id);
+const layer = $('layer'), ov = $('start'), go = $('go'), cv = $('fx');
+const els = new Map(), fonts = new Set();
+let last = Object.fromEntries(new URLSearchParams(location.search));
+let player = null, ytId = '', started = false, fxKey = '', raf = 0;
+
+function loadFont(f) {                       // csak engedélyezett betűtípus kerülhet ide
+    if (!f || fonts.has(f)) return;
+    fonts.add(f);
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=' + f.replace(/ /g, '+') + '&display=swap';
+    document.head.appendChild(l);
+}
+
+function render(p) {
+    last = p;
+    const seen = new Set(), land = innerWidth > innerHeight;
+    const put = (id, cls) => {
+        let el = els.get(id);
+        if (!el) { el = document.createElement('div'); el.id = id; layer.appendChild(el); els.set(id, el); }
+        el.className = 'element ' + cls; seen.add(id); return el;
+    };
+    const text = (id, t, c, f, s, x, y, dy) => {
+        if (!t) return;
+        const el = put(id, 'txt'), font = U.font(f);
+        loadFont(font);
+        el.textContent = String(t).slice(0, 300);          // csak textContent: nincs HTML-injektálás
+        Object.assign(el.style, {
+            left: U.num(x, -50, 150, 50) + '%', top: U.num(y, -50, 150, dy) + '%',
+            color: U.hex(c) || '#fff', fontSize: U.num(s, 1, 30, 5) + 'vmin',
+            fontFamily: font ? `"${font}", sans-serif` : 'sans-serif'
+        });
+    };
+
+    text('t-m', p.cim, p.mc, p.mf, p.ms, p.mx, p.my, 10);
+    text('t-s', p.alcim, p.sc, p.sf, p.ss, p.sx, p.sy, 20);
+
+    for (const k of Object.keys(p)) {
+        let m = k.match(/^txt(\d{1,2})$/);                  // szabad szövegek: txtN, fN, cN, sN, xN, yN
+        if (m) { const n = m[1]; text('t-' + n, p[k], p['c' + n], p['f' + n], p['s' + n], p['x' + n], p['y' + n], 50); continue; }
+
+        m = k.match(/^(d\d{1,2})url$/);                     // képek: dNurl, dNx/y/w/h vagy dNs, dNr
+        const u = m && U.cleanImageURL(p[k]);
+        if (!u) continue;
+        const b = m[1], el = put(b + '-cont', 'img');
+        let i = el.firstChild;
+        if (!i) { i = new Image(); i.alt = ''; i.referrerPolicy = 'no-referrer'; el.appendChild(i); }
+        if (i.getAttribute('src') !== u) i.src = u;
+        T.apply(el, x => p[x], b, land);
+        if (!p[b + 'w'] && !p[b + 'h']) { el.style.width = U.num(p[b + 's'], 1, 200, 40) + 'vw'; el.style.height = 'auto'; }
+        el.style.transform = `translate(-50%,-50%) rotate(${U.num(p[b + 'r'], -360, 360, 0)}deg)`;
+    }
+    els.forEach((el, id) => { if (!seen.has(id)) { el.remove(); els.delete(id); } });   // törölt elemek
+
+    const id = U.parseYouTubeID(p.yt), vc = $('v-cont');
+    vc.style.display = id ? 'block' : 'none';
+    if (id) T.apply(vc, x => p[x], 'v', land);
+    if (id !== ytId) {
+        ytId = id;
+        if (player && player.loadVideoById) id ? player.loadVideoById(id) : player.stopVideo();
+    }
+    go.textContent = String(p.btn || 'Indítás').slice(0, 30);
+    ov.style.display = (id && !started) ? 'flex' : 'none';
+    document.body.classList.toggle('edit', p.edit === '1');
+    fx(p.effect, U.hex(p.ec) || '#ffffff', U.num(p.intens, 1, 5, 2));
+}
+
+function fx(type, color, k) {
+    const key = type + color + k;
+    if (key === fxKey) return;
+    fxKey = key; cancelAnimationFrame(raf);
+    const g = cv.getContext('2d'); cv.width = innerWidth; cv.height = innerHeight;
+    g.clearRect(0, 0, cv.width, cv.height);
+    if (type !== 'snow' && type !== 'bday') return;
+    const ps = Array.from({ length: 40 * k }, () => ({
+        x: Math.random() * cv.width, y: Math.random() * cv.height, r: 2 + Math.random() * 4,
+        v: .5 + Math.random() * 1.5, d: Math.random() * 6.28, h: Math.random() * 360
+    }));
+    (function loop() {
+        g.clearRect(0, 0, cv.width, cv.height);
+        for (const p of ps) {
+            p.y += p.v * (type === 'bday' ? 1.5 : 1); p.d += .02; p.x += Math.sin(p.d) * .6;
+            if (p.y > cv.height) { p.y = -10; p.x = Math.random() * cv.width; }
+            g.fillStyle = type === 'snow' ? color : `hsl(${p.h},90%,60%)`;
+            g.beginPath();
+            type === 'snow' ? g.arc(p.x, p.y, p.r, 0, 6.28) : g.rect(p.x, p.y, p.r * 1.6, p.r * .8);
+            g.fill();
+        }
+        raf = requestAnimationFrame(loop);
+    })();
+}
+
+function makePlayer() {
+    player = new YT.Player('player', {
+        width: '100%', height: '100%', videoId: ytId,
+        playerVars: { autoplay: 1, controls: 0, playsinline: 1, rel: 0, loop: 1, playlist: ytId, mute: last.mute === '1' ? 1 : 0 },
+        events: { onReady: e => e.target.playVideo() }
+    });
+}
+
+go.addEventListener('click', () => {         // felhasználói esemény: így indulhat a hang mobilon is
+    started = true; ov.style.display = 'none';
+    if (window.YT && YT.Player) return makePlayer();
+    window.onYouTubeIframeAPIReady = makePlayer;
+    const s = document.createElement('script');
+    s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(s);
+});
+
+addEventListener('message', e => {           // csak a szülő (admin) ablakból, azonos eredetről
+    if (e.origin !== location.origin || e.source !== parent) return;
+    const d = e.data || {};
+    if (d.type === 'STYLE') render(d.params || {});
+    if (d.type === 'VIDEO' && player && player.playVideo) d.action === 'pause' ? player.pauseVideo() : player.playVideo();
+});
+addEventListener('resize', () => { fxKey = ''; render(last); });
+
+render(last);
+if (parent !== window) parent.postMessage({ type: 'READY' }, location.origin);
+</script>
+</body>
+</html>
