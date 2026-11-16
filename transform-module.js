@@ -22,6 +22,12 @@ export const TransformModule = {
         el.style.height = U.num(pick('h'), 1, 300, 100) + 'vh';
     },
 
+    // ('txt1','x') -> 'x1', ('em1','s') -> 'em1s', ('d1','w') -> 'd1w', ('v','h') -> 'vh'
+    keyOf(k, a) {
+        const m = k.match(/^txt(\d+)$/);
+        return k === 'v' ? 'v' + a : m ? a + m[1] : k + a;
+    },
+
     // Admin mezők; az eseményt az admin oldalsávja kezeli (nincs inline oninput)
     createUIFields(prefix) {
         const f = (id, label) =>
