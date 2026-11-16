@@ -15,7 +15,18 @@
     #v-cont.yt { min-width: 200px; min-height: 200px; }   /* YouTube: a lejátszó legalább 200x200 px */
     #v-cont.ctl { pointer-events: auto; }
     #fx { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
-    body.edit .element { outline: 2px dashed #0f0; }
+    body.edit .element { outline: 1px dashed rgba(0,255,0,.55); }
+    body.edit:not(.ro) .element[data-k] { pointer-events: auto; cursor: move; touch-action: none; }
+    body.edit #v-cont iframe, body.edit #v-cont video { pointer-events: none; }
+    #sel { position: fixed; z-index: 200; border: 1.5px solid #0af; box-sizing: border-box; pointer-events: none; }
+    #sel[hidden] { display: none; }
+    #sel i { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; background: #fff; border: 2px solid #0af; border-radius: 50%; pointer-events: auto; touch-action: none; }
+    #sel i[data-h=nw] { left: 0; top: 0; cursor: nwse-resize; } #sel i[data-h=n] { left: 50%; top: 0; cursor: ns-resize; }
+    #sel i[data-h=ne] { left: 100%; top: 0; cursor: nesw-resize; } #sel i[data-h=e] { left: 100%; top: 50%; cursor: ew-resize; }
+    #sel i[data-h=se] { left: 100%; top: 100%; cursor: nwse-resize; } #sel i[data-h=s] { left: 50%; top: 100%; cursor: ns-resize; }
+    #sel i[data-h=sw] { left: 0; top: 100%; cursor: nesw-resize; } #sel i[data-h=w] { left: 0; top: 50%; cursor: ew-resize; }
+    #rot { position: absolute; left: 50%; top: -34px; width: 16px; height: 16px; margin-left: -8px; background: #0af; border-radius: 50%; cursor: grab; pointer-events: auto; touch-action: none; }
+    #rot::after { content: ''; position: absolute; left: 7px; top: 16px; width: 2px; height: 18px; background: #0af; }
     #start { position: fixed; inset: 0; z-index: 100; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.55); }
     #go { font: 700 1.1rem 'Orbitron', sans-serif; padding: 16px 34px; color: #0f0; background: #000; border: 2px solid #0f0; border-radius: 8px; cursor: pointer; }
     #go:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
@@ -23,7 +34,8 @@
 </head>
 <body>
 <div id="layer"></div>
-<div id="v-cont" class="element"><div id="player"></div></div>
+<div id="v-cont" class="element" data-k="v"><div id="player"></div></div>
+<div id="sel" hidden></div>
 <canvas id="fx"></canvas>
 <div id="start"><div style="text-align:center"><button id="go" type="button">Indítás</button><p id="note" style="max-width:300px;margin:14px auto 0;font-size:.7rem;color:#aaa"></p></div></div>
 
@@ -55,14 +67,14 @@ function render(p) {
         if (!el) { el = document.createElement('div'); el.id = id; layer.appendChild(el); els.set(id, el); }
         el.className = 'element ' + cls; seen.add(id); return el;
     };
-    const text = (id, t, c, f, s, x, y, dy, z) => {
+    const text = (id, t, c, f, s, x, y, dy, z, r) => {
         if (!t) return;
         const el = put(id, 'txt'), font = U.font(f);
         loadFont(font);
         el.textContent = String(t).slice(0, 300);          // csak textContent: nincs HTML-injektálás
         Object.assign(el.style, {
             left: U.num(x, -50, 150, 50) + '%', top: U.num(y, -50, 150, dy) + '%',
-            zIndex: U.num(z, 0, 99, 20), color: U.hex(c) || '#fff', fontSize: U.num(s, 1, 30, 5) + 'vmin',
+            zIndex: U.num(z, 0, 99, 20), transform: `translate(-50%,-50%) rotate(${U.num(r, -360, 360, 0)}deg)`, color: U.hex(c) || '#fff', fontSize: U.num(s, 1, 30, 5) + 'vmin',
             fontFamily: font ? `"${font}", sans-serif` : 'sans-serif'
         });
     };
@@ -72,11 +84,11 @@ function render(p) {
 
     for (const k of Object.keys(p)) {
         let m = k.match(/^txt(\d{1,2})$/);                  // szabad szövegek: txtN, fN, cN, sN, xN, yN
-        if (m) { const n = m[1]; text('t-' + n, p[k], p['c' + n], p['f' + n], p['s' + n], pk('x' + n), pk('y' + n), 50, p['z' + n]); continue; }
+        if (m) { const n = m[1]; text('t-' + n, p[k], p['c' + n], p['f' + n], p['s' + n], pk('x' + n), pk('y' + n), 50, p['z' + n], p['r' + n]); const te = els.get('t-' + n); if (te) te.dataset.k = 'txt' + n; continue; }
 
         m = k.match(/^em(\d{1,2})$/);                      // emoji réteg: emN, emNx/y/s/z/r
         if (m && p[k]) {
-            const el = put(k + '-cont', 'txt');
+            const el = put(k + '-cont', 'txt'); el.dataset.k = k;
             el.textContent = String(p[k]).slice(0, 16);
             Object.assign(el.style, {
                 left: U.num(pk(k + 'x'), -50, 150, 50) + '%', top: U.num(pk(k + 'y'), -50, 150, 50) + '%',
@@ -88,7 +100,7 @@ function render(p) {
         m = k.match(/^(d\d{1,2})url$/);                     // képek: dNurl, dNx/y/w/h vagy dNs, dNr
         const u = m && U.cleanImageURL(p[k]);
         if (!u) continue;
-        const b = m[1], el = put(b + '-cont', 'img');
+        const b = m[1], el = put(b + '-cont', 'img'); el.dataset.k = b;
         let i = el.firstChild;
         if (!i) { i = new Image(); i.alt = ''; i.referrerPolicy = 'no-referrer'; el.appendChild(i); }
         if (i.getAttribute('src') !== u) i.src = u;
@@ -110,6 +122,9 @@ function render(p) {
     go.textContent = String(p.btn || 'Indítás').slice(0, 30);
     setMedia(cfg);
     document.body.classList.toggle('edit', p.edit === '1');
+    document.body.classList.toggle('ro', land);                  // fekvő nézetben csak megtekintés, a szerkesztés az álló nézetben történik
+    ov.style.display = (!document.body.classList.contains('edit') && media.cfg && !started) ? 'flex' : 'none';   // szerkesztés közben ne takarja az indítógomb
+    placeSel();
     fx(thumb ? 'none' : p.effect, U.hex(p.ec) || '#ffffff', U.num(p.intens, 1, 5, 2));
 }
 
@@ -213,6 +228,7 @@ addEventListener('message', e => {           // csak a szülő (admin) ablakból
     if (e.origin !== location.origin || e.source !== parent) return;
     const d = e.data || {};
     if (d.type === 'STYLE') render(d.params || {});
+    if (d.type === 'SELECT') setSel(typeof d.key === 'string' ? d.key : null, false);
     if (d.type === 'VIDEO') {
         const pause = d.action === 'pause';
         if (player && player.playVideo) pause ? player.pauseVideo() : player.playVideo();
@@ -220,6 +236,79 @@ addEventListener('message', e => {           // csak a szülő (admin) ablakból
     }
 });
 addEventListener('resize', () => { fxKey = ''; render(last); });
+
+// ---- Szerkesztő mód: kijelölés, mozgatás, átméretezés, forgatás (csak az álló nézetben)
+const sel = $('sel'), rotH = document.createElement('b');
+rotH.id = 'rot';
+['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'].forEach(h => { const i = document.createElement('i'); i.dataset.h = h; sel.appendChild(i); });
+sel.appendChild(rotH);
+let selKey = null, drag = null, pend = null, raf2 = 0;
+const KEY_OK = /^(txt\d{1,2}|em\d{1,2}|d\d{1,2}|v)$/;
+const up = m => { if (parent !== window) parent.postMessage(m, location.origin); };
+const editOn = () => document.body.classList.contains('edit') && innerWidth <= innerHeight;
+const elOf = k => (k && KEY_OK.test(k)) ? document.querySelector(`[data-k="${k}"]`) : null;
+const rotOf = k => k === 'v' ? 0 : U.num(last[T.keyOf(k, 'r')], -360, 360, 0);
+
+function placeSel() {
+    const el = elOf(selKey);
+    if (!el || el.style.display === 'none' || !editOn()) { sel.hidden = true; return; }
+    const r = el.getBoundingClientRect(), text = !/^(d|v)/.test(selKey);
+    Object.assign(sel.style, {
+        left: r.left + r.width / 2 + 'px', top: r.top + r.height / 2 + 'px', width: el.offsetWidth + 'px', height: el.offsetHeight + 'px',
+        transform: `translate(-50%,-50%) rotate(${rotOf(selKey)}deg)`
+    });
+    sel.querySelectorAll('i').forEach(i => { i.style.display = (text && i.dataset.h.length === 1) ? 'none' : ''; });   // szövegnél/emojinál csak a sarkok
+    rotH.style.display = selKey === 'v' ? 'none' : '';
+    sel.hidden = false;
+}
+function setSel(k, notify) { selKey = elOf(k) ? k : null; placeSel(); if (notify) up({ type: 'SELECT', key: selKey }); }
+function patch(props) {                                 // azonnali helyi frissítés, a szülő (admin) mezői rAF-fel követik
+    for (const [a, v] of Object.entries(props)) last[T.keyOf(selKey, a)] = String(Math.round(v * 10) / 10);
+    pend = { key: selKey, props: { ...(pend && pend.key === selKey ? pend.props : {}), ...props } };
+    render(last);
+    if (!raf2) raf2 = requestAnimationFrame(() => { raf2 = 0; if (pend) up({ type: 'EDIT', key: pend.key, props: pend.props }); pend = null; });
+}
+document.addEventListener('pointerdown', e => {
+    if (!editOn()) return;
+    const t = e.target, h = t.dataset && t.dataset.h, isRot = t.id === 'rot', cur = elOf(selKey);
+    if ((h || isRot) && cur) {
+        const r = cur.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        drag = { mode: isRot ? 'rot' : 'size', h, cx, cy, d0: Math.hypot(e.clientX - cx, e.clientY - cy) || 1, s0: parseFloat(cur.style.fontSize) || 10 };
+    } else {
+        const el = t.closest && t.closest('.element[data-k]');
+        if (!el) { setSel(null, true); return; }
+        setSel(el.dataset.k, true);
+        const r = el.getBoundingClientRect();
+        drag = { mode: 'move', px: e.clientX, py: e.clientY, cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
+    }
+    if (t.setPointerCapture) { try { t.setPointerCapture(e.pointerId); } catch { } }
+    e.preventDefault();
+});
+document.addEventListener('pointermove', e => {
+    if (!drag || !selKey) return;
+    const k = selKey;
+    if (drag.mode === 'move') patch({ x: (drag.cx + e.clientX - drag.px) / innerWidth * 100, y: (drag.cy + e.clientY - drag.py) / innerHeight * 100 });
+    else if (drag.mode === 'rot') {
+        let a = Math.atan2(e.clientY - drag.cy, e.clientX - drag.cx) * 180 / Math.PI + 90;
+        if (a > 180) a -= 360;
+        patch({ r: e.shiftKey ? Math.round(a / 15) * 15 : a });
+    } else {
+        const dx = e.clientX - drag.cx, dy = e.clientY - drag.cy;
+        if (!/^(d|v)/.test(k)) { patch({ s: Math.max(1, Math.min(k.startsWith('em') ? 80 : 30, drag.s0 * Math.hypot(dx, dy) / drag.d0)) }); return; }
+        const a = rotOf(k) * Math.PI / 180, lx = dx * Math.cos(a) + dy * Math.sin(a), ly = -dx * Math.sin(a) + dy * Math.cos(a), o = {};
+        if (/[ew]/.test(drag.h)) o.w = Math.max(2, 2 * Math.abs(lx) / innerWidth * 100);
+        if (/[ns]/.test(drag.h)) o.h = Math.max(2, 2 * Math.abs(ly) / innerHeight * 100);
+        patch(o);
+    }
+});
+['pointerup', 'pointercancel'].forEach(ev => document.addEventListener(ev, () => { drag = null; }));
+addEventListener('keydown', e => {                      // a billentyűket a szülő (admin) dolgozza fel: másolás, kivágás, beillesztés, törlés, nyilak
+    const ctrl = e.ctrlKey || e.metaKey;
+    if (!editOn() || (!selKey && !ctrl)) return;
+    if (/^(Delete|Backspace|Arrow(Up|Down|Left|Right))$/.test(e.key) || (ctrl && /^[cxv]$/i.test(e.key))) {
+        e.preventDefault(); up({ type: 'KEY', key: e.key, ctrl, shift: e.shiftKey });
+    }
+});
 
 render(last);
 if (parent !== window && last.thumb !== '1') parent.postMessage({ type: 'READY' }, location.origin);
