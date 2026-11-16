@@ -51,9 +51,13 @@
     .thumb b { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.72); font-size: .6rem; padding: 3px; color: #fff; text-align: left; }
     #ai-log { max-height: 260px; overflow-y: auto; font-size: .75rem; margin: 8px 0; }
     .ai-u, .ai-a { padding: 6px 8px; margin: 4px 0; border-radius: 6px; white-space: pre-wrap; } .ai-u { background: #2a2a2a; } .ai-a { background: #12351a; }
+    .group.selected { outline: 2px solid #0af; }
+    .tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: .7rem; max-width: 100%; }
+    .tools button { background: #333; color: #fff; border: 0; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: .8rem; } .tools button:disabled { opacity: .35; cursor: default; }
+    #tsel { min-width: 110px; color: #0af; text-align: center; }
     :focus-visible { outline: 2px solid var(--neon); outline-offset: 1px; }
     .preview-container { border: 5px solid #333; border-radius: 10px; overflow: hidden; background: #000; max-width: 100%; }
-    .p-port { height: min(426px, 44vh); aspect-ratio: 9 / 16; } .p-land { height: min(240px, 28vh); aspect-ratio: 16 / 9; }
+    .p-port { height: min(560px, 60vh); aspect-ratio: 9 / 16; } .p-land { height: min(190px, 24vh); aspect-ratio: 16 / 9; }
     iframe { width: 100%; height: 100%; border: 0; }
     @media (max-width: 800px) { .rail { flex-direction: row; width: 100%; overflow-x: auto; flex-shrink: 0; } body { flex-direction: column; overflow: auto; height: auto; } .sidebar { width: 100%; overflow: visible; } .preview-area { gap: 12px; } .p-port { height: 60vh; } .p-land { height: 35vh; } }
 </style>
@@ -76,7 +80,7 @@
 <div class="sidebar" id="side">
     <div style="padding:10px 10px 0"><label>Nézet (csomag előnézete)<select id="plan"><option value="admin">Admin (minden)</option><option value="free">Ingyenes</option><option value="paid">Fizetős</option></select></label></div>
     <div id="msg" class="hint" style="padding:4px 12px;color:#ffc107" role="status"></div>
-    <button type="button" id="edit-toggle" class="live-toggle">SZERKESZTŐ MÓD: KI</button>
+    <button type="button" id="edit-toggle" class="live-toggle on">SZERKESZTŐ MÓD: BE</button>
     <div class="control-bar">
         <button type="button" class="btn b-blue" id="b-refresh">🔄 Frissítés</button>
         <button type="button" class="btn b-yel" id="b-pause">⏸ Szünet</button>
@@ -123,6 +127,13 @@
 </div>
 
 <div class="preview-area">
+    <div id="tools" class="tools" role="toolbar" aria-label="Elem műveletek">
+        <span id="tsel">Nincs kijelölt elem</span>
+        <button type="button" data-a="copy" title="Másolás (Ctrl+C)">📋</button><button type="button" data-a="cut" title="Kivágás (Ctrl+X)">✂️</button>
+        <button type="button" data-a="paste" title="Beillesztés (Ctrl+V)">📥</button><button type="button" data-a="del" title="Törlés (Delete)">🗑</button>
+        <button type="button" data-a="front" title="Előrébb">⬆</button><button type="button" data-a="back" title="Hátrébb">⬇</button>
+        <span class="hint" style="flex-basis:100%;text-align:center">Kattints egy elemre az álló előnézetben: húzd mozgatáshoz, a pontokat méretezéshez, a felső kört forgatáshoz (Shift: 15°-os lépés). Fekvő nézet: automatikus.</span>
+    </div>
     <div class="preview-container p-port"><iframe id="ifr_p" src="index.html" title="Álló előnézet"></iframe></div>
     <div class="preview-container p-land"><iframe id="ifr_l" src="index.html" title="Fekvő előnézet"></iframe></div>
 </div>
@@ -145,7 +156,7 @@ window.__adminOk = true;
 const $ = id => document.getElementById(id);
 const set = (id, v) => { const e = $(id); if (e && v !== undefined && v !== null) e.value = v; };
 const frames = () => [$('ifr_p'), $('ifr_l')];
-let playing = true, edit = false, tN = 0, iN = 0, tpls = [], cats = [], eN = 0, S = null, plan = 'admin', flashT;
+let playing = true, edit = true, tN = 0, iN = 0, tpls = [], cats = [], eN = 0, S = null, plan = 'admin', flashT;
 
 function collect() {                                   // egyetlen forrás: az előnézet és a link is ebből készül
     const p = {};
@@ -162,7 +173,9 @@ function collect() {                                   // egyetlen forrás: az e
 }
 const send = m => frames().forEach(f => f.contentWindow && f.contentWindow.postMessage(m, location.origin));
 const update = () => send({ type: 'STYLE', params: collect() });
-const cardURL = () => new URL('index.html?' + new URLSearchParams(collect()), location.href).href;
+const cleanParams = () => { const p = collect(); delete p.edit; return p; };      // a kész link nem tartalmazza a szerkesztő módot
+const cardURL = () => new URL('index.html?' + new URLSearchParams(cleanParams()), location.href).href;
+const previewURL = () => new URL('index.html?' + new URLSearchParams(collect()), location.href).href;
 const group = id => { const g = document.createElement('div'); g.className = 'group'; g.id = id; return g; };
 const rm = id => `<button type="button" class="rm" data-rm="${id}" aria-label="Törlés">X</button>`;
 
@@ -174,10 +187,11 @@ function addText(o = {}) {
             <label>Szín<input type="color" id="c${n}" value="#ffffff"></label></div>
         <div class="row"><label>Méret<input type="number" id="s${n}" min="1" max="30" step="0.5"></label>
             <label>X %<input type="number" id="x${n}"></label><label>Y %<input type="number" id="y${n}"></label>
-            <label>Réteg<input type="number" id="z${n}" min="0" max="99"></label></div>`;
+            <label>Réteg<input type="number" id="z${n}" min="0" max="99"></label>
+            <label>Forgatás °<input type="number" id="r${n}" min="-360" max="360"></label></div>`;
     $('text-list').appendChild(g);
     set('txt' + n, o.t ?? ''); fillFont($('f' + n), o.f); set('c' + n, U.hex(o.c) || '#ffffff');
-    set('s' + n, o.s ?? ''); set('x' + n, o.x ?? ''); set('y' + n, o.y ?? ''); set('z' + n, o.z ?? '');
+    set('s' + n, o.s ?? ''); set('x' + n, o.x ?? ''); set('y' + n, o.y ?? ''); set('z' + n, o.z ?? ''); set('r' + n, o.r ?? '');
 }
 function addImage(o = {}) {
     const n = ++iN, id = 'd' + n, g = group(id + '-group');
@@ -261,6 +275,7 @@ function fillMed(want) {
 
 function loadParams(str) {                              // sablon / régi link → rétegek (cim, alcim is szövegréteggé alakul)
     const p = flatten(str);                            // régi (szöveges) és új (objektumos) sablon is jó
+    select(null);
     $('text-list').innerHTML = ''; $('image-list').innerHTML = ''; $('emoji-list').innerHTML = ''; tN = iN = eN = 0;
     set('btn', p.btn ?? '');
     const prov = p.med || (p.yt ? 'youtube' : ''), link = p.mid || p.yt || '';
@@ -274,7 +289,7 @@ function loadParams(str) {                              // sablon / régi link �
     if (p.alcim) tx.push({ t: p.alcim, c: p.sc, f: p.sf, s: p.ss, x: p.sx, y: p.sy ?? 20 });
     for (const k of Object.keys(p)) {
         const m = k.match(/^txt(\d{1,2})$/);
-        if (m) { const n = m[1]; tx.push({ t: p[k], c: p['c' + n], f: p['f' + n], s: p['s' + n], x: p['x' + n], y: p['y' + n], z: p['z' + n] }); }
+        if (m) { const n = m[1]; tx.push({ t: p[k], c: p['c' + n], f: p['f' + n], s: p['s' + n], x: p['x' + n], y: p['y' + n], z: p['z' + n], r: p['r' + n] }); }
     }
     tx.forEach(addText);
     for (const k of Object.keys(p)) {
@@ -320,7 +335,7 @@ function flatten(pr) {
             for (const [a, x] of Object.entries(v)) f[(a.length === 2 && a[0] === 'l') ? 'l' + k + a[1] : k + a] = x;
         } else if (isObj && /^txt\d{1,2}$/.test(k)) {
             const n = k.slice(3); f[k] = v.t;
-            for (const a of 'fcsxyz') f[a + n] = v[a];
+            for (const a of 'fcsxyzr') f[a + n] = v[a];
         } else if (isObj && /^em\d{1,2}$/.test(k)) {
             f[k] = v.e; for (const a of 'xyszr') f[k + a] = v[a];
         } else f[k] = v;
@@ -339,7 +354,7 @@ function nest(f) {
         else if ((m = k.match(/^txt(\d{1,2})$/))) g('txt' + m[1]).t = v;
         else if ((m = k.match(/^(em\d{1,2})$/))) g(m[1]).e = v;
         else if ((m = k.match(/^(em\d{1,2})([xyszr])$/))) g(m[1])[m[2]] = n(v);
-        else if ((m = k.match(/^([fcsxyz])(\d{1,2})$/))) g('txt' + m[2])[m[1]] = 'fc'.includes(m[1]) ? v : n(v);
+        else if ((m = k.match(/^([fcsxyzr])(\d{1,2})$/))) g('txt' + m[2])[m[1]] = 'fc'.includes(m[1]) ? v : n(v);
         else o[k] = /^(ms|mx|my|ss|sx|sy|intens)$/.test(k) ? n(v) : v;
     }
     for (const k of Object.keys(o)) {                 // árva elemek törlése (kép url nélkül, szöveg nélkül)
@@ -398,7 +413,15 @@ $('dlg').addEventListener('close', () => {
 });
 
 $('side').addEventListener('input', update);
-addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.type === 'READY') update(); });
+addEventListener('message', e => {
+    const d = e.data; if (e.origin !== location.origin || !d) return;
+    if (d.type === 'READY') update();
+    else if (e.source === $('ifr_p').contentWindow) {          // szerkesztési események csak az álló előnézetből
+        if (d.type === 'SELECT') select(d.key, true);
+        else if (d.type === 'EDIT' && SEL_RE.test(d.key)) applyEdit(d.key, d.props || {});
+        else if (d.type === 'KEY') handleKey(d);
+    }
+});
 $('side').addEventListener('click', e => {
     if (e.target.dataset.emo) { pickEmoji($(e.target.dataset.emo)); return; }
     const r = e.target.dataset.rm;
@@ -409,9 +432,9 @@ $('side').addEventListener('click', e => {
 });
 $('edit-toggle').addEventListener('click', e => {
     edit = !edit; e.currentTarget.textContent = 'SZERKESZTŐ MÓD: ' + (edit ? 'BE' : 'KI');
-    e.currentTarget.classList.toggle('on', edit); update();
+    e.currentTarget.classList.toggle('on', edit); if (!edit) select(null); update();
 });
-$('b-refresh').addEventListener('click', () => frames().forEach(f => { f.src = cardURL(); }));
+$('b-refresh').addEventListener('click', () => frames().forEach(f => { f.src = previewURL(); }));
 $('b-pause').addEventListener('click', e => {
     playing = !playing; e.currentTarget.textContent = playing ? '⏸ Szünet' : '▶ Lejátszás';
     send({ type: 'VIDEO', action: playing ? 'play' : 'pause' });
@@ -450,6 +473,84 @@ $('b-ai').addEventListener('click', async () => {      // a szerver csak javasla
         aiLog('a', String(j.reply || 'Kész, nézd meg az előnézetet. Szabadon módosíthatod.').slice(0, 600));
     } catch { aiLog('a', 'Az AI most nem érhető el.'); }
 });
+// ---- Kijelölés, vágólap és műveletek (az előnézetben húzással szerkesztett elemekhez)
+let selKey = null, clip = null;
+const SEL_RE = /^(txt\d{1,2}|em\d{1,2}|d\d{1,2}|v)$/;
+const val = id => { const e = $(id); return e ? e.value : ''; };
+const groupOf = k => k === 'v' ? null : $(k.startsWith('txt') ? 't' + k.slice(3) + '-group' : k + '-group');
+const tabOf = k => k.startsWith('txt') ? 'text' : k.startsWith('em') ? 'emoji' : k === 'v' ? 'media' : 'image';
+const nameOf = k => k === 'v' ? '🎬 Videó' : k.startsWith('txt') ? '🔤 ' + (val(k).slice(0, 16) || 'Szöveg') : k.startsWith('em') ? (val(k) || '😀') : '🖼️ Kép ' + k.slice(1);
+
+function toolsState() {
+    document.querySelectorAll('#tools button').forEach(b => { b.disabled = b.dataset.a === 'paste' ? !clip : !(selKey && selKey !== 'v'); });
+    $('tsel').textContent = selKey ? nameOf(selKey) : 'Nincs kijelölt elem';
+}
+function select(k, fromFrame) {
+    selKey = (k && SEL_RE.test(k) && (k === 'v' || groupOf(k))) ? k : null;
+    document.querySelectorAll('.group.selected').forEach(g => g.classList.remove('selected'));
+    if (selKey) {
+        const g = groupOf(selKey); if (g) { g.classList.add('selected'); g.scrollIntoView({ block: 'nearest' }); }
+        const t = tabOf(selKey), rb = document.querySelector(`#rail button[data-t="${t}"]`);
+        if (rb && !document.querySelector(`.sec.on[data-tab="${t}"]`)) rb.click();
+    }
+    if (!fromFrame) send({ type: 'SELECT', key: selKey });
+    toolsState();
+}
+function applyEdit(k, props) {                         // a húzás eredménye a megszokott számmezőkbe kerül, így minden egy helyen marad
+    for (const [a, v] of Object.entries(props)) if (/^[xywhsr]$/.test(a) && Number.isFinite(+v)) set(T.keyOf(k, a), Math.round(+v * 10) / 10);
+    update(); toolsState();
+}
+function readLayer(k) {
+    const n = k.replace(/\D/g, '');
+    if (k.startsWith('txt')) return { type: 'text', o: { t: val(k), f: val('f' + n), c: val('c' + n).slice(1), s: val('s' + n), x: val('x' + n), y: val('y' + n), z: val('z' + n), r: val('r' + n) } };
+    if (k.startsWith('em')) return { type: 'emoji', o: { e: val(k), s: val(k + 's'), x: val(k + 'x'), y: val(k + 'y'), z: val(k + 'z'), r: val(k + 'r') } };
+    const o = { u: val(k + 'url'), z: val(k + 'z'), r: val(k + 'r') };
+    for (const a of 'xywh') { o[a] = val(k + a); o['l' + a] = val('l' + k + a); }
+    return { type: 'image', o };
+}
+function copySel(quiet) { if (!selKey || selKey === 'v') return; clip = readLayer(selKey); toolsState(); if (!quiet) flash('Másolva.'); }
+function delSel() { if (!selKey || selKey === 'v') return; const g = groupOf(selKey); if (g) g.remove(); refreshLimits(); select(null); update(); }
+function cutSel() { if (!selKey || selKey === 'v') return; copySel(true); delSel(); flash('Kivágva.'); }
+function paste() {
+    if (!clip) { flash('Nincs másolt elem.'); return; }
+    const btn = { text: 'b-addt', emoji: 'b-adde', image: 'b-addi' }[clip.type];
+    if ($(btn).disabled) { flash('Elérted a csomag korlátját, nem illeszthető be több elem.'); return; }
+    const o = { ...clip.o }; o.x = o.x === '' ? 53 : +o.x + 3; o.y = o.y === '' ? 53 : +o.y + 3;   // kicsit arrébb, hogy látszódjon
+    ({ text: addText, emoji: addEmoji, image: addImage })[clip.type](o);
+    refreshLimits(); update();
+    select(clip.type === 'text' ? 'txt' + tN : clip.type === 'emoji' ? 'em' + eN : 'd' + iN);
+}
+function bump(d) {                                     // réteg előrébb / hátrébb
+    if (!selKey || selKey === 'v') return;
+    const id = T.keyOf(selKey, 'z'), def = selKey.startsWith('txt') ? 20 : selKey.startsWith('em') ? 15 : 10, cur = parseFloat(val(id));
+    set(id, Math.min(99, Math.max(0, (isNaN(cur) ? def : cur) + d))); update(); flash('Réteg: ' + val(id));
+}
+function handleKey(d) {
+    const k = String(d.key || ''), low = k.toLowerCase();
+    if (d.ctrl && low === 'v') { paste(); return true; }
+    if (!selKey) return false;
+    if (d.ctrl && low === 'c') { copySel(); return true; }
+    if (d.ctrl && low === 'x') { cutSel(); return true; }
+    if (k === 'Delete' || k === 'Backspace') { delSel(); return true; }
+    const st = d.shift ? 5 : 1, mv = { ArrowLeft: [-st, 0], ArrowRight: [st, 0], ArrowUp: [0, -st], ArrowDown: [0, st] }[k];
+    if (!mv) return false;
+    applyEdit(selKey, { x: (parseFloat(val(T.keyOf(selKey, 'x'))) || 50) + mv[0], y: (parseFloat(val(T.keyOf(selKey, 'y'))) || 50) + mv[1] });
+    return true;
+}
+$('tools').addEventListener('click', e => {
+    const a = e.target.dataset.a; if (!a) return;
+    ({ copy: () => copySel(), cut: cutSel, paste, del: delSel, front: () => bump(1), back: () => bump(-1) })[a]();
+});
+document.addEventListener('keydown', e => {            // gépelés közben (mezőkben) nem lopjuk el a billentyűket
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return;
+    if (handleKey({ key: e.key, ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey })) e.preventDefault();
+});
+$('side').addEventListener('focusin', e => {           // egy réteg mezőjébe kattintva az elem az előnézetben is kijelölődik
+    const g = e.target.closest('.group'), m = g && g.id.match(/^(t|d|em)(\d+)-group$/);
+    if (m) select((m[1] === 't' ? 'txt' : m[1]) + m[2]);
+});
+toolsState();
+
 try {                                                  // sablonok és kategóriák
 const getJSON = async f => { try { const r = await fetch(f, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch { return null; } };
 cats = ((await getJSON('categories.json')) || {}).categories || [];
