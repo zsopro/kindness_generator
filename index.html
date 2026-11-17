@@ -42,6 +42,7 @@
 <script type="module">
 import { URLHandler as U } from './url-handler.js';
 import { TransformModule as T } from './transform-module.js';
+import { loadLang, t } from './i18n.js';
 
 const $ = id => document.getElementById(id);
 const layer = $('layer'), ov = $('start'), go = $('go'), cv = $('fx');
@@ -119,7 +120,7 @@ function render(p) {
     vc.classList.toggle('ctl', !!cfg && cfg.ctl);
     if (cfg && !cfg.audio) T.apply(vc, x => p[x], 'v', land);
     vc.style.zIndex = U.num(p.vz, 0, 99, 0);
-    go.textContent = String(p.btn || 'Indítás').slice(0, 30);
+    go.textContent = String(p.btn || t('Indítás')).slice(0, 30);
     setMedia(cfg);
     document.body.classList.toggle('edit', p.edit === '1');
     document.body.classList.toggle('ro', land);                  // fekvő nézetben csak megtekintés, a szerkesztés az álló nézetben történik
@@ -190,7 +191,7 @@ function setMedia(cfg) {
     if (key === media.key) return;
     media = { key, cfg }; stopMedia();
     const name = cfg && MEDIA[cfg.prov].name;
-    $('note').textContent = name ? `Az Indítás gombra kattintva a(z) ${name} szolgáltatótól töltődik be tartalom, amely sütiket és adatokat (pl. IP-cím) kezelhet.` : '';
+    $('note').textContent = name ? t('Az Indítás gombra kattintva a(z) {x} szolgáltatótól töltődik be tartalom, amely sütiket és adatokat (pl. IP-cím) kezelhet.', { x: name }) : '';
     ov.style.display = (cfg && !started) ? 'flex' : 'none';
     if (cfg && started) startMedia();
 }
@@ -310,6 +311,8 @@ addEventListener('keydown', e => {                      // a billentyűket a sz�
     }
 });
 
+await loadLang();                                      // alapértelmezett feliratok a látogató nyelvén (?lang= vagy a böngésző nyelve)
+document.title = t('Kártya');
 render(last);
 if (parent !== window && last.thumb !== '1') parent.postMessage({ type: 'READY' }, location.origin);
 </script>
