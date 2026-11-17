@@ -1,0 +1,967 @@
+{
+  "schemaVersion": 1,
+  "languages": [
+    {
+      "id": "hu",
+      "label": "Magyar",
+      "flag": "🇭🇺"
+    },
+    {
+      "id": "en",
+      "label": "English",
+      "flag": "🇬🇧"
+    }
+  ],
+  "strings": [
+    {
+      "key": "betutipus",
+      "hu": "+ Betűtípus",
+      "en": "+ Font"
+    },
+    {
+      "key": "uj_emoji",
+      "hu": "+ ÚJ EMOJI",
+      "en": "+ NEW EMOJI"
+    },
+    {
+      "key": "uj_emoji_x",
+      "hu": "+ ÚJ EMOJI ({x})",
+      "en": "+ NEW EMOJI ({x})"
+    },
+    {
+      "key": "uj_kep",
+      "hu": "+ ÚJ KÉP",
+      "en": "+ NEW IMAGE"
+    },
+    {
+      "key": "uj_kep_x",
+      "hu": "+ ÚJ KÉP ({x})",
+      "en": "+ NEW IMAGE ({x})"
+    },
+    {
+      "key": "uj_szoveg",
+      "hu": "+ ÚJ SZÖVEG",
+      "en": "+ NEW TEXT"
+    },
+    {
+      "key": "uj_szoveg_x",
+      "hu": "+ ÚJ SZÖVEG ({x})",
+      "en": "+ NEW TEXT ({x})"
+    },
+    {
+      "key": "uj_x",
+      "hu": "+ ÚJ {x}",
+      "en": "+ NEW {x}"
+    },
+    {
+      "key": "a_fekvo_nezet_uresen_hagyva_automatikusan_az_all",
+      "hu": "A fekvő nézet üresen hagyva automatikusan az álló nézetből számolódik.",
+      "en": "Left blank, the landscape view is calculated automatically from the portrait view."
+    },
+    {
+      "key": "a_github_taroloba_mentes_a_beallitasok_oldalon_m",
+      "hu": "A GitHub tárolóba mentés a Beállítások oldalon megadott tulajdonosra és repóra történik.",
+      "en": "Saving to GitHub uses the owner and repository set on the Settings page."
+    },
+    {
+      "key": "a_githubra_mentes_nem_sikerult_x_a_sablon_json_j",
+      "hu": "A GitHubra mentés nem sikerült ({x}). A sablon JSON-ját letöltöttük helyette.",
+      "en": "Saving to GitHub failed ({x}). The template JSON was downloaded instead."
+    },
+    {
+      "key": "a_tiktok_hivatalos_beagyazott_lejatszoja_toltodi",
+      "hu": "A TikTok hivatalos beágyazott lejátszója töltődik be (a rövid vm.tiktok.com linkek nem működnek, a teljes linket add meg). A szolgáltató a beágyazást korlátozhatja, a lejátszás sütiket és adatokat kezelhet. A videó tulajdonosának engedélye szükséges.",
+      "en": "The official TikTok embedded player is loaded (short vm.tiktok.com links do not work, enter the full link). The provider may restrict embedding, and playback may use cookies and data. The video owner's permission is required."
+    },
+    {
+      "key": "admin_minden",
+      "hu": "Admin (minden)",
+      "en": "Admin (everything)"
+    },
+    {
+      "key": "ai",
+      "hu": "AI",
+      "en": "AI"
+    },
+    {
+      "key": "ai_szerver_cime_aiendpoint_https",
+      "hu": "AI szerver címe (aiEndpoint, https)",
+      "en": "AI server address (aiEndpoint, https)"
+    },
+    {
+      "key": "aktiv",
+      "hu": "Aktív",
+      "en": "Active"
+    },
+    {
+      "key": "alapertekek",
+      "hu": "Alapértékek",
+      "en": "Defaults"
+    },
+    {
+      "key": "alkategoria",
+      "hu": "Alkategória",
+      "en": "Subcategory"
+    },
+    {
+      "key": "az_ai_most_nem_erheto_el",
+      "hu": "Az AI most nem érhető el.",
+      "en": "The AI is not available right now."
+    },
+    {
+      "key": "az_ai_szolgaltatas_meg_nincs_beallitva_beallitas",
+      "hu": "Az AI szolgáltatás még nincs beállítva (Beállítások → AI szerver címe).",
+      "en": "The AI service is not configured yet (Settings → AI server address)."
+    },
+    {
+      "key": "az_inditas_gombra_kattintva_a_z_x_szolgaltatotol",
+      "hu": "Az Indítás gombra kattintva a(z) {x} szolgáltatótól töltődik be tartalom, amely sütiket és adatokat (pl. IP-cím) kezelhet.",
+      "en": "By clicking Start, content is loaded from {x}, which may use cookies and process data (e.g. IP address)."
+    },
+    {
+      "key": "azonosito",
+      "hu": "Azonosító",
+      "en": "ID"
+    },
+    {
+      "key": "beillesztes_ctrl_v",
+      "hu": "Beillesztés (Ctrl+V)",
+      "en": "Paste (Ctrl+V)"
+    },
+    {
+      "key": "betutipus_2",
+      "hu": "Betűtípus",
+      "en": "Font"
+    },
+    {
+      "key": "betutipusok_google_fonts_nev",
+      "hu": "Betűtípusok (Google Fonts név)",
+      "en": "Fonts (Google Fonts name)"
+    },
+    {
+      "key": "bezar",
+      "hu": "Bezár",
+      "en": "Close"
+    },
+    {
+      "key": "beall",
+      "hu": "Beáll.",
+      "en": "Setup"
+    },
+    {
+      "key": "beallitasok",
+      "hu": "Beállítások",
+      "en": "Settings"
+    },
+    {
+      "key": "buborekok",
+      "hu": "Buborékok",
+      "en": "Bubbles"
+    },
+    {
+      "key": "csak_hang",
+      "hu": "Csak hang",
+      "en": "Audio only"
+    },
+    {
+      "key": "csak_sajat_keszitesu_vagy_jogtiszta_felhasznalas",
+      "hu": "Csak saját készítésű vagy jogtiszta (felhasználási engedéllyel rendelkező, pl. CC0) fájl használható. Szerzői jogvédett tartalmat engedély nélkül ne tölts fel. A fájlnak https címről, a saját tárhelyedről kell elérhetőnek lennie. Jogi nyilatkozat nélkül nem játszódik le.",
+      "en": "Only your own or properly licensed files (with usage permission, e.g. CC0) may be used. Do not upload copyrighted content without permission. The file must be available over https from your own hosting. It will not play without the legal declaration."
+    },
+    {
+      "key": "csillagok",
+      "hu": "Csillagok",
+      "en": "Stars"
+    },
+    {
+      "key": "csomag",
+      "hu": "Csomag",
+      "en": "Plan"
+    },
+    {
+      "key": "effekt",
+      "hu": "Effekt",
+      "en": "Effect"
+    },
+    {
+      "key": "effekt_szine",
+      "hu": "Effekt színe",
+      "en": "Effect color"
+    },
+    {
+      "key": "effektek",
+      "hu": "Effektek",
+      "en": "Effects"
+    },
+    {
+      "key": "elem_muveletek",
+      "hu": "Elem műveletek",
+      "en": "Element actions"
+    },
+    {
+      "key": "elmentve_a_githubra",
+      "hu": "Elmentve a GitHubra.",
+      "en": "Saved to GitHub."
+    },
+    {
+      "key": "elmentve_a_githubra_az_oldal_frissulese_1_2_perc",
+      "hu": "Elmentve a GitHubra. Az oldal frissülése 1–2 percet vehet igénybe.",
+      "en": "Saved to GitHub. The site may take 1–2 minutes to update."
+    },
+    {
+      "key": "elerted_a_csomag_korlatjat_nem_illesztheto_be_to",
+      "hu": "Elérted a csomag korlátját, nem illeszthető be több elem.",
+      "en": "You have reached your plan's limit, no more elements can be pasted."
+    },
+    {
+      "key": "elorebb",
+      "hu": "Előrébb",
+      "en": "Bring forward"
+    },
+    {
+      "key": "emoji",
+      "hu": "Emoji",
+      "en": "Emoji"
+    },
+    {
+      "key": "emoji_2",
+      "hu": "EMOJI",
+      "en": "EMOJI"
+    },
+    {
+      "key": "emoji_beszurasa",
+      "hu": "Emoji beszúrása",
+      "en": "Insert emoji"
+    },
+    {
+      "key": "emoji_paletta_szokozzel_elvalasztva",
+      "hu": "Emoji paletta (szóközzel elválasztva)",
+      "en": "Emoji palette (separated by spaces)"
+    },
+    {
+      "key": "emoji_valasztasa",
+      "hu": "Emoji választása",
+      "en": "Choose emoji"
+    },
+    {
+      "key": "emojik",
+      "hu": "Emojik",
+      "en": "Emojis"
+    },
+    {
+      "key": "engedelyezett",
+      "hu": "Engedélyezett",
+      "en": "Enabled"
+    },
+    {
+      "key": "eszkozok",
+      "hu": "Eszközök",
+      "en": "Tools"
+    },
+    {
+      "key": "eso",
+      "hu": "Eső",
+      "en": "Rain"
+    },
+    {
+      "key": "fekvo_elonezet",
+      "hu": "Fekvő előnézet",
+      "en": "Landscape preview"
+    },
+    {
+      "key": "fekvo_nezet",
+      "hu": "FEKVŐ NÉZET",
+      "en": "LANDSCAPE VIEW"
+    },
+    {
+      "key": "felirat",
+      "hu": "Felirat",
+      "en": "Label"
+    },
+    {
+      "key": "fizetos",
+      "hu": "Fizetős",
+      "en": "Paid"
+    },
+    {
+      "key": "fizetos_effekt_lecserelve",
+      "hu": "Fizetős effekt lecserélve.",
+      "en": "Paid effect replaced."
+    },
+    {
+      "key": "fizetos_elemet_tartalmaz",
+      "hu": "Fizetős elemet tartalmaz",
+      "en": "Contains a paid item"
+    },
+    {
+      "key": "fizetos_vagy_hianyzo_betutipus_lecserelve",
+      "hu": "Fizetős vagy hiányzó betűtípus lecserélve.",
+      "en": "Paid or missing font replaced."
+    },
+    {
+      "key": "fizetos_vagy_kikapcsolt_mediaforras_lecserelve",
+      "hu": "Fizetős vagy kikapcsolt médiaforrás lecserélve.",
+      "en": "Paid or disabled media source replaced."
+    },
+    {
+      "key": "forgatas",
+      "hu": "Forgatás °",
+      "en": "Rotation °"
+    },
+    {
+      "key": "forras",
+      "hu": "Forrás",
+      "en": "Source"
+    },
+    {
+      "key": "github",
+      "hu": "GitHub",
+      "en": "GitHub"
+    },
+    {
+      "key": "github_hozzaferesi_token_csak_ehhez_a_repohoz_co",
+      "hu": "GitHub hozzáférési token (csak ehhez a repóhoz, Contents: írás). Nem kerül a kódba.",
+      "en": "GitHub access token (this repository only, Contents: write). It is never stored in the code."
+    },
+    {
+      "key": "gomb_felirata",
+      "hu": "Gomb felirata",
+      "en": "Button label"
+    },
+    {
+      "key": "google_fonts_nev",
+      "hu": "Google Fonts név",
+      "en": "Google Fonts name"
+    },
+    {
+      "key": "hivatalos_youtube_lejatszoval_adatvedelmi_moddal",
+      "hu": "Hivatalos YouTube lejátszóval (adatvédelmi móddal) játszódik le. A videónak láthatónak kell maradnia (legalább 200×200 px), a hang külön nem választható le, és ne takard el más réteggel. Csak olyan videót használj, amelynek tulajdonosa engedi a beágyazást.",
+      "en": "Played with the official YouTube player (privacy-enhanced mode). The video must stay visible (at least 200×200 px), its audio cannot be separated, and do not cover it with another layer. Only use videos whose owner allows embedding."
+    },
+    {
+      "key": "https",
+      "hu": "https://...",
+      "en": "https://..."
+    },
+    {
+      "key": "https_www_tiktok_com_nev_video_vagy_azonosito",
+      "hu": "https://www.tiktok.com/@név/video/… vagy azonosító",
+      "en": "https://www.tiktok.com/@name/video/… or ID"
+    },
+    {
+      "key": "https_ures_kikapcsolva",
+      "hu": "https://… (üres = kikapcsolva)",
+      "en": "https://… (empty = disabled)"
+    },
+    {
+      "key": "https_zene_mp3_vagy_video_mp4",
+      "hu": "https://…/zene.mp3 vagy …/videó.mp4",
+      "en": "https://…/music.mp3 or …/video.mp4"
+    },
+    {
+      "key": "hatrebb",
+      "hu": "Hátrébb",
+      "en": "Send backward"
+    },
+    {
+      "key": "hoeses",
+      "hu": "Hóesés",
+      "en": "Snowfall"
+    },
+    {
+      "key": "ikon",
+      "hu": "Ikon",
+      "en": "Icon"
+    },
+    {
+      "key": "inditas",
+      "hu": "Indítás",
+      "en": "Start"
+    },
+    {
+      "key": "inditasi_hiba",
+      "hu": "Indítási hiba:",
+      "en": "Startup error:"
+    },
+    {
+      "key": "inditasi_hiba_x_frissits_erovel_ctrl_f5_es_ellen",
+      "hu": "Indítási hiba: {x} – frissíts erővel (Ctrl+F5), és ellenőrizd a feltöltött fájlokat.",
+      "en": "Startup error: {x} – hard refresh (Ctrl+F5) and check the uploaded files."
+    },
+    {
+      "key": "ingyenes",
+      "hu": "Ingyenes",
+      "en": "Free"
+    },
+    {
+      "key": "ingyenes_2",
+      "hu": "ingyenes",
+      "en": "free"
+    },
+    {
+      "key": "ismetles",
+      "hu": "Ismétlés",
+      "en": "Repeat"
+    },
+    {
+      "key": "itt_dontod_el_melyik_betutipus_es_effekt_ingyene",
+      "hu": "Itt döntöd el, melyik betűtípus és effekt ingyenes vagy fizetős, mennyi szöveg, kép és emoji fér egy kártyára, és mi legyen az emoji-palettán. A mentett fájl a többi JSON-hoz hasonlóan adatbázisba importálható.",
+      "en": "Here you decide which fonts and effects are free or paid, how many texts, images and emojis fit on a card, and what is on the emoji palette. The saved file can be imported into a database like the other JSON files."
+    },
+    {
+      "key": "jogi_megjegyzes",
+      "hu": "Jogi megjegyzés",
+      "en": "Legal notice"
+    },
+    {
+      "key": "kategoria",
+      "hu": "Kategória",
+      "en": "Category"
+    },
+    {
+      "key": "kattints_egy_elemre_az_allo_elonezetben_huzd_moz",
+      "hu": "Kattints egy elemre az álló előnézetben: húzd mozgatáshoz, a pontokat méretezéshez, a felső kört forgatáshoz (Shift: 15°-os lépés). Fekvő nézet: automatikus.",
+      "en": "Click an element in the portrait preview: drag to move, drag the dots to resize, drag the top circle to rotate (Shift: 15° steps). Landscape view: automatic."
+    },
+    {
+      "key": "kijelentem_hogy_a_fajl_a_sajatom_vagy_jogom_van_",
+      "hu": "Kijelentem, hogy a fájl a sajátom, vagy jogom van felhasználni.",
+      "en": "I declare that the file is my own or I have the right to use it."
+    },
+    {
+      "key": "kivagva",
+      "hu": "Kivágva.",
+      "en": "Cut."
+    },
+    {
+      "key": "kivagas_ctrl_x",
+      "hu": "Kivágás (Ctrl+X)",
+      "en": "Cut (Ctrl+X)"
+    },
+    {
+      "key": "konfetti",
+      "hu": "Konfetti",
+      "en": "Confetti"
+    },
+    {
+      "key": "korlatok_ures_mezo_korlatlan",
+      "hu": "Korlátok (üres mező = korlátlan)",
+      "en": "Limits (empty field = unlimited)"
+    },
+    {
+      "key": "kep",
+      "hu": "Kép",
+      "en": "Image"
+    },
+    {
+      "key": "kep_2",
+      "hu": "KÉP",
+      "en": "IMAGE"
+    },
+    {
+      "key": "kep_https_cim",
+      "hu": "Kép (https:// cím)",
+      "en": "Image (https:// address)"
+    },
+    {
+      "key": "kep_x",
+      "hu": "Kép {x}",
+      "en": "Image {x}"
+    },
+    {
+      "key": "kepek",
+      "hu": "Képek",
+      "en": "Images"
+    },
+    {
+      "key": "kesz_nezd_meg_az_elonezetet_szabadon_modosithato",
+      "hu": "Kész, nézd meg az előnézetet. Szabadon módosíthatod.",
+      "en": "Done, check the preview. You can edit it freely."
+    },
+    {
+      "key": "kiserleti_nincs_hivatalos_beagyazasi_dokumentaci",
+      "hu": "Kísérleti: nincs hivatalos beágyazási dokumentáció, a működés nem garantált. Csak olyan videót használj, amelyet a tulajdonos beágyazhatóvá tett.",
+      "en": "Experimental: there is no official embedding documentation, so it may not work. Only use videos that the owner has made embeddable."
+    },
+    {
+      "key": "link",
+      "hu": "Link",
+      "en": "Link"
+    },
+    {
+      "key": "magassag",
+      "hu": "Magasság",
+      "en": "Height"
+    },
+    {
+      "key": "megjegyezzem_ezen_az_eszkozon",
+      "hu": "Megjegyezzem ezen az eszközön?",
+      "en": "Remember on this device?"
+    },
+    {
+      "key": "megjeleno_nev",
+      "hu": "Megjelenő név",
+      "en": "Display name"
+    },
+    {
+      "key": "mentes",
+      "hu": "Mentés",
+      "en": "Save"
+    },
+    {
+      "key": "mentes_a_githubra",
+      "hu": "Mentés a GitHubra…",
+      "en": "Saving to GitHub…"
+    },
+    {
+      "key": "mind",
+      "hu": "Mind",
+      "en": "All"
+    },
+    {
+      "key": "masold_ki_a_linket",
+      "hu": "Másold ki a linket:",
+      "en": "Copy the link:"
+    },
+    {
+      "key": "masolva",
+      "hu": "Másolva.",
+      "en": "Copied."
+    },
+    {
+      "key": "masolas_ctrl_c",
+      "hu": "Másolás (Ctrl+C)",
+      "en": "Copy (Ctrl+C)"
+    },
+    {
+      "key": "media",
+      "hu": "Média",
+      "en": "Media"
+    },
+    {
+      "key": "mediaforrasok_a_jogi_megjegyzes_uresen_az_alapsz",
+      "hu": "Médiaforrások (a jogi megjegyzés üresen az alapszöveget használja)",
+      "en": "Media sources (an empty legal notice uses the default text)"
+    },
+    {
+      "key": "meg_tobb",
+      "hu": "Még több",
+      "en": "More"
+    },
+    {
+      "key": "meg_tobb_x",
+      "hu": "Még több ({x}) ▾",
+      "en": "More ({x}) ▾"
+    },
+    {
+      "key": "meg_tobb_2",
+      "hu": "Még több ▾",
+      "en": "More ▾"
+    },
+    {
+      "key": "megse",
+      "hu": "Mégse",
+      "en": "Cancel"
+    },
+    {
+      "key": "meret",
+      "hu": "Méret",
+      "en": "Size"
+    },
+    {
+      "key": "nem_talalhato_a_categories_json_toltsd_fel_az_ad",
+      "hu": "Nem található a categories.json – töltsd fel az admin.html mellé.",
+      "en": "categories.json not found – upload it next to admin.html."
+    },
+    {
+      "key": "nincs",
+      "hu": "Nincs",
+      "en": "None"
+    },
+    {
+      "key": "nincs_kijelolt_elem",
+      "hu": "Nincs kijelölt elem",
+      "en": "No element selected"
+    },
+    {
+      "key": "nincs_masolt_elem",
+      "hu": "Nincs másolt elem.",
+      "en": "Nothing copied."
+    },
+    {
+      "key": "nyelv",
+      "hu": "Nyelv",
+      "en": "Language"
+    },
+    {
+      "key": "nemitva_indul",
+      "hu": "Némítva indul",
+      "en": "Starts muted"
+    },
+    {
+      "key": "nezet_csomag_elonezete",
+      "hu": "Nézet (csomag előnézete)",
+      "en": "View (plan preview)"
+    },
+    {
+      "key": "pl_romantikus_valentin_napi_kartya_sotet_hatter_",
+      "hu": "Pl.: Romantikus Valentin-napi kártya, sötét háttér, szívek hullanak, „Szeretlek” felirat",
+      "en": "E.g.: Romantic Valentine's card, dark background, falling hearts, \"I love you\" text"
+    },
+    {
+      "key": "repo",
+      "hu": "Repó",
+      "en": "Repository"
+    },
+    {
+      "key": "reteg",
+      "hu": "Réteg",
+      "en": "Layer"
+    },
+    {
+      "key": "reteg_2",
+      "hu": "Réteg:",
+      "en": "Layer:"
+    },
+    {
+      "key": "reteg_nagyobb_szam_feljebb_kep_alapbol_10_szoveg",
+      "hu": "Réteg: nagyobb szám = feljebb (kép alapból 10, szöveg 20, videó 0). A „Mentés sablonként” a GitHub tárolóban lévő templates.json fájlba ment (ha nem sikerül, letölti).",
+      "en": "Layer: higher number = on top (image default 10, text 20, video 0). “Save as template” saves into templates.json in the GitHub repository (it downloads the file if saving fails)."
+    },
+    {
+      "key": "reteg_x",
+      "hu": "Réteg: {x}",
+      "en": "Layer: {x}"
+    },
+    {
+      "key": "sablon_neve",
+      "hu": "Sablon neve",
+      "en": "Template name"
+    },
+    {
+      "key": "sablonok",
+      "hu": "Sablonok",
+      "en": "Templates"
+    },
+    {
+      "key": "sajat_fajl",
+      "hu": "Saját fájl",
+      "en": "Own file"
+    },
+    {
+      "key": "szerkeszto_mod",
+      "hu": "SZERKESZTŐ MÓD:",
+      "en": "EDIT MODE:"
+    },
+    {
+      "key": "szerkeszto_mod_be",
+      "hu": "SZERKESZTŐ MÓD: BE",
+      "en": "EDIT MODE: ON"
+    },
+    {
+      "key": "szerkeszto_mod_ki",
+      "hu": "SZERKESZTŐ MÓD: KI",
+      "en": "EDIT MODE: OFF"
+    },
+    {
+      "key": "szikrak",
+      "hu": "Szikrák",
+      "en": "Sparkles"
+    },
+    {
+      "key": "szelesseg",
+      "hu": "Szélesség",
+      "en": "Width"
+    },
+    {
+      "key": "szin",
+      "hu": "Szín",
+      "en": "Color"
+    },
+    {
+      "key": "szivek",
+      "hu": "Szívek",
+      "en": "Hearts"
+    },
+    {
+      "key": "szoveg",
+      "hu": "Szöveg",
+      "en": "Text"
+    },
+    {
+      "key": "szoveg_2",
+      "hu": "SZÖVEG",
+      "en": "TEXT"
+    },
+    {
+      "key": "szovegek",
+      "hu": "Szövegek",
+      "en": "Texts"
+    },
+    {
+      "key": "suruseg_1_5",
+      "hu": "Sűrűség (1–5)",
+      "en": "Density (1–5)"
+    },
+    {
+      "key": "tiktok",
+      "hu": "TikTok",
+      "en": "TikTok"
+    },
+    {
+      "key": "token_torolve",
+      "hu": "Token törölve.",
+      "en": "Token removed."
+    },
+    {
+      "key": "tulajdonos",
+      "hu": "Tulajdonos",
+      "en": "Owner"
+    },
+    {
+      "key": "tipus",
+      "hu": "Típus",
+      "en": "Type"
+    },
+    {
+      "key": "torles",
+      "hu": "Törlés",
+      "en": "Delete"
+    },
+    {
+      "key": "torles_delete",
+      "hu": "Törlés (Delete)",
+      "en": "Delete (Delete key)"
+    },
+    {
+      "key": "vezerlok",
+      "hu": "Vezérlők",
+      "en": "Controls"
+    },
+    {
+      "key": "videa",
+      "hu": "Videa",
+      "en": "Videa"
+    },
+    {
+      "key": "video",
+      "hu": "Videó",
+      "en": "Video"
+    },
+    {
+      "key": "viragszirmok",
+      "hu": "Virágszirmok",
+      "en": "Flower petals"
+    },
+    {
+      "key": "visszaallitod_az_alapertekeket",
+      "hu": "Visszaállítod az alapértékeket?",
+      "en": "Do you want to restore the defaults?"
+    },
+    {
+      "key": "x",
+      "hu": "X %",
+      "en": "X %"
+    },
+    {
+      "key": "x_vizszintes",
+      "hu": "X vízszintes %",
+      "en": "X horizontal %"
+    },
+    {
+      "key": "y",
+      "hu": "Y %",
+      "en": "Y %"
+    },
+    {
+      "key": "y_fuggoleges",
+      "hu": "Y függőleges %",
+      "en": "Y vertical %"
+    },
+    {
+      "key": "youtube",
+      "hu": "YouTube",
+      "en": "YouTube"
+    },
+    {
+      "key": "youtube_google",
+      "hu": "YouTube (Google)",
+      "en": "YouTube (Google)"
+    },
+    {
+      "key": "ag_ures_alapertelmezett",
+      "hu": "Ág (üres = alapértelmezett)",
+      "en": "Branch (empty = default)"
+    },
+    {
+      "key": "allo_elonezet",
+      "hu": "Álló előnézet",
+      "en": "Portrait preview"
+    },
+    {
+      "key": "allo_nezet",
+      "hu": "ÁLLÓ NÉZET",
+      "en": "PORTRAIT VIEW"
+    },
+    {
+      "key": "ervenytelen_json_fajl",
+      "hu": "Érvénytelen JSON fájl.",
+      "en": "Invalid JSON file."
+    },
+    {
+      "key": "ervenytelen_vagy_nem_tamogatott_link",
+      "hu": "Érvénytelen vagy nem támogatott link",
+      "en": "Invalid or unsupported link"
+    },
+    {
+      "key": "ird_le_milyen_kartyat_szeretnel_alkalom_hangulat",
+      "hu": "Írd le, milyen kártyát szeretnél (alkalom, hangulat, színek, szöveg). A javaslatot utána bármikor átszerkesztheted.",
+      "en": "Describe the card you want (occasion, mood, colors, text). You can edit the suggestion afterwards."
+    },
+    {
+      "key": "oszi_levelek",
+      "hu": "Őszi levelek",
+      "en": "Autumn leaves"
+    },
+    {
+      "key": "frissits_erovel_ctrl_f5_es_ellenorizd_a_feltolto",
+      "hu": "– frissíts erővel (Ctrl+F5), és ellenőrizd a feltöltött fájlokat.",
+      "en": "– hard refresh (Ctrl+F5) and check the uploaded files."
+    },
+    {
+      "key": "link_vagy_azonosito",
+      "hu": "– link vagy azonosító",
+      "en": "– link or ID"
+    },
+    {
+      "key": "admin",
+      "hu": "← Admin",
+      "en": "← Admin"
+    },
+    {
+      "key": "szunet",
+      "hu": "⏸ Szünet",
+      "en": "⏸ Pause"
+    },
+    {
+      "key": "lejatszas",
+      "hu": "▶ Lejátszás",
+      "en": "▶ Play"
+    },
+    {
+      "key": "beallitasok_2",
+      "hu": "⚙ Beállítások",
+      "en": "⚙ Settings"
+    },
+    {
+      "key": "beallitasok_settings_json",
+      "hu": "⚙ Beállítások (settings.json)",
+      "en": "⚙ Settings (settings.json)"
+    },
+    {
+      "key": "masolva_2",
+      "hu": "✔ Másolva",
+      "en": "✔ Copied"
+    },
+    {
+      "key": "ai_tervezo",
+      "hu": "✨ AI tervező",
+      "en": "✨ AI designer"
+    },
+    {
+      "key": "generalas",
+      "hu": "✨ Generálás",
+      "en": "✨ Generate"
+    },
+    {
+      "key": "ures_kartya",
+      "hu": "⬜ Üres kártya",
+      "en": "⬜ Blank card"
+    },
+    {
+      "key": "video_2",
+      "hu": "🎬 Videó",
+      "en": "🎬 Video"
+    },
+    {
+      "key": "mentes_settings_json",
+      "hu": "💾 Mentés (settings.json)",
+      "en": "💾 Save (settings.json)"
+    },
+    {
+      "key": "mentes_githubra",
+      "hu": "💾 Mentés GitHubra",
+      "en": "💾 Save to GitHub"
+    },
+    {
+      "key": "mentes_sablonkent",
+      "hu": "💾 Mentés sablonként",
+      "en": "💾 Save as template"
+    },
+    {
+      "key": "betoltes_fajlbol",
+      "hu": "📂 Betöltés fájlból",
+      "en": "📂 Load from file"
+    },
+    {
+      "key": "frissites",
+      "hu": "🔄 Frissítés",
+      "en": "🔄 Refresh"
+    },
+    {
+      "key": "github_token_torlese",
+      "hu": "🔑 GitHub token törlése",
+      "en": "🔑 Remove GitHub token"
+    },
+    {
+      "key": "az_athuzott_halvany_elemek_elofizetessel_erhetok",
+      "hu": "🔒 Az áthúzott, halvány elemek előfizetéssel érhetők el.",
+      "en": "🔒 Struck-through, dimmed items are available with a subscription."
+    },
+    {
+      "key": "fizetos_2",
+      "hu": "🔒 fizetős",
+      "en": "🔒 paid"
+    },
+    {
+      "key": "tobb_emoji_fizetos",
+      "hu": "🔒 TÖBB EMOJI (FIZETŐS)",
+      "en": "🔒 MORE EMOJI (PAID)"
+    },
+    {
+      "key": "tobb_kep_fizetos",
+      "hu": "🔒 TÖBB KÉP (FIZETŐS)",
+      "en": "🔒 MORE IMAGES (PAID)"
+    },
+    {
+      "key": "tobb_szoveg_fizetos",
+      "hu": "🔒 TÖBB SZÖVEG (FIZETŐS)",
+      "en": "🔒 MORE TEXT (PAID)"
+    },
+    {
+      "key": "tobb_x_fizetos",
+      "hu": "🔒 TÖBB {x} (FIZETŐS)",
+      "en": "🔒 MORE {x} (PAID)"
+    },
+    {
+      "key": "link_masolasa",
+      "hu": "🔗 Link másolása",
+      "en": "🔗 Copy link"
+    },
+    {
+      "key": "kep_3",
+      "hu": "🖼️ Kép",
+      "en": "🖼️ Image"
+    },
+    {
+      "key": "kep_x_2",
+      "hu": "🖼️ Kép {x}",
+      "en": "🖼️ Image {x}"
+    },
+    {
+      "key": "kartya",
+      "hu": "Kártya",
+      "en": "Card"
+    }
+  ]
+}
