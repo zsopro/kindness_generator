@@ -18,6 +18,7 @@ export const DEFAULTS = {
         E('rain', 'Eső', '🌧️', 'paid'), E('stars', 'Csillagok', '⭐', 'paid'), E('sparkles', 'Szikrák', '✨', 'paid'),
         E('leaves', 'Őszi levelek', '🍂', 'paid'), E('flowers', 'Virágszirmok', '🌸', 'paid'), E('bubbles', 'Buborékok', '🫧', 'paid')],
     providers: [P('youtube', 'YouTube', '▶️'), P('file', 'Saját fájl (mp3/mp4)', '📁'), P('tiktok', 'TikTok', '🎵', 'paid'), P('videa', 'Videa (kísérleti)', '🎞️', 'paid', false)],
+    github: { owner: 'zsopro', repo: 'kindness_generator', branch: '' },   // nem titkos adatok; a hozzáférési token sosem kerül ide
     aiEndpoint: '',                             // az AI-szolgáltatás https címe (üres = kikapcsolva)
     emojis: '😀 😍 🥰 😘 🥳 😊 😎 🤗 🙏 👍 🎉 🎂 🎁 🎈 🎄 ❄️ 🐣 🎓 🌸 💐 ❤️ 💖 ✨ ⭐ 🌟 🔥 🍀 ☀️ 🌈 🎶 📞 ✉️ 📍 🏠 💼 🚗 🍾 🥂 🕯️ 🎅'.split(' ')
 };
@@ -31,6 +32,7 @@ export function merge(j) {
         effects: [...(j.effects || []), ...d.effects.filter(x => !(j.effects || []).some(e => e.id === x.id))],   // a kódban lévő új effektek automatikusan bekerülnek
         providers: [...(j.providers || []), ...d.providers.filter(x => !(j.providers || []).some(e => e.id === x.id))],
         emojis: has(j.emojis) && j.emojis.length ? j.emojis : d.emojis,
+        github: { ...d.github, ...(j.github || {}) },
         aiEndpoint: typeof j.aiEndpoint === 'string' ? j.aiEndpoint : ''
     };
 }
