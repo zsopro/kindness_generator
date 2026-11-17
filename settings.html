@@ -22,17 +22,24 @@
 </head>
 <body><main>
 <h1>⚙ Beállítások (settings.json)</h1>
+<p><label style="display:inline-block">Nyelv <select id="lang" style="width:auto"></select></label></p>
 <p class="hint">Itt döntöd el, melyik betűtípus és effekt ingyenes vagy fizetős, mennyi szöveg, kép és emoji fér egy kártyára, és mi legyen az emoji-palettán. A mentett fájl a többi JSON-hoz hasonlóan adatbázisba importálható.</p>
 
 <h2>Korlátok (üres mező = korlátlan)</h2><table id="lim"></table>
 <h2>Betűtípusok (Google Fonts név)</h2><table id="fonts"></table><p><button type="button" id="addf" class="gray">+ Betűtípus</button></p>
 <h2>Effektek</h2><table id="fx"></table>
 <h2>Médiaforrások (a jogi megjegyzés üresen az alapszöveget használja)</h2><table id="prov"></table>
+<h2>GitHub</h2>
+<div style="display:flex;gap:8px"><label style="flex:1">Tulajdonos<input id="gh-owner"></label><label style="flex:1">Repó<input id="gh-repo"></label><label style="flex:1">Ág (üres = alapértelmezett)<input id="gh-branch"></label></div>
+<p class="hint">A GitHub tárolóba mentés a Beállítások oldalon megadott tulajdonosra és repóra történik.</p>
 <h2>AI szerver címe (aiEndpoint, https)</h2><input id="ai" placeholder="https://… (üres = kikapcsolva)">
 <h2>Emoji paletta (szóközzel elválasztva)</h2><textarea id="emo" rows="4"></textarea>
 
+<p class="hint" id="gh-msg" role="status"></p>
 <div class="bar">
-    <button type="button" id="save">💾 Mentés (settings.json)</button>
+    <button type="button" id="save-gh">💾 Mentés GitHubra</button>
+    <button type="button" id="save" class="gray">💾 Mentés (settings.json)</button>
+    <button type="button" id="gh-clear" class="gray">🔑 GitHub token törlése</button>
     <label class="btn gray">📂 Betöltés fájlból<input type="file" id="imp" accept=".json" hidden></label>
     <button type="button" id="reset" class="red">Alapértékek</button>
     <a class="btn gray" href="admin.html">← Admin</a>
@@ -40,6 +47,8 @@
 
 <script type="module">
 import { DEFAULTS, merge, loadSettings } from './settings.js';
+import { initI18n, t } from './i18n.js';
+import { ghUpdateJSON, ghToken, ghCfg, ghClearToken } from './github.js';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
 const tier = v => `<select data-k="tier"><option value="free"${v === 'free' ? ' selected' : ''}>ingyenes</option><option value="paid"${v === 'paid' ? ' selected' : ''}>🔒 fizetős</option></select>`;
@@ -57,12 +66,14 @@ function render() {
     $('fx').innerHTML = '<tr><th>Azonosító</th><th>Felirat</th><th>Ikon</th><th>Csomag</th><th>Aktív</th></tr>' + S.effects.map(e =>
         `<tr data-row data-id="${esc(e.id)}"><td>${esc(e.id)}</td><td><input data-k="label" value="${esc(e.label)}"></td><td><input data-k="icon" value="${esc(e.icon)}" style="width:60px"></td><td>${tier(e.tier)}</td><td>${e.id === 'none' ? '' : chk(e.enabled)}</td></tr>`).join('');
     $('ai').value = S.aiEndpoint || '';
+    $('gh-owner').value = S.github.owner || ''; $('gh-repo').value = S.github.repo || ''; $('gh-branch').value = S.github.branch || '';
     $('emo').value = S.emojis.join(' ');
     $('prov').innerHTML = '<tr><th>Azonosító</th><th>Felirat</th><th>Ikon</th><th>Csomag</th><th>Aktív</th></tr>' + S.providers.map(e =>
         `<tr data-row data-id="${esc(e.id)}"><td>${esc(e.id)}</td><td><input data-k="label" value="${esc(e.label)}"></td><td><input data-k="icon" value="${esc(e.icon)}" style="width:60px"></td><td>${tier(e.tier)}</td><td>${chk(e.enabled)}</td></tr>` +
         `<tr><td></td><td colspan="4"><input data-k="legal" placeholder="Jogi megjegyzés" value="${esc(e.legal)}"></td></tr>`).join('');
 }
 const g = (tr, k) => tr.querySelector(`[data-k="${k}"]`);
+const ghRead = () => ({ owner: $('gh-owner').value.trim(), repo: $('gh-repo').value.trim(), branch: $('gh-branch').value.trim() });
 function read() {
     const limits = {};
     document.querySelectorAll('#lim tr[data-p]').forEach(tr => {
@@ -81,7 +92,7 @@ function read() {
         id: tr.dataset.id, label: g(tr, 'label').value.trim() || tr.dataset.id, icon: g(tr, 'icon').value.trim(),
         tier: g(tr, 'tier').value, enabled: g(tr, 'enabled').checked, legal: g(tr.nextElementSibling, 'legal').value.trim()
     }));
-    return { schemaVersion: 1, limits, fonts, effects, providers, aiEndpoint: /^https:\/\//.test($('ai').value.trim()) ? $('ai').value.trim() : '', emojis: $('emo').value.split(/\s+/).filter(Boolean) };
+    return { schemaVersion: 1, github: ghRead(), limits, fonts, effects, providers, aiEndpoint: /^https:\/\//.test($('ai').value.trim()) ? $('ai').value.trim() : '', emojis: $('emo').value.split(/\s+/).filter(Boolean) };
 }
 $('fonts').addEventListener('click', e => { if (e.target.dataset.del !== undefined) e.target.closest('tr').remove(); });
 $('addf').addEventListener('click', () => $('fonts').insertAdjacentHTML('beforeend', fontRow({ id: '', label: '', tier: 'paid', enabled: true })));
@@ -91,10 +102,22 @@ $('save').addEventListener('click', () => {
     a.download = 'settings.json'; a.click(); URL.revokeObjectURL(a.href);
 });
 $('imp').addEventListener('change', async e => {
-    try { S = merge(JSON.parse(await e.target.files[0].text())); render(); } catch { alert('Érvénytelen JSON fájl.'); }
+    try { S = merge(JSON.parse(await e.target.files[0].text())); render(); } catch { alert(t('Érvénytelen JSON fájl.')); }
 });
-$('reset').addEventListener('click', () => { if (confirm('Visszaállítod az alapértékeket?')) { S = merge(null); render(); } });
+$('reset').addEventListener('click', () => { if (confirm(t('Visszaállítod az alapértékeket?'))) { S = merge(null); render(); } });
 
+$('save-gh').addEventListener('click', async () => {     // a settings.json mentése a GitHub tárolóba
+    const m = $('gh-msg');
+    try {
+        m.textContent = t('Mentés a GitHubra…');
+        const data = read();
+        await ghUpdateJSON({ ...ghCfg(data), path: 'settings.json', token: ghToken(t), message: 'Beállítások frissítése', mutate: () => data });
+        m.textContent = t('Elmentve a GitHubra. Az oldal frissülése 1–2 percet vehet igénybe.');
+    } catch (err) { console.error(err); m.textContent = t('A GitHubra mentés nem sikerült ({x}). A sablon JSON-ját letöltöttük helyette.', { x: err.message }); $('save').click(); }
+});
+$('gh-clear').addEventListener('click', () => { ghClearToken(); $('gh-msg').textContent = t('Token törölve.'); });
+
+try { await initI18n(); } catch (err) { console.error(err); }
 S = await loadSettings(); render();
 </script>
 </main></body>
