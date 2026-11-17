@@ -34,7 +34,7 @@
     #emo-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; max-width: 360px; margin-bottom: 10px; }
     label.chk { display: flex; align-items: center; gap: 6px; } input[type=checkbox] { width: auto; }
     .legal { border-left: 3px solid #ffc107; padding-left: 8px; margin: 8px 0; line-height: 1.4; }
-    option:disabled { color: #777; }
+    option:disabled { color: #777; text-decoration: line-through; }
     dialog { background: #1a1a1a; color: #fff; border: 1px solid #444; border-radius: 8px; }
     dialog::backdrop { background: rgba(0,0,0,.7); }
     [hidden] { display: none !important; }
@@ -48,6 +48,7 @@
     #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; max-height: 68vh; overflow-y: auto; }
     .thumb { position: relative; width: 110px; height: 196px; overflow: hidden; border-radius: 6px; border: 1px solid #444; background: #000; cursor: pointer; padding: 0; }
     .thumb iframe { width: 360px; height: 640px; transform: scale(.3056); transform-origin: 0 0; border: 0; pointer-events: none; }
+    .thumb.paid { opacity: .6; } .thumb .lock { position: absolute; top: 4px; right: 4px; font-size: .9rem; background: rgba(0,0,0,.75); border-radius: 4px; padding: 1px 4px; z-index: 2; }
     .thumb b { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.72); font-size: .6rem; padding: 3px; color: #fff; text-align: left; }
     #ai-log { max-height: 260px; overflow-y: auto; font-size: .75rem; margin: 8px 0; }
     .ai-u, .ai-a { padding: 6px 8px; margin: 4px 0; border-radius: 6px; white-space: pre-wrap; } .ai-u { background: #2a2a2a; } .ai-a { background: #12351a; }
@@ -55,6 +56,7 @@
     .tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: .7rem; max-width: 100%; }
     .tools button { background: #333; color: #fff; border: 0; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: .8rem; } .tools button:disabled { opacity: .35; cursor: default; }
     #tsel { min-width: 110px; color: #0af; text-align: center; }
+    .btn:disabled { opacity: .5; text-decoration: line-through; cursor: default; }
     :focus-visible { outline: 2px solid var(--neon); outline-offset: 1px; }
     .preview-container { border: 5px solid #333; border-radius: 10px; overflow: hidden; background: #000; max-width: 100%; }
     .p-port { height: min(560px, 60vh); aspect-ratio: 9 / 16; } .p-land { height: min(190px, 24vh); aspect-ratio: 16 / 9; }
@@ -63,7 +65,7 @@
 </style>
 <script>
     setTimeout(() => {
-        if (!window.__adminOk) { const m = document.getElementById('msg'); if (m) m.textContent = 'A szerkesztő nem indult el. Frissíts erővel (Ctrl+F5), és ellenőrizd, hogy az admin.html, url-handler.js, transform-module.js és settings.js is fel van töltve.'; }
+        if (!window.__adminOk) { const m = document.getElementById('msg'); if (m) m.textContent = 'A szerkesztő nem indult el. Frissíts erővel (Ctrl+F5), és ellenőrizd, hogy az admin.html, url-handler.js, transform-module.js, settings.js, i18n.js és github.js is fel van töltve.'; }
     }, 2500);
 </script>
 </head>
@@ -78,8 +80,10 @@
     <a href="settings.html">⚙<span>Beáll.</span></a>
 </nav>
 <div class="sidebar" id="side">
-    <div style="padding:10px 10px 0"><label>Nézet (csomag előnézete)<select id="plan"><option value="admin">Admin (minden)</option><option value="free">Ingyenes</option><option value="paid">Fizetős</option></select></label></div>
+    <div style="padding:10px 10px 0" class="row"><label>Nézet (csomag előnézete)<select id="plan"><option value="admin">Admin (minden)</option><option value="free">Ingyenes</option><option value="paid">Fizetős</option></select></label>
+        <label>Nyelv<select id="lang"></select></label></div>
     <div id="msg" class="hint" style="padding:4px 12px;color:#ffc107" role="status"></div>
+    <div id="lockhint" class="hint" hidden style="padding:0 12px 6px">🔒 Az áthúzott, halvány elemek előfizetéssel érhetők el.</div>
     <button type="button" id="edit-toggle" class="live-toggle on">SZERKESZTŐ MÓD: BE</button>
     <div class="control-bar">
         <button type="button" class="btn b-blue" id="b-refresh">🔄 Frissítés</button>
@@ -89,7 +93,8 @@
         <a class="btn b-blue" href="settings.html" style="text-align:center;text-decoration:none">⚙ Beállítások</a>
     </div>
 
-    <div class="sec on" data-tab="tpl"><div class="accordion-content active"><div id="chips"></div><div id="grid"></div></div></div>
+    <div class="sec on" data-tab="tpl"><div class="accordion-content active"><div id="chips"></div><div id="grid"></div>
+        <button type="button" id="more" class="chip" hidden style="margin-top:8px;width:100%">Még több ▾</button></div></div>
 
     <div class="sec" data-tab="text"><div class="accordion-content active"><div id="text-list"></div>
             <button type="button" class="btn b-grn btn-add" id="b-addt">+ ÚJ SZÖVEG</button></div></div>
@@ -115,6 +120,8 @@
             <div class="row" style="margin-top:10px">
                 <label>Gomb felirata<input id="btn" maxlength="30" placeholder="Indítás"></label>
                 <label>Effekt<select id="effect"></select></label>
+                <label>Effekt színe<input type="color" id="ec" value="#ffffff"></label>
+                <label>Sűrűség (1–5)<input type="number" id="intens" min="1" max="5"></label>
             </div></div></div>
     <div class="sec" data-tab="ai"><div class="accordion-content active">
         <h3>✨ AI tervező</h3>
@@ -123,7 +130,7 @@
         <textarea id="ai-prompt" rows="3" maxlength="500" placeholder="Pl.: Romantikus Valentin-napi kártya, sötét háttér, szívek hullanak, „Szeretlek” felirat"></textarea>
         <button type="button" class="btn b-pur btn-add" id="b-ai">✨ Generálás</button>
     </div></div>
-    <p class="hint" style="padding:0 12px 20px">Réteg: nagyobb szám = feljebb (kép alapból 10, szöveg 20, videó 0). A letöltött templates.json fájlt másold a tárolóba a régi helyére.</p>
+    <p class="hint" style="padding:0 12px 20px">Réteg: nagyobb szám = feljebb (kép alapból 10, szöveg 20, videó 0). A „Mentés sablonként” a GitHub tárolóban lévő templates.json fájlba ment (ha nem sikerül, letölti).</p>
 </div>
 
 <div class="preview-area">
@@ -151,6 +158,8 @@
 import { URLHandler as U } from './url-handler.js';
 import { TransformModule as T } from './transform-module.js';
 import { loadSettings, isLocked, limitFor } from './settings.js';
+import { initI18n, t, lang, onLang } from './i18n.js';
+import { ghUpdateJSON, ghToken, ghCfg, ghClearToken } from './github.js';
 window.__adminOk = true;
 
 const $ = id => document.getElementById(id);
@@ -161,7 +170,7 @@ let playing = true, edit = true, tN = 0, iN = 0, tpls = [], cats = [], eN = 0, S
 function collect() {                                   // egyetlen forrás: az előnézet és a link is ebből készül
     const p = {};
     document.querySelectorAll('#side input[id], #side select[id], #side textarea[id]').forEach(i => {
-        if (['mlink', 'tpl', 'plan', 'ai-prompt'].includes(i.id)) return;
+        if (['mlink', 'tpl', 'plan', 'ai-prompt', 'lang'].includes(i.id)) return;
         if (i.type === 'checkbox') { if (i.checked) p[i.id] = '1'; return; }
         if (i.value === '') return;
         p[i.id] = i.type === 'color' ? i.value.slice(1) : i.value;
@@ -205,11 +214,12 @@ function addImage(o = {}) {
     for (const a of ['x', 'y', 'w', 'h']) { set(id + a, o[a] ?? ''); set('l' + id + a, o['l' + a] ?? ''); }
 }
 
+const strike = x => [...String(x)].map(c => c === ' ' ? c : c + '\u0336').join('');   // áthúzott felirat, natív választólistában is látszik
 const flash = t => { $('msg').textContent = t; clearTimeout(flashT); flashT = setTimeout(() => { $('msg').textContent = ''; }, 3500); };
 function fillFont(sel, want) {                         // fizetős betűtípus ingyenes nézetben: halvány, lakattal, nem választható
     const cur = want ?? sel.value; sel.length = 0;
     for (const f of S.fonts.filter(f => f.enabled)) {
-        const lk = isLocked(f, plan), o = new Option((lk ? '🔒 ' : '') + f.label, f.id); o.disabled = lk; sel.add(o);
+        const lk = isLocked(f, plan), o = new Option(lk ? '🔒 ' + strike(f.label) : f.label, f.id); o.disabled = lk; sel.add(o);
     }
     const ok = [...sel.options].find(o => o.value === cur && !o.disabled);
     sel.value = ok ? cur : ([...sel.options].find(o => !o.disabled) || {}).value;
@@ -218,7 +228,7 @@ function fillFont(sel, want) {                         // fizetős betűtípus i
 function fillEffect(want) {
     const sel = $('effect'), cur = want ?? sel.value; sel.length = 0;
     for (const e of S.effects.filter(e => e.enabled)) {
-        const lk = isLocked(e, plan), o = new Option(`${lk ? '🔒 ' : ''}${e.icon || ''} ${e.label}`.trim(), e.id); o.disabled = lk; sel.add(o);
+        const lk = isLocked(e, plan), o = new Option(`${lk ? '🔒 ' : ''}${e.icon || ''} ${lk ? strike(t(e.label)) : t(e.label)}`.trim(), e.id); o.disabled = lk; sel.add(o);
     }
     const ok = [...sel.options].find(o => o.value === cur && !o.disabled);
     sel.value = ok ? cur : 'none';
@@ -265,7 +275,7 @@ function showProv() {
 function fillMed(want) {
     const sel = $('med'), cur = want ?? sel.value; sel.length = 0; sel.add(new Option('– nincs –', ''));
     for (const x of S.providers.filter(x => x.enabled)) {
-        const lk = isLocked(x, plan), o = new Option(`${lk ? '🔒 ' : ''}${x.icon || ''} ${x.label}`.trim(), x.id); o.disabled = lk; sel.add(o);
+        const lk = isLocked(x, plan), o = new Option(`${lk ? '🔒 ' : ''}${x.icon || ''} ${lk ? strike(t(x.label)) : t(x.label)}`.trim(), x.id); o.disabled = lk; sel.add(o);
     }
     const ok = [...sel.options].find(o => o.value === cur && !o.disabled);
     sel.value = ok ? cur : '';
@@ -282,14 +292,15 @@ function loadParams(str) {                              // sablon / régi link �
     set('mlink', link); $('mid').value = (PARSE[prov] || (() => ''))(link);
     set('mmode', p.mmode === 'audio' ? 'audio' : 'video');
     for (const c of ['mloop', 'mmute', 'mctl', 'mjog']) $(c).checked = String(p[c]) === '1';
+    if (p.mute === '1' && !p.mmute) $('mmute').checked = true;      // régi sablonok némítása
     fillMed(prov);
-    for (const a of ['x', 'y', 'w', 'h']) { set('v' + a, p['v' + a] ?? ''); set('lv' + a, p['lv' + a] ?? ''); }
+    for (const a of ['x', 'y', 'w', 'h']) { set('v' + a, p['v' + a] ?? { x: 50, y: 50, w: 100, h: 100 }[a]); set('lv' + a, p['lv' + a] ?? ''); }
     const tx = [];
-    if (p.cim) tx.push({ t: p.cim, c: p.mc, f: p.mf, s: p.ms, x: p.mx, y: p.my ?? 10 });
-    if (p.alcim) tx.push({ t: p.alcim, c: p.sc, f: p.sf, s: p.ss, x: p.sx, y: p.sy ?? 20 });
+    if (p.cim) tx.push({ t: p.cim, c: p.mc, f: p.mf, s: p.ms ?? 5, x: p.mx ?? 50, y: p.my ?? 10, z: 20, r: 0 });
+    if (p.alcim) tx.push({ t: p.alcim, c: p.sc, f: p.sf, s: p.ss ?? 5, x: p.sx ?? 50, y: p.sy ?? 20, z: 20, r: 0 });
     for (const k of Object.keys(p)) {
         const m = k.match(/^txt(\d{1,2})$/);
-        if (m) { const n = m[1]; tx.push({ t: p[k], c: p['c' + n], f: p['f' + n], s: p['s' + n], x: p['x' + n], y: p['y' + n], z: p['z' + n], r: p['r' + n] }); }
+        if (m) { const n = m[1]; tx.push({ t: p[k], c: p['c' + n], f: p['f' + n], s: p['s' + n] ?? 5, x: p['x' + n] ?? 50, y: p['y' + n] ?? 50, z: p['z' + n] ?? 20, r: p['r' + n] ?? 0 }); }
     }
     tx.forEach(addText);
     for (const k of Object.keys(p)) {
@@ -297,18 +308,20 @@ function loadParams(str) {                              // sablon / régi link �
         if (!m || !p[k]) continue;
         const b = m[1], o = { u: p[k], r: p[b + 'r'], z: p[b + 'z'] };
         for (const a of ['x', 'y', 'w', 'h']) { o[a] = p[b + a]; o['l' + a] = p['l' + b + a]; }
-        if (o.w == null && o.h == null && p[b + 's']) o.w = p[b + 's'];
+        o.x ??= 50; o.y ??= 50; o.z ??= 10; o.r ??= 0;
+        if (o.w == null && o.h == null) o.w = p[b + 's'] ?? 40;          // méret nélküli kép: a megjelenítő alapértéke (40)
         addImage(o);
     }
     for (const k of Object.keys(p)) {
         const m = k.match(/^em(\d{1,2})$/);
-        if (m && p[k]) addEmoji({ e: p[k], x: p[k + 'x'], y: p[k + 'y'], s: p[k + 's'], z: p[k + 'z'], r: p[k + 'r'] });
+        if (m && p[k]) addEmoji({ e: p[k], x: p[k + 'x'] ?? 50, y: p[k + 'y'] ?? 50, s: p[k + 's'] ?? 12, z: p[k + 'z'] ?? 15, r: p[k + 'r'] ?? 0 });
     }
+    set('ec', U.hex(p.ec) || '#ffffff'); set('intens', p.intens ?? 2);
     fillEffect(p.effect ?? 'none'); refreshLimits();
     update();
 }
 
-const lab = o => (o && o.label && (o.label.hu ?? o.label)) || (o && o.id) || '';
+const lab = o => (o && o.label && (typeof o.label === 'string' ? o.label : (o.label[lang()] ?? o.label.hu))) || (o && o.id) || '';
 const norm = x => String(x || '').trim().toLowerCase();
 const slug = x => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'sablon';
 const opts = (sel, list, f) => { sel.length = 0; list.forEach(x => sel.add(new Option(f(x), x.id))); };
@@ -365,24 +378,33 @@ function nest(f) {
     return o;
 }
 
-let chipSel = '';
+let chipSel = '', tplAll = false;
 const toQuery = f => { const q = new URLSearchParams(); for (const [k, v] of Object.entries(f)) if (v !== undefined && v !== null && v !== '') q.set(k, v); return q; };
-function fillTpl() {                                   // kategória-szűrő + görgethető, élő miniatűrök
+const paidIn = t => {                                  // fizetős betűtípus / effekt / médiaforrás / több kép van-e benne
+    if (!S || plan === 'admin' || plan === 'paid') return false;
+    const f = flatten(t.params), paid = (list, id) => !!id && ((list || []).find(x => x.id === id) || {}).tier === 'paid';
+    const fonts = [f.mf, f.sf, ...Object.keys(f).filter(k => /^f\d+$/.test(k)).map(k => f[k])];
+    return fonts.some(x => paid(S.fonts, x)) || paid(S.effects, f.effect) || paid(S.providers, f.med || (f.yt ? 'youtube' : ''))
+        || Object.keys(f).filter(k => /^d\d+url$/.test(k) && f[k]).length > limitFor(S, plan, 'images');
+};
+function fillTpl() {                                   // kategória-szűrő; először 5 sablon, "Még több"-re a többi
     const ch = $('chips'); ch.innerHTML = '';
     [['', 'Mind'], ...cats.map(c => [c.id, icoLab(c)]), ['__blank', '⬜ Üres kártya']].forEach(([id, t]) => {
         const b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (id === chipSel ? ' on' : ''); b.textContent = t;
-        b.onclick = () => { if (id === '__blank') { loadParams(''); return; } chipSel = id; fillTpl(); };
+        b.onclick = () => { if (id === '__blank') { loadParams(''); return; } chipSel = id; tplAll = false; fillTpl(); };
         ch.appendChild(b);
     });
+    const list = tpls.map((t, i) => [t, i]).filter(([t]) => !chipSel || t.categoryId === chipSel);
     const g = $('grid'); g.innerHTML = '';
-    tpls.forEach((t, i) => {
-        if (chipSel && t.categoryId !== chipSel) return;
-        const b = document.createElement('button'); b.type = 'button'; b.className = 'thumb'; b.dataset.tpl = i; b.title = t.name;
+    (tplAll ? list : list.slice(0, 5)).forEach(([t, i]) => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'thumb' + (paidIn(t) ? ' paid' : ''); b.dataset.tpl = i; b.title = t.name;
         const f = document.createElement('iframe'); f.loading = 'lazy'; f.tabIndex = -1; f.title = t.name;
         const q = toQuery(flatten(t.params)); q.set('thumb', '1'); f.src = 'index.html?' + q;
-        const n = document.createElement('b'); n.textContent = t.name;
-        b.append(f, n); g.appendChild(b);
+        const n = document.createElement('b'); n.textContent = t.name; b.append(f, n);
+        if (paidIn(t)) { const l = document.createElement('span'); l.className = 'lock'; l.textContent = '🔒'; l.title = 'Fizetős elemet tartalmaz'; b.appendChild(l); }
+        g.appendChild(b);
     });
+    const more = $('more'); more.hidden = list.length <= 5; more.textContent = tplAll ? 'Kevesebb ▴' : `Még több (${list.length - 5}) ▾`;
 }
 function download(name, text) {
     const a = document.createElement('a');
@@ -393,23 +415,33 @@ function download(name, text) {
 $('b-addt').addEventListener('click', () => { addText({ s: 5, x: 50, y: 50, z: 20 }); refreshLimits(); update(); });
 $('b-addi').addEventListener('click', () => { addImage({ x: 50, y: 50, w: 50, h: 50, z: 10 }); refreshLimits(); update(); });
 $('b-save').addEventListener('click', () => {
-    if (!cats.length) { alert('Nem található a categories.json – töltsd fel az admin.html mellé.'); return; }
+    if (!cats.length) { alert(t('Nem található a categories.json – töltsd fel az admin.html mellé.')); return; }
     opts($('d-cat'), cats, icoLab);
     const syncSub = () => opts($('d-sub'), (cats.find(c => c.id === $('d-cat').value) || {}).items || [], icoLab);
     $('d-cat').onchange = syncSub; syncSub(); $('d-name').value = '';
     $('dlg').showModal();
 });
-$('dlg').addEventListener('close', () => {
+$('dlg').addEventListener('close', async () => {   // mentés a GitHub tárolóban lévő templates.json fájlba (siker nélkül letöltés)
     if ($('dlg').returnValue !== 'ok') return;
     const name = $('d-name').value.trim(); if (!name) return;
-    let id = slug(name), i = 2;
-    while (tpls.some(t => t.id === id)) id = slug(name) + '-' + i++;
-    tpls.push({ id, name, categoryId: $('d-cat').value, subId: $('d-sub').value, params: nest(collect()) });
-    fillTpl();
-    download('templates.json', JSON.stringify({
-        schemaVersion: 1,
-        templates: tpls.map(t => ({ ...t, params: typeof t.params === 'string' ? nest(flatten(t.params)) : t.params }))
-    }, null, 2));
+    const base = slug(name), tpl = { id: base, name, categoryId: $('d-cat').value, subId: $('d-sub').value, params: nest(collect()) };
+    const asNew = x => ({ ...normTpl(x), params: typeof x.params === 'string' ? nest(flatten(x.params)) : x.params });
+    const merged = list => {                           // a GitHubon lévő friss tartalomhoz fűzzük hozzá, így nem írunk felül más módosítást
+        let id = base, i = 2; while (list.some(x => x.id === id)) id = base + '-' + i++;
+        tpl.id = id; return [...list, tpl];
+    };
+    try {
+        flash(t('Mentés a GitHubra…'));
+        await ghUpdateJSON({ ...ghCfg(S), path: 'templates.json', token: ghToken(t), message: 'Sablon: ' + name,
+            mutate: cur => ({ schemaVersion: 1, templates: merged(((cur && cur.templates) || []).map(asNew)) }) });
+        tpls.push(tpl); fillTpl(); flash(t('Elmentve a GitHubra. Az oldal frissülése 1–2 percet vehet igénybe.'));
+    } catch (err) {
+        console.error(err);
+        if (!tpls.includes(tpl)) tpls.push(tpl);
+        fillTpl();
+        download('templates.json', JSON.stringify({ schemaVersion: 1, templates: tpls.map(asNew) }, null, 2));
+        flash(t('A GitHubra mentés nem sikerült ({x}). A sablon JSON-ját letöltöttük helyette.', { x: err.message }));
+    }
 });
 
 $('side').addEventListener('input', update);
@@ -442,7 +474,7 @@ $('b-pause').addEventListener('click', e => {
 $('b-copy').addEventListener('click', async e => {
     const b = e.currentTarget, old = b.textContent;
     try { await navigator.clipboard.writeText(cardURL()); b.textContent = '✔ Másolva'; }
-    catch { prompt('Másold ki a linket:', cardURL()); }
+    catch { prompt(t('Másold ki a linket:'), cardURL()); }
     setTimeout(() => { b.textContent = old; }, 1500);
 });
 $('med').addEventListener('input', () => { $('mid').value = (PARSE[$('med').value] || (() => ''))($('mlink').value); showProv(); });
@@ -455,6 +487,7 @@ $('mlink').addEventListener('input', e => {
 });
 $('vfields').innerHTML = T.createUIFields('v');
 
+$('more').addEventListener('click', () => { tplAll = !tplAll; fillTpl(); });
 $('grid').addEventListener('click', e => { const b = e.target.closest('.thumb'); if (b) loadParams(tpls[+b.dataset.tpl].params); });
 $('rail').addEventListener('click', e => {             // Canva-szerű eszköztár: egyszerre egy panel látszik
     const b = e.target.closest('button[data-t]'); if (!b) return;
@@ -551,6 +584,10 @@ $('side').addEventListener('focusin', e => {           // egy réteg mezőjébe 
 });
 toolsState();
 
+try {                                                  // nyelv: szövegek a lang.json fájlból
+    await initI18n();
+    onLang(() => { fillEffect(); fillMed(); document.querySelectorAll('#text-list select[id^="f"]').forEach(sel => fillFont(sel)); fillTpl(); toolsState(); });
+} catch (err) { console.error(err); }
 try {                                                  // sablonok és kategóriák
 const getJSON = async f => { try { const r = await fetch(f, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch { return null; } };
 cats = ((await getJSON('categories.json')) || {}).categories || [];
@@ -562,7 +599,7 @@ try {                                                  // beállítások és az 
 S = await loadSettings();
 S.providers = (S.providers && S.providers.length) ? S.providers : [{ id: 'youtube', label: 'YouTube', icon: '▶️', tier: 'free', enabled: true }, { id: 'file', label: 'Saját fájl', icon: '📁', tier: 'free', enabled: true }, { id: 'tiktok', label: 'TikTok', icon: '🎵', tier: 'paid', enabled: true }];
 S.fonts ||= []; S.effects ||= []; S.emojis ||= []; S.limits ||= {};
-fillEffect('none'); fillMed(''); refreshLimits();
+fillEffect('none'); fillMed(''); refreshLimits(); fillTpl();
 $('b-adde').addEventListener('click', () => { addEmoji({ e: '🎉', x: 50, y: 50, s: 12, z: 15 }); refreshLimits(); update(); });
 $('emo-x').addEventListener('click', () => $('emo').close());
 S.emojis.forEach(em => {
@@ -578,7 +615,7 @@ S.emojis.forEach(em => {
 $('plan').addEventListener('change', e => {            // Nézet: admin = minden, ingyenes / fizetős = a felhasználó látványa
     plan = e.target.value;
     document.querySelectorAll('#text-list select[id^="f"]').forEach(sel => fillFont(sel));
-    fillEffect(); fillMed(); refreshLimits(); update();
+    fillEffect(); fillMed(); refreshLimits(); fillTpl(); $('lockhint').hidden = plan !== 'free'; update();
 });
 } catch (err) { console.error(err); flash('Indítási hiba: ' + err.message + ' – frissíts erővel (Ctrl+F5), és ellenőrizd a feltöltött fájlokat.'); }
 </script>
