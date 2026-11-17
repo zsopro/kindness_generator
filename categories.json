@@ -1,6 +1,78 @@
 {
-  "categories": {
-    "Ünnepek": ["Karácsony", "Húsvét", "Ballagás", "Születésnap", "Névnap"],
-    "Névjegy": ["Céges", "Magán"]
-  }
+  "categories": [
+    {
+      "id": "unnepek",
+      "label": {
+        "hu": "Ünnepek",
+        "en": "Holidays"
+      },
+      "icon": "🎉",
+      "items": [
+        {
+          "id": "karacsony",
+          "label": {
+            "hu": "Karácsony",
+            "en": "Christmas"
+          },
+          "icon": "🎄"
+        },
+        {
+          "id": "husvet",
+          "label": {
+            "hu": "Húsvét",
+            "en": "Easter"
+          },
+          "icon": "🐣"
+        },
+        {
+          "id": "ballagas",
+          "label": {
+            "hu": "Ballagás",
+            "en": "Graduation"
+          },
+          "icon": "🎓"
+        },
+        {
+          "id": "szuletesnap",
+          "label": {
+            "hu": "Születésnap",
+            "en": "Birthday"
+          },
+          "icon": "🎂"
+        },
+        {
+          "id": "nevnap",
+          "label": {
+            "hu": "Névnap",
+            "en": "Name day"
+          },
+          "icon": "🌸"
+        }
+      ]
+    },
+    {
+      "id": "nevjegy",
+      "label": {
+        "hu": "Névjegy",
+        "en": "Business card"
+      },
+      "icon": "🪪",
+      "items": [
+        {
+          "id": "ceges",
+          "label": {
+            "hu": "Céges",
+            "en": "Business"
+          }
+        },
+        {
+          "id": "magan",
+          "label": {
+            "hu": "Magán",
+            "en": "Personal"
+          }
+        }
+      ]
+    }
+  ]
 }
