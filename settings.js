@@ -7,8 +7,8 @@ const P = (id, label, icon, tier = 'free', enabled = true) => ({ id, label, icon
 export const DEFAULTS = {
     schemaVersion: 1,
     limits: {                                   // null vagy üres = korlátlan
-        free: { texts: 5, images: 2, emojis: 3 },
-        paid: { texts: 30, images: 20, emojis: 20 }
+        free: { texts: 5, images: 2, emojis: 3, projects: 3, colors: 3, logos: 1, photos: 3, audio: 1, fonts: 2, icons: 8 },
+        paid: { texts: 30, images: 20, emojis: 20, projects: 100, colors: 30, logos: 20, photos: 50, audio: 10, fonts: 20, icons: 60 }
     },
     fonts: [F('Orbitron'), F('Exo 2'), F('Russo One'), F('Cinzel'),
         F('Great Vibes', 'paid'), F('Permanent Marker', 'paid'), F('Special Elite', 'paid'), F('Pacifico', 'paid'),
