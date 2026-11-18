@@ -13,7 +13,7 @@
     table { width: 100%; border-collapse: collapse; font-size: .8rem; } th { text-align: left; color: #888; font-weight: normal; }
     td, th { padding: 3px 4px; }
     input, select, textarea { background: #333; border: 1px solid #444; color: #fff; padding: 5px; box-sizing: border-box; width: 100%; font-size: .8rem; }
-    input[type=checkbox] { width: auto; } input[type=number] { width: 80px; }
+    input[type=checkbox] { width: auto; } input[type=number] { width: 64px; }
     button, .btn { background: #28a745; color: #fff; border: 0; border-radius: 4px; padding: 9px 14px; cursor: pointer; font-weight: bold; font-size: .75rem; text-decoration: none; display: inline-block; }
     .bar { display: flex; gap: 8px; flex-wrap: wrap; margin: 22px 0; align-items: center; }
     .gray { background: #555; } .red { background: #dc3545; } .hint { color: #888; font-size: .7rem; }
@@ -59,8 +59,8 @@ function fontRow(f) {
     return `<tr data-row><td><input data-k="id" value="${esc(f.id)}" aria-label="Google Fonts név"></td><td><input data-k="label" value="${esc(f.label)}" aria-label="Megjelenő név"></td><td>${tier(f.tier)}</td><td>${chk(f.enabled)}</td><td><button type="button" class="red" data-del aria-label="Törlés">✕</button></td></tr>`;
 }
 function render() {
-    $('lim').innerHTML = '<tr><th></th><th>Szövegek</th><th>Képek</th><th>Emojik</th></tr>' + ['free', 'paid'].map(p =>
-        `<tr data-p="${p}"><td>${p === 'free' ? 'Ingyenes' : 'Fizetős'}</td>${['texts', 'images', 'emojis'].map(t =>
+    $('lim').innerHTML = '<tr><th></th><th>Szövegek</th><th>Képek</th><th>Emojik</th><th>Projektek</th><th>Színek</th><th>Logók</th><th>Fotók</th><th>Hangok</th><th>Betűtípusok</th><th>Ikonok</th></tr>' + ['free', 'paid'].map(p =>
+        `<tr data-p="${p}"><td>${p === 'free' ? 'Ingyenes' : 'Fizetős'}</td>${['texts', 'images', 'emojis', 'projects', 'colors', 'logos', 'photos', 'audio', 'fonts', 'icons'].map(t =>
             `<td><input type="number" min="0" data-t="${t}" value="${esc(S.limits?.[p]?.[t] ?? '')}" placeholder="∞"></td>`).join('')}</tr>`).join('');
     $('fonts').innerHTML = '<tr><th>Azonosító</th><th>Felirat</th><th>Csomag</th><th>Aktív</th><th></th></tr>' + S.fonts.map(fontRow).join('');
     $('fx').innerHTML = '<tr><th>Azonosító</th><th>Felirat</th><th>Ikon</th><th>Csomag</th><th>Aktív</th></tr>' + S.effects.map(e =>
