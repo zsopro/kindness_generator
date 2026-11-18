@@ -962,6 +962,736 @@
       "key": "kartya",
       "hu": "Kártya",
       "en": "Card"
+    },
+    {
+      "key": "uj_mappa",
+      "hu": "+ Új mappa",
+      "en": "+ New folder"
+    },
+    {
+      "key": "1_lepes",
+      "hu": "1. LÉPÉS",
+      "en": "STEP 1"
+    },
+    {
+      "key": "2_lepes",
+      "hu": "2. LÉPÉS",
+      "en": "STEP 2"
+    },
+    {
+      "key": "3_lepes",
+      "hu": "3. LÉPÉS",
+      "en": "STEP 3"
+    },
+    {
+      "key": "a_jogosultsagi_nyilatkozat_nelkul_a_fajl_nem_has",
+      "hu": "A jogosultsági nyilatkozat nélkül a fájl nem használható.",
+      "en": "The file cannot be used without the rights declaration."
+    },
+    {
+      "key": "a_kuka_ures",
+      "hu": "A kuka üres.",
+      "en": "The trash is empty."
+    },
+    {
+      "key": "a_link_tul_hosszu_a_qr_kodhoz_hasznalj_rovidebb_",
+      "hu": "A link túl hosszú a QR-kódhoz. Használj rövidebb linket.",
+      "en": "The link is too long for a QR code. Use a shorter link."
+    },
+    {
+      "key": "a_link_x_bajt_kb_y_bajt_az_nfc_rekordban_hosszu_",
+      "hu": "A link {x} bájt (kb. {y} bájt az NFC-rekordban). Hosszú linkhez rövidlink ajánlott.",
+      "en": "The link is {x} bytes (about {y} bytes in the NFC record). A short link is recommended for long links."
+    },
+    {
+      "key": "a_qr_kod_letrehozasahoz_internetkapcsolat_kell",
+      "hu": "A QR-kód létrehozásához internetkapcsolat kell.",
+      "en": "An internet connection is needed to create the QR code."
+    },
+    {
+      "key": "adj_hozza_szoveget_kepet_emojit_videot_vagy_zene",
+      "hu": "Adj hozzá szöveget, képet, emojit, videót vagy zenét a bal oldali eszköztárból.",
+      "en": "Add text, images, emojis, video or music from the toolbar on the left."
+    },
+    {
+      "key": "ai_tervezo_2",
+      "hu": "AI tervező",
+      "en": "AI designer"
+    },
+    {
+      "key": "aktualis_kartya_a_szerkesztoben",
+      "hu": "Aktuális kártya a szerkesztőben",
+      "en": "Current card in the editor"
+    },
+    {
+      "key": "arculat",
+      "hu": "Arculat",
+      "en": "Brand"
+    },
+    {
+      "key": "arculati_betutipusok",
+      "hu": "Arculati betűtípusok",
+      "en": "Brand fonts"
+    },
+    {
+      "key": "arculati_csomag",
+      "hu": "Arculati csomag",
+      "en": "Brand kit"
+    },
+    {
+      "key": "arculati_hang_beallitva",
+      "hu": "Arculati hang beállítva.",
+      "en": "Brand audio set."
+    },
+    {
+      "key": "arculati_hangok",
+      "hu": "Arculati hangok",
+      "en": "Brand audio"
+    },
+    {
+      "key": "arculati_ikonok",
+      "hu": "Arculati ikonok",
+      "en": "Brand icons"
+    },
+    {
+      "key": "arculati_szinek",
+      "hu": "Arculati színek",
+      "en": "Brand colors"
+    },
+    {
+      "key": "az_arculat_oldalon_mentett_szineid_betutipusaid_",
+      "hu": "Az Arculat oldalon mentett színeid, betűtípusaid és logóid egy kattintással beilleszthetők.",
+      "en": "On the Brand page, your saved colors, fonts and logos can be inserted with one click."
+    },
+    {
+      "key": "az_arculati_csomagban_egy_helyen_keszitheted_elo",
+      "hu": "Az arculati csomagban egy helyen készítheted elő a logóidat, színeidet, betűtípusaidat és hangjaidat, és egy kattintással beillesztheted őket a kártyáidba.",
+      "en": "In the brand kit you can prepare your logos, colors, fonts and sounds in one place, and insert them into your cards with one click."
+    },
+    {
+      "key": "az_nfc_chip_megirva",
+      "hu": "Az NFC-chip megírva.",
+      "en": "The NFC chip has been written."
+    },
+    {
+      "key": "az_nfc_iras_nem_sikerult",
+      "hu": "Az NFC-írás nem sikerült.",
+      "en": "NFC writing failed."
+    },
+    {
+      "key": "betutipusok",
+      "hu": "Betűtípusok",
+      "en": "Fonts"
+    },
+    {
+      "key": "barmire_rakereshetsz",
+      "hu": "Bármire rákereshetsz",
+      "en": "You can search for anything"
+    },
+    {
+      "key": "chip",
+      "hu": "Chip",
+      "en": "Chip"
+    },
+    {
+      "key": "csomagok",
+      "hu": "Csomagok",
+      "en": "Plans"
+    },
+    {
+      "key": "csomagok_korlatok_betutipusok_es_effektek_kezele",
+      "hu": "Csomagok, korlátok, betűtípusok és effektek kezelése.",
+      "en": "Manage plans, limits, fonts and effects."
+    },
+    {
+      "key": "dream_lab",
+      "hu": "Dream Lab",
+      "en": "Dream Lab"
+    },
+    {
+      "key": "egy_kattintassal_elkeszul_a_qr_kod_es_kiderul_me",
+      "hu": "Egy kattintással elkészül a QR-kód, és kiderül, melyik NFC-chipre fér rá a link.",
+      "en": "With one click the QR code is created, and you see which NFC chip the link fits on."
+    },
+    {
+      "key": "egyeb",
+      "hu": "Egyéb",
+      "en": "More"
+    },
+    {
+      "key": "elegans",
+      "hu": "Elegáns",
+      "en": "Elegant"
+    },
+    {
+      "key": "elerted_a_csomag_korlatjat_nem_adhato_hozza_tobb",
+      "hu": "Elérted a csomag korlátját, nem adható hozzá több.",
+      "en": "You have reached your plan's limit, no more can be added."
+    },
+    {
+      "key": "elerted_a_csomag_korlatjat_nem_mentheto_tobb_pro",
+      "hu": "Elérted a csomag korlátját, nem menthető több projekt.",
+      "en": "You have reached your plan's limit, no more projects can be saved."
+    },
+    {
+      "key": "fiok_es_beallitasok",
+      "hu": "Fiók és beállítások",
+      "en": "Account and settings"
+    },
+    {
+      "key": "fotok",
+      "hu": "Fotók",
+      "en": "Photos"
+    },
+    {
+      "key": "futurisztikus",
+      "hu": "Futurisztikus",
+      "en": "Futuristic"
+    },
+    {
+      "key": "fajl_cime_https_mp3_m4a_ogg_wav",
+      "hu": "Fájl címe (https, .mp3 .m4a .ogg .wav)",
+      "en": "File address (https, .mp3 .m4a .ogg .wav)"
+    },
+    {
+      "key": "fo_navigacio",
+      "hu": "Fő navigáció",
+      "en": "Main navigation"
+    },
+    {
+      "key": "gyors_otlet_keszult_szabaly_alapu_ai_szerver_nel",
+      "hu": "Gyors ötlet készült (szabály alapú, AI-szerver nélkül). Szabadon módosíthatod.",
+      "en": "A quick idea was created (rule-based, without an AI server). You can edit it freely."
+    },
+    {
+      "key": "gyorsbillentyuk_ctrl_c_ctrl_x_ctrl_v_delete_nyil",
+      "hu": "Gyorsbillentyűk: Ctrl+C, Ctrl+X, Ctrl+V, Delete, nyilak.",
+      "en": "Shortcuts: Ctrl+C, Ctrl+X, Ctrl+V, Delete, arrow keys."
+    },
+    {
+      "key": "hang",
+      "hu": "Hang",
+      "en": "Audio"
+    },
+    {
+      "key": "hangok",
+      "hu": "Hangok",
+      "en": "Sounds"
+    },
+    {
+      "key": "hozzaadas",
+      "hu": "Hozzáadás",
+      "en": "Add"
+    },
+    {
+      "key": "ikonok",
+      "hu": "Ikonok",
+      "en": "Icons"
+    },
+    {
+      "key": "itt_meg_nincs_semmi",
+      "hu": "Itt még nincs semmi.",
+      "en": "There is nothing here yet."
+    },
+    {
+      "key": "jelolj_ki_egy_szoveget_az_elonezetben",
+      "hu": "Jelölj ki egy szöveget az előnézetben.",
+      "en": "Select a text in the preview first."
+    },
+    {
+      "key": "kattints_egy_elemre_az_elonezetben_es_huzassal_m",
+      "hu": "Kattints egy elemre az előnézetben, és húzással mozgasd, méretezd, forgasd.",
+      "en": "Click an element in the preview, then drag it to move, resize and rotate it."
+    },
+    {
+      "key": "kb_hasznos_hely",
+      "hu": "Kb. hasznos hely",
+      "en": "Approx. usable space"
+    },
+    {
+      "key": "kereses_a_sablonok_kozott",
+      "hu": "Keresés a sablonok között",
+      "en": "Search among templates"
+    },
+    {
+      "key": "kezdes_x_ingyenes_szinnel",
+      "hu": "Kezdés {x} ingyenes színnel",
+      "en": "Start with {x} free colors"
+    },
+    {
+      "key": "kezdolap",
+      "hu": "Kezdőlap",
+      "en": "Home"
+    },
+    {
+      "key": "kiemelt_lehetosegek",
+      "hu": "Kiemelt lehetőségek",
+      "en": "Featured options"
+    },
+    {
+      "key": "kuka",
+      "hu": "Kuka",
+      "en": "Trash"
+    },
+    {
+      "key": "kartya_kivalasztasa",
+      "hu": "Kártya kiválasztása",
+      "en": "Choose a card"
+    },
+    {
+      "key": "kep_cime_https",
+      "hu": "Kép címe (https://…)",
+      "en": "Image address (https://…)"
+    },
+    {
+      "key": "keparany",
+      "hu": "Képarány",
+      "en": "Aspect ratio"
+    },
+    {
+      "key": "keszul",
+      "hu": "Készül…",
+      "en": "Working…"
+    },
+    {
+      "key": "legutobbi_otletek",
+      "hu": "Legutóbbi ötletek",
+      "en": "Recent ideas"
+    },
+    {
+      "key": "legutobbiak",
+      "hu": "Legutóbbiak",
+      "en": "Recent"
+    },
+    {
+      "key": "logok",
+      "hu": "Logók",
+      "en": "Logos"
+    },
+    {
+      "key": "letrehozas",
+      "hu": "Létrehozás",
+      "en": "Create"
+    },
+    {
+      "key": "ma_mit_fogsz_tervezni",
+      "hu": "Ma mit fogsz tervezni?",
+      "en": "What will you design today?"
+    },
+    {
+      "key": "mappa_neve",
+      "hu": "Mappa neve:",
+      "en": "Folder name:"
+    },
+    {
+      "key": "mappaba",
+      "hu": "Mappába",
+      "en": "Move to folder"
+    },
+    {
+      "key": "melyik_kartyahoz",
+      "hu": "Melyik kártyához?",
+      "en": "Which card?"
+    },
+    {
+      "key": "mentsd_el_a_kartyat_a_projektek_koze_majd_a_nyom",
+      "hu": "Mentsd el a kártyát a Projektek közé, majd a Nyomdában készíts belőle QR-kódot vagy NFC-linket.",
+      "en": "Save the card among your Projects, then create a QR code or NFC link from it in Print."
+    },
+    {
+      "key": "minden_projekt",
+      "hu": "Minden projekt",
+      "en": "All projects"
+    },
+    {
+      "key": "minden_tervedben_eletre_kelthetsz_az_arculatodat",
+      "hu": "Minden tervedben életre kelthetsz az arculatodat",
+      "en": "Bring your brand to life in all your designs"
+    },
+    {
+      "key": "mit_tartalmaz_az_ingyenes_es_a_fizetos_csomag",
+      "hu": "Mit tartalmaz az ingyenes és a fizetős csomag?",
+      "en": "What do the free and paid plans include?"
+    },
+    {
+      "key": "masolas",
+      "hu": "Másolás",
+      "en": "Copy"
+    },
+    {
+      "key": "meg_nincs_elem_add_hozza_az_elsot",
+      "hu": "Még nincs elem. Add hozzá az elsőt!",
+      "en": "No items yet. Add the first one!"
+    },
+    {
+      "key": "meg_nincs_mentett_projekted_hozz_letre_egy_karty",
+      "hu": "Még nincs mentett projekted. Hozz létre egy kártyát, és mentsd el!",
+      "en": "You have no saved projects yet. Create a card and save it!"
+    },
+    {
+      "key": "meg_nincs_otlet_ird_le_az_elsot",
+      "hu": "Még nincs ötlet. Írd le az elsőt!",
+      "en": "No ideas yet. Describe the first one!"
+    },
+    {
+      "key": "modositva_x",
+      "hu": "Módosítva: {x}",
+      "en": "Modified: {x}"
+    },
+    {
+      "key": "modositas_datuma_regi_elol",
+      "hu": "Módosítás dátuma (régi elöl)",
+      "en": "Date modified (oldest first)"
+    },
+    {
+      "key": "modositas_datuma_uj_elol",
+      "hu": "Módosítás dátuma (új elöl)",
+      "en": "Date modified (newest first)"
+    },
+    {
+      "key": "navigacio_szukitese",
+      "hu": "Navigáció szűkítése",
+      "en": "Collapse navigation"
+    },
+    {
+      "key": "nfc_chip_kivalasztasa",
+      "hu": "NFC-chip kiválasztása",
+      "en": "Choose an NFC chip"
+    },
+    {
+      "key": "nincs_mappa",
+      "hu": "Nincs mappa",
+      "en": "No folder"
+    },
+    {
+      "key": "nincs_talalat",
+      "hu": "Nincs találat.",
+      "en": "No results."
+    },
+    {
+      "key": "nincs_uj_ertesites",
+      "hu": "Nincs új értesítés.",
+      "en": "No new notifications."
+    },
+    {
+      "key": "nyelv_es_nezet",
+      "hu": "Nyelv és nézet",
+      "en": "Language and view"
+    },
+    {
+      "key": "nyomda",
+      "hu": "Nyomda",
+      "en": "Print"
+    },
+    {
+      "key": "nyomtatas_vagy_iras_chipre",
+      "hu": "Nyomtatás vagy írás chipre",
+      "en": "Print or write to a chip"
+    },
+    {
+      "key": "nepszeru_sablonok",
+      "hu": "Népszerű sablonok",
+      "en": "Popular templates"
+    },
+    {
+      "key": "nev",
+      "hu": "Név",
+      "en": "Name"
+    },
+    {
+      "key": "nev_a_z",
+      "hu": "Név (A–Z)",
+      "en": "Name (A–Z)"
+    },
+    {
+      "key": "nevjegy",
+      "hu": "Névjegy",
+      "en": "Business card"
+    },
+    {
+      "key": "nevtelen_kartya",
+      "hu": "Névtelen kártya",
+      "en": "Untitled card"
+    },
+    {
+      "key": "png_letoltese",
+      "hu": "PNG letöltése",
+      "en": "Download PNG"
+    },
+    {
+      "key": "projekt_elmentve",
+      "hu": "Projekt elmentve.",
+      "en": "Project saved."
+    },
+    {
+      "key": "projekt_neve",
+      "hu": "Projekt neve",
+      "en": "Project name"
+    },
+    {
+      "key": "projektek",
+      "hu": "Projektek",
+      "en": "Projects"
+    },
+    {
+      "key": "projektek_keresese",
+      "hu": "Projektek keresése",
+      "en": "Search projects"
+    },
+    {
+      "key": "qr_kod_es_nfc_link",
+      "hu": "QR-kód és NFC-link",
+      "en": "QR code and NFC link"
+    },
+    {
+      "key": "retro",
+      "hu": "Retro",
+      "en": "Retro"
+    },
+    {
+      "key": "romantikus",
+      "hu": "Romantikus",
+      "en": "Romantic"
+    },
+    {
+      "key": "sablonkategoriak_bongeszese",
+      "hu": "Sablonkategóriák böngészése",
+      "en": "Browse template categories"
+    },
+    {
+      "key": "stilus",
+      "hu": "Stílus",
+      "en": "Style"
+    },
+    {
+      "key": "svg_letoltese",
+      "hu": "SVG letöltése",
+      "en": "Download SVG"
+    },
+    {
+      "key": "szerkeszto",
+      "hu": "Szerkesztő",
+      "en": "Editor"
+    },
+    {
+      "key": "sugo",
+      "hu": "Súgó",
+      "en": "Help"
+    },
+    {
+      "key": "tanulokozpont",
+      "hu": "Tanulóközpont",
+      "en": "Learning center"
+    },
+    {
+      "key": "tartsd_az_nfc_chipet_a_telefon_hatuljahoz",
+      "hu": "Tartsd az NFC-chipet a telefon hátuljához…",
+      "en": "Hold the NFC chip to the back of your phone…"
+    },
+    {
+      "key": "tervezz_tovabb",
+      "hu": "Tervezz tovább",
+      "en": "Continue designing"
+    },
+    {
+      "key": "tulajdonsagok",
+      "hu": "Tulajdonságok",
+      "en": "Properties"
+    },
+    {
+      "key": "toltsd_le_a_qr_kodot_nyomtasd_ki_vagy_ird_ra_a_l",
+      "hu": "Töltsd le a QR-kódot, nyomtasd ki, vagy írd rá a linket az NFC-chipre.",
+      "en": "Download the QR code, print it, or write the link to the NFC chip."
+    },
+    {
+      "key": "vidam",
+      "hu": "Vidám",
+      "en": "Playful"
+    },
+    {
+      "key": "visszaallitas",
+      "hu": "Visszaállítás",
+      "en": "Restore"
+    },
+    {
+      "key": "valassz_sablont_a_sablonok_oldalon_vagy_kezdj_ur",
+      "hu": "Válassz sablont a Sablonok oldalon, vagy kezdj üres kártyával.",
+      "en": "Choose a template on the Templates page, or start with a blank card."
+    },
+    {
+      "key": "valaszd_ki_a_szerkesztoben_levo_vagy_egy_mentett",
+      "hu": "Válaszd ki a szerkesztőben lévő vagy egy mentett kártyádat.",
+      "en": "Pick the card from the editor or one of your saved cards."
+    },
+    {
+      "key": "vegleges_torles",
+      "hu": "Végleges törlés",
+      "en": "Delete permanently"
+    },
+    {
+      "key": "x_masolat",
+      "hu": "{x} (másolat)",
+      "en": "{x} (copy)"
+    },
+    {
+      "key": "atnevezes",
+      "hu": "Átnevezés",
+      "en": "Rename"
+    },
+    {
+      "key": "ertesitesek",
+      "hu": "Értesítések",
+      "en": "Notifications"
+    },
+    {
+      "key": "igy_mukodik",
+      "hu": "Így működik",
+      "en": "How it works"
+    },
+    {
+      "key": "igy_tervezhetsz_kartyat_lepesrol_lepesre",
+      "hu": "Így tervezhetsz kártyát lépésről lépésre.",
+      "en": "This is how you design a card step by step."
+    },
+    {
+      "key": "ird_le_az_elkepzelt_kartyat_en_pedig_eletre_kelt",
+      "hu": "Írd le az elképzelt kártyát, én pedig életre keltem",
+      "en": "Describe the card you imagine, and I will bring it to life"
+    },
+    {
+      "key": "osszes_megtekintese",
+      "hu": "Összes megtekintése",
+      "en": "View all"
+    },
+    {
+      "key": "osszes_sablon_x",
+      "hu": "Összes sablon: {x}",
+      "en": "All templates: {x}"
+    },
+    {
+      "key": "uj_nev",
+      "hu": "Új név:",
+      "en": "New name:"
+    },
+    {
+      "key": "udvozol_a_nyomda",
+      "hu": "Üdvözöl a Nyomda",
+      "en": "Welcome to Print"
+    },
+    {
+      "key": "unnepek",
+      "hu": "Ünnepek",
+      "en": "Holidays"
+    },
+    {
+      "key": "unnepi",
+      "hu": "Ünnepi",
+      "en": "Festive"
+    },
+    {
+      "key": "ures_kartya_2",
+      "hu": "Üres kártya",
+      "en": "Blank card"
+    },
+    {
+      "key": "ragyogo_effektek_minden_alkalomra",
+      "hu": "✨ Ragyogó effektek minden alkalomra",
+      "en": "✨ Brilliant effects for every occasion"
+    },
+    {
+      "key": "szinek",
+      "hu": "🎨 Színek",
+      "en": "🎨 Colors"
+    },
+    {
+      "key": "arculati_hang",
+      "hu": "🎵 Arculati hang",
+      "en": "🎵 Brand audio"
+    },
+    {
+      "key": "a_sajat_arculatod_minden_kartyan",
+      "hu": "🏷️ A saját arculatod minden kártyán",
+      "en": "🏷️ Your own brand on every card"
+    },
+    {
+      "key": "logok_2",
+      "hu": "🏷️ Logók",
+      "en": "🏷️ Logos"
+    },
+    {
+      "key": "elofizetes",
+      "hu": "👑 Előfizetés",
+      "en": "👑 Subscribe"
+    },
+    {
+      "key": "elofizetes_hamarosan",
+      "hu": "👑 Előfizetés (hamarosan)",
+      "en": "👑 Subscribe (coming soon)"
+    },
+    {
+      "key": "mentes_2",
+      "hu": "💾 Mentés",
+      "en": "💾 Save"
+    },
+    {
+      "key": "qr_kod_es_nfc_chip_a_kartyadhoz",
+      "hu": "📲 QR-kód és NFC-chip a kártyádhoz",
+      "en": "📲 QR code and NFC chip for your card"
+    },
+    {
+      "key": "iras_nfc_chipre",
+      "hu": "📲 Írás NFC chipre",
+      "en": "📲 Write to NFC chip"
+    },
+    {
+      "key": "fizetos_betutipusok",
+      "hu": "🔒 Fizetős betűtípusok",
+      "en": "🔒 Paid fonts"
+    },
+    {
+      "key": "fizetos_effektek",
+      "hu": "🔒 Fizetős effektek",
+      "en": "🔒 Paid effects"
+    },
+    {
+      "key": "fizetos_mediaforrasok",
+      "hu": "🔒 Fizetős médiaforrások",
+      "en": "🔒 Paid media sources"
+    },
+    {
+      "key": "betutipus_3",
+      "hu": "🔤 Betűtípus",
+      "en": "🔤 Font"
+    },
+    {
+      "key": "legutobbiak_2",
+      "hu": "🕘 Legutóbbiak",
+      "en": "🕘 Recent"
+    },
+    {
+      "key": "nyomtatas",
+      "hu": "🖨️ Nyomtatás",
+      "en": "🖨️ Print"
+    },
+    {
+      "key": "fotok_2",
+      "hu": "🖼️ Fotók",
+      "en": "🖼️ Photos"
+    },
+    {
+      "key": "minden_projekt_2",
+      "hu": "🗂 Minden projekt",
+      "en": "🗂 All projects"
+    },
+    {
+      "key": "kuka_2",
+      "hu": "🗑 Kuka",
+      "en": "🗑 Trash"
+    },
+    {
+      "key": "ikonok_2",
+      "hu": "😀 Ikonok",
+      "en": "😀 Icons"
     }
   ]
 }
