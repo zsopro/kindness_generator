@@ -6,107 +6,72 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="data:,">
 <title>NEO Admin</title>
-<style>
-    :root { --neon: #0f0; }
-    body { margin: 0; display: flex; height: 100dvh; background: #000; color: #fff; font-family: sans-serif; }
-    .sidebar { width: 380px; max-width: 100%; background: #1a1a1a; border-right: 2px solid #333; overflow-y: auto; }
-    .preview-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-around; background: #080808; padding: 10px; box-sizing: border-box; min-height: 0; }
-    .accordion-header { width: 100%; padding: 15px; background: #222; color: #fff; border: 0; border-bottom: 1px solid #333; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; font-size: .8rem; }
-    .accordion-content { padding: 12px; display: none; background: #151515; }
-    .accordion-content.active { display: block; }
-    .live-toggle { width: calc(100% - 20px); margin: 10px; background: #444; color: #fff; padding: 12px; font-weight: bold; cursor: pointer; border: 0; border-radius: 5px; }
-    .live-toggle.on { background: var(--neon); color: #000; }
-    .control-bar { padding: 10px; display: flex; flex-wrap: wrap; gap: 5px; background: #222; }
-    .btn { flex: 1 1 45%; padding: 10px; border: 0; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: .7rem; color: #fff; }
-    .b-blue { background: #007bff; } .b-yel { background: #ffc107; color: #000; } .b-pur { background: #6f42c1; } .b-grn { background: #28a745; } .b-red { background: #dc3545; }
-    .btn-add { width: 100%; margin-top: 8px; }
-    label { display: block; font-size: .65rem; margin-bottom: 6px; color: #bbb; flex: 1; }
-    .row { display: flex; gap: 5px; }
-    .view-grid { display: flex; gap: 5px; margin-top: 6px; border: 1px dashed #444; padding: 5px; }
-    .view-section { flex: 1; } .view-section h6 { margin: 0 0 5px; font-size: .6rem; color: #888; }
-    .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
-    input, select, textarea { background: #333; border: 1px solid #444; color: #fff; padding: 5px; font-size: .75rem; width: 100%; box-sizing: border-box; }
-    input[type=color] { padding: 0; height: 28px; }
-    .group { padding: 12px 10px; border: 1px solid #333; background: #1d1d1d; margin-bottom: 8px; position: relative; }
-    .rm { position: absolute; right: 5px; top: 5px; background: #dc3545; color: #fff; border: 0; border-radius: 3px; cursor: pointer; padding: 3px 8px; font-size: .7rem; }
-    .hint { font-size: .6rem; color: #888; margin: 6px 0 0; }
-    .emo { font-size: 1.4rem; background: #333; border: 0; cursor: pointer; padding: 4px; border-radius: 4px; }
-    #emo-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; max-width: 360px; margin-bottom: 10px; }
-    label.chk { display: flex; align-items: center; gap: 6px; } input[type=checkbox] { width: auto; }
-    .legal { border-left: 3px solid #ffc107; padding-left: 8px; margin: 8px 0; line-height: 1.4; }
-    option:disabled { color: #777; text-decoration: line-through; }
-    dialog { background: #1a1a1a; color: #fff; border: 1px solid #444; border-radius: 8px; }
-    dialog::backdrop { background: rgba(0,0,0,.7); }
-    [hidden] { display: none !important; }
-    .rail { width: 64px; flex-shrink: 0; background: #0d0d0d; display: flex; flex-direction: column; border-right: 1px solid #333; }
-    .rail button, .rail a { background: none; border: 0; color: #aaa; padding: 12px 4px; cursor: pointer; font-size: 1.3rem; display: flex; flex-direction: column; align-items: center; text-decoration: none; min-width: 60px; }
-    .rail span { font-size: .55rem; margin-top: 2px; } .rail .on { color: #0f0; background: #1a1a1a; }
-    .sec { display: none; } .sec.on { display: block; } .accordion-header { display: none !important; }
-    h3 { font-size: .85rem; color: #0f0; margin: 14px 0 8px; }
-    #chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-    .chip { background: #333; color: #fff; border: 0; border-radius: 14px; padding: 5px 10px; font-size: .7rem; cursor: pointer; } .chip.on { background: #0f0; color: #000; }
-    #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; max-height: 68vh; overflow-y: auto; }
-    .thumb { position: relative; width: 110px; height: 196px; overflow: hidden; border-radius: 6px; border: 1px solid #444; background: #000; cursor: pointer; padding: 0; }
-    .thumb iframe { width: 360px; height: 640px; transform: scale(.3056); transform-origin: 0 0; border: 0; pointer-events: none; }
-    .thumb.paid { opacity: .6; } .thumb .lock { position: absolute; top: 4px; right: 4px; font-size: .9rem; background: rgba(0,0,0,.75); border-radius: 4px; padding: 1px 4px; z-index: 2; }
-    .thumb b { position: absolute; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.72); font-size: .6rem; padding: 3px; color: #fff; text-align: left; }
-    #ai-log { max-height: 260px; overflow-y: auto; font-size: .75rem; margin: 8px 0; }
-    .ai-u, .ai-a { padding: 6px 8px; margin: 4px 0; border-radius: 6px; white-space: pre-wrap; } .ai-u { background: #2a2a2a; } .ai-a { background: #12351a; }
-    .group.selected { outline: 2px solid #0af; }
-    .tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; font-size: .7rem; max-width: 100%; }
-    .tools button { background: #333; color: #fff; border: 0; border-radius: 4px; padding: 6px 10px; cursor: pointer; font-size: .8rem; } .tools button:disabled { opacity: .35; cursor: default; }
-    #tsel { min-width: 110px; color: #0af; text-align: center; }
-    .btn:disabled { opacity: .5; text-decoration: line-through; cursor: default; }
-    :focus-visible { outline: 2px solid var(--neon); outline-offset: 1px; }
-    .preview-container { border: 5px solid #333; border-radius: 10px; overflow: hidden; background: #000; max-width: 100%; }
-    .p-port { height: min(560px, 60vh); aspect-ratio: 9 / 16; } .p-land { height: min(190px, 24vh); aspect-ratio: 16 / 9; }
-    iframe { width: 100%; height: 100%; border: 0; }
-    @media (max-width: 800px) { .rail { flex-direction: row; width: 100%; overflow-x: auto; flex-shrink: 0; } body { flex-direction: column; overflow: auto; height: auto; } .sidebar { width: 100%; overflow: visible; } .preview-area { gap: 12px; } .p-port { height: 60vh; } .p-land { height: 35vh; } }
-</style>
 <script>
     setTimeout(() => {
-        if (!window.__adminOk) { const m = document.getElementById('msg'); if (m) m.textContent = 'A szerkesztő nem indult el. Frissíts erővel (Ctrl+F5), és ellenőrizd, hogy az admin.html, url-handler.js, transform-module.js, settings.js, i18n.js és github.js is fel van töltve.'; }
+        if (!window.__adminOk) { const m = document.getElementById('toast'); if (m) { m.hidden = false; m.textContent = 'A szerkesztő nem indult el. Frissíts erővel (Ctrl+F5), és ellenőrizd, hogy az admin.html, url-handler.js, transform-module.js, settings.js, i18n.js, github.js és studio.js is fel van töltve.'; } }
     }, 2500);
 </script>
+<link rel="stylesheet" href="studio.css">
 </head>
-<body>
-<nav class="rail" id="rail" aria-label="Eszközök">
-    <button type="button" data-t="tpl" class="on">🎨<span>Sablonok</span></button>
-    <button type="button" data-t="text">🔤<span>Szöveg</span></button>
-    <button type="button" data-t="image">🖼️<span>Kép</span></button>
-    <button type="button" data-t="emoji">😀<span>Emoji</span></button>
-    <button type="button" data-t="media">🎬<span>Média</span></button>
-    <button type="button" data-t="ai">✨<span>AI</span></button>
-    <a href="settings.html">⚙<span>Beáll.</span></a>
-</nav>
-<div class="sidebar" id="side">
-    <div style="padding:10px 10px 0" class="row"><label>Nézet (csomag előnézete)<select id="plan"><option value="admin">Admin (minden)</option><option value="free">Ingyenes</option><option value="paid">Fizetős</option></select></label>
-        <label>Nyelv<select id="lang"></select></label></div>
-    <div id="msg" class="hint" style="padding:4px 12px;color:#ffc107" role="status"></div>
-    <div id="lockhint" class="hint" hidden style="padding:0 12px 6px">🔒 Az áthúzott, halvány elemek előfizetéssel érhetők el.</div>
-    <button type="button" id="edit-toggle" class="live-toggle on">SZERKESZTŐ MÓD: BE</button>
-    <div class="control-bar">
-        <button type="button" class="btn b-blue" id="b-refresh">🔄 Frissítés</button>
-        <button type="button" class="btn b-yel" id="b-pause">⏸ Szünet</button>
-        <button type="button" class="btn b-pur" id="b-copy">🔗 Link másolása</button>
-        <button type="button" class="btn b-grn" id="b-save">💾 Mentés sablonként</button>
-        <a class="btn b-blue" href="settings.html" style="text-align:center;text-decoration:none">⚙ Beállítások</a>
-    </div>
-
-    <div class="sec on" data-tab="tpl"><div class="accordion-content active"><div id="chips"></div><div id="grid"></div>
+<body data-view="home">
+<div class="stars"></div>
+<div id="app">
+    <nav id="nav" class="glass" aria-label="Fő navigáció">
+        <button type="button" class="nb create" data-v="create"><i>＋</i><span>Létrehozás</span></button>
+        <button type="button" class="nb" data-v="home"><i>🏠</i><span>Kezdőlap</span></button>
+        <button type="button" class="nb" data-v="projects"><i>📁</i><span>Projektek</span></button>
+        <button type="button" class="nb" data-v="templates"><i>🧩</i><span>Sablonok</span></button>
+        <button type="button" class="nb" data-v="brand"><i>🏷️</i><span>Arculat</span><em class="crown">👑</em></button>
+        <button type="button" class="nb" data-v="print"><i>🖨️</i><span>Nyomda</span></button>
+        <button type="button" class="nb" data-v="dream"><i>✨</i><span>Dream Lab</span></button>
+        <button type="button" class="nb" data-v="more"><i>⋯</i><span>Egyéb</span></button>
+        <div class="sp"></div>
+        <button type="button" class="nb" id="nav-collapse" title="Navigáció szűkítése"><i>◧</i></button>
+        <button type="button" class="nb" id="bell" title="Értesítések"><i>🔔</i></button>
+        <button type="button" class="av" id="avatar" title="Fiók és beállítások">N</button>
+    </nav>
+    <main>
+        <header class="top glass">
+            <h1 id="ttitle">Kezdőlap</h1>
+            <input id="pname" class="only-ed" maxlength="60" placeholder="Névtelen kártya" aria-label="Projekt neve">
+            <span class="sp"></span>
+            <button type="button" id="b-copy" class="btn b-blue only-ed">🔗 Link másolása</button>
+            <button type="button" id="b-proj" class="btn b-grn only-ed">💾 Mentés</button>
+            <button type="button" id="b-plans" class="btn b-pur">👑 Előfizetés</button>
+        </header>
+        <section id="view-home" class="view glass on"></section>
+        <section id="view-projects" class="view glass"></section>
+        <section id="view-templates" class="view glass"></section>
+        <section id="view-brand" class="view glass"></section>
+        <section id="view-print" class="view glass"></section>
+        <section id="view-dream" class="view glass"></section>
+        <section id="view-editor" class="view">
+            <div class="ed">
+                <nav class="etabs glass" id="rail" aria-label="Eszközök">
+                    <button type="button" data-t="tpl" class="on">🎨<span>Sablonok</span></button>
+                    <button type="button" data-t="text">🔤<span>Szöveg</span></button>
+                    <button type="button" data-t="image">🖼️<span>Kép</span></button>
+                    <button type="button" data-t="emoji">😀<span>Emoji</span></button>
+                    <button type="button" data-t="media">🎬<span>Média</span></button>
+                    <button type="button" data-t="ai">✨<span>AI</span></button>
+                </nav>
+                <aside class="panel glass" id="side">
+                    <div id="lockhint" class="hint" hidden>🔒 Az áthúzott, halvány elemek előfizetéssel érhetők el.</div>
+                    <div class="sec on" data-tab="tpl"><div class="accordion-content active"><div id="chips"></div><div id="grid"></div>
         <button type="button" id="more" class="chip" hidden style="margin-top:8px;width:100%">Még több ▾</button></div></div>
 
-    <div class="sec" data-tab="text"><div class="accordion-content active"><div id="text-list"></div>
+    <div class="sec" data-tab="text"><div class="accordion-content active"><div id="bs-colors" class="swatches"></div><div id="bs-fonts" class="bsrow"></div><div id="text-list"></div>
             <button type="button" class="btn b-grn btn-add" id="b-addt">+ ÚJ SZÖVEG</button></div></div>
 
-    <div class="sec" data-tab="image"><div class="accordion-content active"><div id="image-list"></div>
+    <div class="sec" data-tab="image"><div class="accordion-content active"><div id="bs-images" class="bsrow"></div><div id="image-list"></div>
             <button type="button" class="btn b-grn btn-add" id="b-addi">+ ÚJ KÉP</button>
             <p class="hint">A fekvő nézet üresen hagyva automatikusan az álló nézetből számolódik.</p></div></div>
 
-    <div class="sec" data-tab="emoji"><div class="accordion-content active"><div id="emoji-list"></div>
+    <div class="sec" data-tab="emoji"><div class="accordion-content active"><div id="bs-icons" class="bsrow"></div><div id="emoji-list"></div>
             <button type="button" class="btn b-grn btn-add" id="b-adde">+ ÚJ EMOJI</button></div></div>
 
     <div class="sec" data-tab="media"><div class="accordion-content active">
+            <div id="bs-audio" class="bsrow"></div>
             <label>Forrás<select id="med"></select></label>
             <input type="hidden" id="mid">
             <div id="mpanel" hidden>
@@ -130,20 +95,50 @@
         <textarea id="ai-prompt" rows="3" maxlength="500" placeholder="Pl.: Romantikus Valentin-napi kártya, sötét háttér, szívek hullanak, „Szeretlek” felirat"></textarea>
         <button type="button" class="btn b-pur btn-add" id="b-ai">✨ Generálás</button>
     </div></div>
-    <p class="hint" style="padding:0 12px 20px">Réteg: nagyobb szám = feljebb (kép alapból 10, szöveg 20, videó 0). A „Mentés sablonként” a GitHub tárolóban lévő templates.json fájlba ment (ha nem sikerül, letölti).</p>
-</div>
-
-<div class="preview-area">
-    <div id="tools" class="tools" role="toolbar" aria-label="Elem műveletek">
-        <span id="tsel">Nincs kijelölt elem</span>
+    
+                </aside>
+                <div class="stage">
+                    <div id="tools" class="tools glass" role="toolbar" aria-label="Elem műveletek">
+                        <span id="tsel">Nincs kijelölt elem</span>
         <button type="button" data-a="copy" title="Másolás (Ctrl+C)">📋</button><button type="button" data-a="cut" title="Kivágás (Ctrl+X)">✂️</button>
         <button type="button" data-a="paste" title="Beillesztés (Ctrl+V)">📥</button><button type="button" data-a="del" title="Törlés (Delete)">🗑</button>
         <button type="button" data-a="front" title="Előrébb">⬆</button><button type="button" data-a="back" title="Hátrébb">⬇</button>
-        <span class="hint" style="flex-basis:100%;text-align:center">Kattints egy elemre az álló előnézetben: húzd mozgatáshoz, a pontokat méretezéshez, a felső kört forgatáshoz (Shift: 15°-os lépés). Fekvő nézet: automatikus.</span>
-    </div>
-    <div class="preview-container p-port"><iframe id="ifr_p" src="index.html" title="Álló előnézet"></iframe></div>
-    <div class="preview-container p-land"><iframe id="ifr_l" src="index.html" title="Fekvő előnézet"></iframe></div>
+        
+                    </div>
+                    <div class="phone"><div class="preview-container p-port"><iframe id="ifr_p" src="index.html" title="Álló előnézet"></iframe></div></div>
+                </div>
+                <aside class="props glass">
+                    <h3>Tulajdonságok</h3>
+                    <button type="button" id="edit-toggle" class="live-toggle on">SZERKESZTŐ MÓD: BE</button>
+                    <div class="row"><button type="button" class="btn b-blue" id="b-refresh">🔄 Frissítés</button><button type="button" class="btn b-yel" id="b-pause">⏸ Szünet</button></div>
+                    <h3>Fekvő előnézet</h3>
+                    <div class="preview-container p-land"><iframe id="ifr_l" src="index.html" title="Fekvő előnézet"></iframe></div>
+                    <button type="button" class="btn b-grn btn-add" id="b-save">💾 Mentés sablonként</button>
+                    <p class="hint">Kattints egy elemre az álló előnézetben: húzd mozgatáshoz, a pontokat méretezéshez, a felső kört forgatáshoz (Shift: 15°-os lépés). Fekvő nézet: automatikus.</p>
+                    <p class="hint">Réteg: nagyobb szám = feljebb (kép alapból 10, szöveg 20, videó 0). A „Mentés sablonként” a GitHub tárolóban lévő templates.json fájlba ment (ha nem sikerül, letölti).</p>
+                </aside>
+            </div>
+        </section>
+    </main>
 </div>
+
+<button type="button" class="help" id="help" title="Súgó">?</button>
+<div id="toast" class="glass" role="status" hidden></div>
+
+<div id="more-menu" class="pop glass" hidden>
+    <a class="mi" href="settings.html"><i>⚙</i><div><b>Beállítások</b><small>Csomagok, korlátok, betűtípusok és effektek kezelése.</small></div></a>
+    <button type="button" class="mi" data-act="plans"><i>💎</i><div><b>Csomagok</b><small>Mit tartalmaz az ingyenes és a fizetős csomag?</small></div></button>
+    <button type="button" class="mi" data-act="learn"><i>🎓</i><div><b>Tanulóközpont</b><small>Így tervezhetsz kártyát lépésről lépésre.</small></div></button>
+    <div class="mi"><i>🌐</i><div style="flex:1"><b>Nyelv és nézet</b>
+        <div class="row" style="margin-top:6px"><select id="lang" aria-label="Nyelv"></select><select id="plan" aria-label="Nézet (csomag előnézete)"><option value="admin">Admin (minden)</option><option value="free">Ingyenes</option><option value="paid">Fizetős</option></select></div></div></div>
+</div>
+<div id="bell-menu" class="pop glass" hidden><div class="mi"><i>🔔</i><div><b>Értesítések</b><small>Nincs új értesítés.</small></div></div></div>
+
+<dialog id="plans"><h2>Csomagok</h2><div id="plans-body"></div>
+    <div class="row" style="margin-top:12px"><button type="button" class="btn b-pur" disabled>👑 Előfizetés (hamarosan)</button><button type="button" class="btn" data-close>Bezár</button></div></dialog>
+<dialog id="learn"><h2>Tanulóközpont</h2>
+    <ol class="mut" style="line-height:1.7"><li>Válassz sablont a Sablonok oldalon, vagy kezdj üres kártyával.</li><li>Kattints egy elemre az előnézetben, és húzással mozgasd, méretezd, forgasd.</li><li>Adj hozzá szöveget, képet, emojit, videót vagy zenét a bal oldali eszköztárból.</li><li>Az Arculat oldalon mentett színeid, betűtípusaid és logóid egy kattintással beilleszthetők.</li><li>Mentsd el a kártyát a Projektek közé, majd a Nyomdában készíts belőle QR-kódot vagy NFC-linket.</li><li>Gyorsbillentyűk: Ctrl+C, Ctrl+X, Ctrl+V, Delete, nyilak.</li></ol>
+    <button type="button" class="btn" data-close>Bezár</button></dialog>
 
 <dialog id="emo"><div id="emo-grid"></div><button type="button" class="btn b-red" id="emo-x">Bezár</button></dialog>
 
@@ -154,12 +149,14 @@
     <div class="row"><button class="btn b-grn" value="ok">Mentés</button><button class="btn b-red" value="cancel" formnovalidate>Mégse</button></div>
 </form></dialog>
 
+
 <script type="module">
 import { URLHandler as U } from './url-handler.js';
 import { TransformModule as T } from './transform-module.js';
 import { loadSettings, isLocked, limitFor } from './settings.js';
 import { initI18n, t, lang, onLang } from './i18n.js';
 import { ghUpdateJSON, ghToken, ghCfg, ghClearToken } from './github.js';
+import { initStudio } from './studio.js';
 window.__adminOk = true;
 
 const $ = id => document.getElementById(id);
@@ -215,7 +212,7 @@ function addImage(o = {}) {
 }
 
 const strike = x => [...String(x)].map(c => c === ' ' ? c : c + '\u0336').join('');   // áthúzott felirat, natív választólistában is látszik
-const flash = t => { $('msg').textContent = t; clearTimeout(flashT); flashT = setTimeout(() => { $('msg').textContent = ''; }, 3500); };
+const flash = t => { const m = $('toast'); m.textContent = t; m.hidden = false; clearTimeout(flashT); flashT = setTimeout(() => { m.hidden = true; }, 3800); };
 function fillFont(sel, want) {                         // fizetős betűtípus ingyenes nézetben: halvány, lakattal, nem választható
     const cur = want ?? sel.value; sel.length = 0;
     for (const f of S.fonts.filter(f => f.enabled)) {
@@ -576,6 +573,7 @@ $('tools').addEventListener('click', e => {
 });
 document.addEventListener('keydown', e => {            // gépelés közben (mezőkben) nem lopjuk el a billentyűket
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return;
+    if (document.body.dataset.view !== 'editor') return;           // csak a szerkesztő nézetben
     if (handleKey({ key: e.key, ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey })) e.preventDefault();
 });
 $('side').addEventListener('focusin', e => {           // egy réteg mezőjébe kattintva az elem az előnézetben is kijelölődik
@@ -617,6 +615,14 @@ $('plan').addEventListener('change', e => {            // Nézet: admin = minden
     document.querySelectorAll('#text-list select[id^="f"]').forEach(sel => fillFont(sel));
     fillEffect(); fillMed(); refreshLimits(); fillTpl(); $('lockhint').hidden = plan !== 'free'; update();
 });
+} catch (err) { console.error(err); flash('Indítási hiba: ' + err.message + ' – frissíts erővel (Ctrl+F5), és ellenőrizd a feltöltött fájlokat.'); }
+
+try {                                                  // Canva-szerű alkalmazáshéj: Kezdőlap, Projektek, Sablonok, Arculat, Nyomda, Dream Lab
+    initStudio({
+        get S() { return S; }, get tpls() { return tpls; }, get cats() { return cats; }, get plan() { return plan; }, get selKey() { return selKey; },
+        loadParams, collect: cleanParams, cardURL, toQuery, flatten, nest, normTpl, lab, icoLab, paidIn, flash, update, set, refreshLimits, addImage, addEmoji, addText,
+        openTab: tab => { const b = document.querySelector(`#rail button[data-t="${tab}"]`); if (b) b.click(); }
+    });
 } catch (err) { console.error(err); flash('Indítási hiba: ' + err.message + ' – frissíts erővel (Ctrl+F5), és ellenőrizd a feltöltött fájlokat.'); }
 </script>
 </body>
