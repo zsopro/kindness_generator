@@ -45,6 +45,9 @@ import { TransformModule as T } from './transform-module.js';
 import { loadLang, t } from './i18n.js';
 
 const $ = id => document.getElementById(id);
+const EMB = parent !== window;                                       // az admin előnézetében fut-e
+const THUMB = new URLSearchParams(location.search).get('thumb') === '1';
+const isSlave = () => EMB && innerWidth > innerHeight;              // a fekvő előnézet néma követő
 const layer = $('layer'), ov = $('start'), go = $('go'), cv = $('fx');
 const els = new Map(), fonts = new Set();
 let last = Object.fromEntries(new URLSearchParams(location.search));
@@ -124,7 +127,7 @@ function render(p) {
     setMedia(cfg);
     document.body.classList.toggle('edit', p.edit === '1');
     document.body.classList.toggle('ro', land);                  // fekvő nézetben csak megtekintés, a szerkesztés az álló nézetben történik
-    ov.style.display = (!document.body.classList.contains('edit') && media.cfg && !started) ? 'flex' : 'none';   // szerkesztés közben ne takarja az indítógomb
+    ov.style.display = (!document.body.classList.contains('edit') && media.cfg && !started && !EMB) ? 'flex' : 'none';   // szerkesztés közben ne takarja az indítógomb
     placeSel();
     fx(thumb ? 'none' : p.effect, U.hex(p.ec) || '#ffffff', U.num(p.intens, 1, 5, 2));
 }
@@ -181,7 +184,29 @@ function mediaCfg(p) {
     const audio = prov === 'file' && (p.mmode === 'audio' || /\.(mp3|ogg|m4a|wav|aac)$/i.test(id));
     return { prov, id, audio, loop: p.mloop === '1', mute: p.mmute === '1', ctl: p.mctl === '1' };
 }
+let tick = 0;
+function startTick() {                                                // az álló (hangos) előnézet időjelet küld, a fekvő ehhez igazodik
+    clearInterval(tick); if (!EMB || isSlave()) return;
+    tick = setInterval(() => {
+        let tm, st;
+        if (player && player.getCurrentTime) { tm = player.getCurrentTime(); st = player.getPlayerState(); }
+        else if (fileEl && fileEl.tagName === 'VIDEO') { tm = fileEl.currentTime; st = fileEl.paused ? 2 : 1; }
+        if (tm != null) up({ type: 'TICK', t: tm, s: st });
+    }, 500);
+}
+function syncTo(tm, st) {
+    if (!isSlave() || !(tm >= 0)) return;
+    if (player && player.getCurrentTime && player.getPlayerState) {
+        if (Math.abs(player.getCurrentTime() - tm) > 0.8) player.seekTo(tm, true);
+        const cur = player.getPlayerState();
+        if (st === 1 && cur !== 1 && cur !== 3) player.playVideo(); else if (st === 2 && cur === 1) player.pauseVideo();
+    } else if (fileEl && fileEl.tagName === 'VIDEO') {
+        if (Math.abs(fileEl.currentTime - tm) > 0.8) fileEl.currentTime = tm;
+        if (st === 1 && fileEl.paused) fileEl.play().catch(() => { }); else if (st === 2 && !fileEl.paused) fileEl.pause();
+    }
+}
 function stopMedia() {
+    clearInterval(tick); tick = 0;
     try { player && player.destroy && player.destroy(); } catch { }
     if (fileEl) { fileEl.pause(); fileEl = null; }
     player = null; $('v-cont').innerHTML = '<div id="player"></div>';
@@ -192,12 +217,14 @@ function setMedia(cfg) {
     media = { key, cfg }; stopMedia();
     const name = cfg && MEDIA[cfg.prov].name;
     $('note').textContent = name ? t('Az Indítás gombra kattintva a(z) {x} szolgáltatótól töltődik be tartalom, amely sütiket és adatokat (pl. IP-cím) kezelhet.', { x: name }) : '';
-    ov.style.display = (cfg && !started) ? 'flex' : 'none';
+    ov.style.display = (cfg && !started && !EMB) ? 'flex' : 'none';     // az előnézetben az admin indít egyszerre mindkét nézetet
     if (cfg && started) startMedia();
 }
 function startMedia() {
     const c = media.cfg, box = $('v-cont');
     if (!c) return;
+    const slave = isSlave();
+    if (slave && (c.prov === 'tiktok' || c.prov === 'videa' || c.audio)) return;      // csak a szinkronizálható videót követi a fekvő nézet
     const frame = src => {
         const f = document.createElement('iframe');
         f.src = src; f.allow = 'autoplay; fullscreen; encrypted-media'; f.setAttribute('allowfullscreen', '');
@@ -205,9 +232,9 @@ function startMedia() {
     };
     if (c.prov === 'youtube') {
         const mk = () => {
-            const pv = { autoplay: 1, controls: c.ctl ? 1 : 0, playsinline: 1, rel: 0, mute: c.mute ? 1 : 0 };
+            const pv = { autoplay: 1, controls: c.ctl ? 1 : 0, playsinline: 1, rel: 0, mute: (c.mute || slave) ? 1 : 0 };
             if (c.loop) { pv.loop = 1; pv.playlist = c.id; }
-            player = new YT.Player('player', { host: 'https://www.youtube-nocookie.com', width: '100%', height: '100%', videoId: c.id, playerVars: pv, events: { onReady: e => e.target.playVideo() } });
+            player = new YT.Player('player', { host: 'https://www.youtube-nocookie.com', width: '100%', height: '100%', videoId: c.id, playerVars: pv, events: { onReady: e => { if (slave) e.target.mute(); e.target.playVideo(); startTick(); } } });
         };
         if (window.YT && YT.Player) mk();
         else {
@@ -218,9 +245,9 @@ function startMedia() {
     else if (c.prov === 'videa') frame(`https://videa.hu/player?v=${c.id}&autoplay=1`);
     else if (c.prov === 'file') {
         const el = document.createElement(c.audio ? 'audio' : 'video');
-        Object.assign(el, { src: c.id, loop: c.loop, muted: c.mute, controls: c.ctl, playsInline: true });
+        Object.assign(el, { src: c.id, loop: c.loop, muted: c.mute || slave, controls: c.ctl, playsInline: true });
         el.style.cssText = 'width:100%;height:100%;object-fit:contain';
-        box.innerHTML = ''; box.appendChild(el); fileEl = el; el.play().catch(() => { });
+        box.innerHTML = ''; box.appendChild(el); fileEl = el; el.play().catch(() => { }); startTick();
     }
 }
 go.addEventListener('click', () => { started = true; ov.style.display = 'none'; startMedia(); });   // felhasználói esemény: így indulhat a hang
@@ -229,6 +256,8 @@ addEventListener('message', e => {           // csak a szülő (admin) ablakból
     if (e.origin !== location.origin || e.source !== parent) return;
     const d = e.data || {};
     if (d.type === 'STYLE') render(d.params || {});
+    if (d.type === 'START' && !started) { started = true; ov.style.display = 'none'; startMedia(); }
+    if (d.type === 'SYNC') syncTo(d.t, d.s);
     if (d.type === 'SELECT') setSel(typeof d.key === 'string' ? d.key : null, false);
     if (d.type === 'VIDEO') {
         const pause = d.action === 'pause';
@@ -311,8 +340,7 @@ addEventListener('keydown', e => {                      // a billentyűket a sz�
     }
 });
 
-await loadLang();                                      // alapértelmezett feliratok a látogató nyelvén (?lang= vagy a böngésző nyelve)
-document.title = t('Kártya');
+if (!THUMB) { await loadLang(); document.title = t('Kártya'); }     // a miniatűröknek nem kell nyelvi fájl
 render(last);
 if (parent !== window && last.thumb !== '1') parent.postMessage({ type: 'READY' }, location.origin);
 </script>
