@@ -7,9 +7,11 @@
 <link rel="icon" href="data:,">
 <title>NEO Admin</title>
 <script>
-    setTimeout(() => {
-        if (!window.__adminOk) { const m = document.getElementById('toast'); if (m) { m.hidden = false; m.textContent = 'A szerkesztő nem indult el. Frissíts erővel (Ctrl+F5), és ellenőrizd, hogy az admin.html, url-handler.js, transform-module.js, settings.js, i18n.js, github.js és studio.js is fel van töltve.'; } }
-    }, 2500);
+    window.__adminFail = () => {            // csak valódi hibánál (hiányzó modul) vagy nagyon hosszú várakozás után jelenik meg
+        if (window.__adminOk) return; const m = document.getElementById('toast');
+        if (m) { m.dataset.diag = '1'; m.hidden = false; m.textContent = 'A szerkesztő nem indult el. Frissíts erővel (Ctrl+F5), és ellenőrizd, hogy az admin.html, url-handler.js, transform-module.js, settings.js, i18n.js, github.js és studio.js is fel van töltve.'; }
+    };
+    setTimeout(window.__adminFail, 25000);
 </script>
 <link rel="stylesheet" href="studio.css">
 </head>
@@ -39,7 +41,7 @@
             <button type="button" id="b-proj" class="btn b-grn only-ed">💾 Mentés</button>
             <button type="button" id="b-plans" class="btn b-pur">👑 Előfizetés</button>
         </header>
-        <section id="view-home" class="view glass on"></section>
+        <section id="view-home" class="view glass on"><p class="empty" style="padding:40px;text-align:center">Betöltés…</p></section>
         <section id="view-projects" class="view glass"></section>
         <section id="view-templates" class="view glass"></section>
         <section id="view-brand" class="view glass"></section>
@@ -105,14 +107,14 @@
         <button type="button" data-a="front" title="Előrébb">⬆</button><button type="button" data-a="back" title="Hátrébb">⬇</button>
         
                     </div>
-                    <div class="phone"><div class="preview-container p-port"><iframe id="ifr_p" src="index.html" title="Álló előnézet"></iframe></div></div>
+                    <div class="phone"><div class="preview-container p-port"><iframe id="ifr_p" data-src="index.html" title="Álló előnézet"></iframe></div></div>
                 </div>
                 <aside class="props glass">
                     <h3>Tulajdonságok</h3>
                     <button type="button" id="edit-toggle" class="live-toggle on">SZERKESZTŐ MÓD: BE</button>
-                    <div class="row"><button type="button" class="btn b-blue" id="b-refresh">🔄 Frissítés</button><button type="button" class="btn b-yel" id="b-pause">⏸ Szünet</button></div>
+                    <div class="row"><button type="button" class="btn b-blue" id="b-refresh">🔄 Frissítés</button><button type="button" class="btn b-yel" id="b-pause">▶ Lejátszás</button></div>
                     <h3>Fekvő előnézet</h3>
-                    <div class="preview-container p-land"><iframe id="ifr_l" src="index.html" title="Fekvő előnézet"></iframe></div>
+                    <div class="preview-container p-land"><iframe id="ifr_l" data-src="index.html" title="Fekvő előnézet"></iframe></div>
                     <button type="button" class="btn b-grn btn-add" id="b-save">💾 Mentés sablonként</button>
                     <p class="hint">Kattints egy elemre az álló előnézetben: húzd mozgatáshoz, a pontokat méretezéshez, a felső kört forgatáshoz (Shift: 15°-os lépés). Fekvő nézet: automatikus.</p>
                     <p class="hint">Réteg: nagyobb szám = feljebb (kép alapból 10, szöveg 20, videó 0). A „Mentés sablonként” a GitHub tárolóban lévő templates.json fájlba ment (ha nem sikerül, letölti).</p>
@@ -150,19 +152,19 @@
 </form></dialog>
 
 
-<script type="module">
+<script type="module" onerror="__adminFail()">
 import { URLHandler as U } from './url-handler.js';
 import { TransformModule as T } from './transform-module.js';
 import { loadSettings, isLocked, limitFor } from './settings.js';
 import { initI18n, t, lang, onLang } from './i18n.js';
 import { ghUpdateJSON, ghToken, ghCfg, ghClearToken } from './github.js';
 import { initStudio } from './studio.js';
-window.__adminOk = true;
+window.__adminOk = true; { const m = document.getElementById('toast'); if (m && m.dataset.diag) m.hidden = true; }
 
 const $ = id => document.getElementById(id);
 const set = (id, v) => { const e = $(id); if (e && v !== undefined && v !== null) e.value = v; };
 const frames = () => [$('ifr_p'), $('ifr_l')];
-let playing = true, edit = true, tN = 0, iN = 0, tpls = [], cats = [], eN = 0, S = null, plan = 'admin', flashT;
+let playing = false, mstarted = false, edit = true, tN = 0, iN = 0, tpls = [], cats = [], eN = 0, S = null, plan = 'admin', flashT;
 
 function collect() {                                   // egyetlen forrás: az előnézet és a link is ebből készül
     const p = {};
@@ -449,6 +451,7 @@ addEventListener('message', e => {
         if (d.type === 'SELECT') select(d.key, true);
         else if (d.type === 'EDIT' && SEL_RE.test(d.key)) applyEdit(d.key, d.props || {});
         else if (d.type === 'KEY') handleKey(d);
+        else if (d.type === 'TICK') { const w = $('ifr_l').contentWindow; if (w) w.postMessage({ type: 'SYNC', t: d.t, s: d.s }, location.origin); }
     }
 });
 $('side').addEventListener('click', e => {
@@ -463,10 +466,11 @@ $('edit-toggle').addEventListener('click', e => {
     edit = !edit; e.currentTarget.textContent = 'SZERKESZTŐ MÓD: ' + (edit ? 'BE' : 'KI');
     e.currentTarget.classList.toggle('on', edit); if (!edit) select(null); update();
 });
-$('b-refresh').addEventListener('click', () => frames().forEach(f => { f.src = previewURL(); }));
-$('b-pause').addEventListener('click', e => {
-    playing = !playing; e.currentTarget.textContent = playing ? '⏸ Szünet' : '▶ Lejátszás';
-    send({ type: 'VIDEO', action: playing ? 'play' : 'pause' });
+$('b-refresh').addEventListener('click', () => { frames().forEach(f => { f.src = previewURL(); }); mstarted = false; playing = false; $('b-pause').textContent = '▶ Lejátszás'; });
+$('b-pause').addEventListener('click', e => {         // egyetlen indítás mindkét nézetnek; az álló hangos, a fekvő néma és szinkronban követi
+    if (!mstarted) { mstarted = true; playing = true; send({ type: 'START' }); }
+    else { playing = !playing; send({ type: 'VIDEO', action: playing ? 'play' : 'pause' }); }
+    e.currentTarget.textContent = playing ? '⏸ Szünet' : '▶ Lejátszás';
 });
 $('b-copy').addEventListener('click', async e => {
     const b = e.currentTarget, old = b.textContent;
@@ -582,10 +586,12 @@ $('side').addEventListener('focusin', e => {           // egy réteg mezőjébe 
 });
 toolsState();
 
+await Promise.all([(async () => {
 try {                                                  // nyelv: szövegek a lang.json fájlból
     await initI18n();
     onLang(() => { fillEffect(); fillMed(); document.querySelectorAll('#text-list select[id^="f"]').forEach(sel => fillFont(sel)); fillTpl(); toolsState(); });
 } catch (err) { console.error(err); }
+})(), (async () => {
 try {                                                  // sablonok és kategóriák
 const getJSON = async f => { try { const r = await fetch(f, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch { return null; } };
 cats = ((await getJSON('categories.json')) || {}).categories || [];
@@ -593,6 +599,7 @@ tpls = (((await getJSON('templates.json')) || {}).templates || []).map(normTpl);
 fillTpl();
 
 } catch (err) { console.error(err); flash('Indítási hiba: ' + err.message + ' – frissíts erővel (Ctrl+F5), és ellenőrizd a feltöltött fájlokat.'); }
+})(), (async () => {
 try {                                                  // beállítások és az ezektől függő felület
 S = await loadSettings();
 S.providers = (S.providers && S.providers.length) ? S.providers : [{ id: 'youtube', label: 'YouTube', icon: '▶️', tier: 'free', enabled: true }, { id: 'file', label: 'Saját fájl', icon: '📁', tier: 'free', enabled: true }, { id: 'tiktok', label: 'TikTok', icon: '🎵', tier: 'paid', enabled: true }];
@@ -616,6 +623,7 @@ $('plan').addEventListener('change', e => {            // Nézet: admin = minden
     fillEffect(); fillMed(); refreshLimits(); fillTpl(); $('lockhint').hidden = plan !== 'free'; update();
 });
 } catch (err) { console.error(err); flash('Indítási hiba: ' + err.message + ' – frissíts erővel (Ctrl+F5), és ellenőrizd a feltöltött fájlokat.'); }
+})()]);
 
 try {                                                  // Canva-szerű alkalmazáshéj: Kezdőlap, Projektek, Sablonok, Arculat, Nyomda, Dream Lab
     initStudio({
