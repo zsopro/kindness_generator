@@ -91,7 +91,7 @@ export function setLang(id) {
     const s = document.getElementById('lang'); if (s) s.value = id;
 }
 export async function loadLang(file = 'lang.json') {                  // csak betölt (pl. a kártyához); hiányzó fájlnál magyarul marad
-    try { const r = await fetch(file, { cache: 'no-cache' }); if (r.ok) DB = await r.json(); } catch { }
+    try { const r = await fetch(file); if (r.ok) DB = await r.json(); } catch { }
     build(); cur = getLang();
 }
 export async function initI18n() {                                    // teljes oldal fordítása, nyelvválasztó, élő figyelés
