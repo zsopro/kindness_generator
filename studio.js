@@ -45,7 +45,10 @@ export function show(v, arg) {
     closePops();
     if (R[v]) R[v](arg);
     try { history.replaceState(null, '', '#/' + v); } catch { }
-    if (v === 'editor') setTimeout(() => A.update(), 60);          // az újra látható előnézetek frissítése
+    if (v === 'editor') {
+        ['ifr_p', 'ifr_l'].forEach(id => { const f = $(id); if (!f.getAttribute('src')) f.src = f.dataset.src; });   // lusta betöltés: a kezdőlap gyorsabban indul
+        setTimeout(() => A.update(), 60);
+    }          // az újra látható előnézetek frissítése
 }
 
 /* ---------- Kezdőlap ---------- */
