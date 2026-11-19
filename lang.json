@@ -1692,6 +1692,11 @@
       "key": "ikonok_2",
       "hu": "😀 Ikonok",
       "en": "😀 Icons"
+    },
+    {
+      "key": "betoltes",
+      "hu": "Betöltés…",
+      "en": "Loading…"
     }
   ]
 }
