@@ -1697,6 +1697,181 @@
       "key": "betoltes",
       "hu": "Betöltés…",
       "en": "Loading…"
+    },
+    {
+      "key": "a_kep_a_kod_mogott_latszik_a_qr_pontjai_raulnek_",
+      "hu": "A kép a kód mögött látszik, a QR pontjai ráülnek. Látványos, de kevésbé biztonságos: mindig próbáld ki telefonnal.",
+      "en": "The image shows behind the code, and the QR dots sit on top of it. Spectacular, but less safe: always test it with a phone."
+    },
+    {
+      "key": "a_kepet_nem_sikerult_betolteni_ha_idegen_kiszolg",
+      "hu": "A képet nem sikerült betölteni. Ha idegen kiszolgálóról való, töltsd fel a fájlt a gépedről.",
+      "en": "The image could not be loaded. If it comes from another server, upload the file from your computer."
+    },
+    {
+      "key": "a_link_tul_hosszu_ehhez_a_modhoz_ezert_egyszeru_",
+      "hu": "A link túl hosszú ehhez a módhoz, ezért egyszerű kód készült. Használj rövidebb linket.",
+      "en": "The link is too long for this mode, so a plain code was created. Use a shorter link."
+    },
+    {
+      "key": "a_logo_a_kod_kozepen_van_a_magas_hibajavitas_mia",
+      "hu": "A logó a kód közepén van, a magas hibajavítás miatt a kód így is olvasható marad. A logó legyen egyszerű és jól látható.",
+      "en": "The logo is in the middle of the code; thanks to the high error correction the code stays readable. Keep the logo simple and clearly visible."
+    },
+    {
+      "key": "a_logo_a_kozepen",
+      "hu": "A) Logó a közepén",
+      "en": "A) Logo in the middle"
+    },
+    {
+      "key": "arculati_foto",
+      "hu": "Arculati fotó",
+      "en": "Brand photo"
+    },
+    {
+      "key": "arculati_logo",
+      "hu": "Arculati logó",
+      "en": "Brand logo"
+    },
+    {
+      "key": "az_olvashatosagert_a_program_finomitotta_a_beall",
+      "hu": "Az olvashatóságért a program finomította a beállítást.",
+      "en": "The program refined the setting to keep the code readable."
+    },
+    {
+      "key": "az_svg_nem_keszitheto_ehhez_a_kephez_toltsd_fel_",
+      "hu": "Az SVG nem készíthető ehhez a képhez. Töltsd fel a fájlt a gépedről, vagy használd a PNG-t.",
+      "en": "The SVG cannot be created for this image. Upload the file from your computer, or use the PNG."
+    },
+    {
+      "key": "b_kep_a_mintazatban",
+      "hu": "B) Kép a mintázatban",
+      "en": "B) Image in the pattern"
+    },
+    {
+      "key": "hagyomanyos_qr_kod_a_legbiztonsagosabban_olvasha",
+      "hu": "Hagyományos QR-kód. A legbiztonságosabban olvasható.",
+      "en": "A traditional QR code. The most reliably readable."
+    },
+    {
+      "key": "hibajavitas",
+      "hu": "Hibajavítás",
+      "en": "Error correction"
+    },
+    {
+      "key": "hatter_szine",
+      "hu": "Háttér színe",
+      "en": "Background color"
+    },
+    {
+      "key": "hatterparna",
+      "hu": "Háttérpárna",
+      "en": "Background pad"
+    },
+    {
+      "key": "kep_fajl",
+      "hu": "Kép (fájl)",
+      "en": "Image (file)"
+    },
+    {
+      "key": "kep_erossege",
+      "hu": "Kép erőssége",
+      "en": "Image strength"
+    },
+    {
+      "key": "kor",
+      "hu": "Kör",
+      "en": "Circle"
+    },
+    {
+      "key": "lekerekitett",
+      "hu": "Lekerekített",
+      "en": "Rounded"
+    },
+    {
+      "key": "logo_fajl",
+      "hu": "Logó (fájl)",
+      "en": "Logo (file)"
+    },
+    {
+      "key": "logo_merete",
+      "hu": "Logó mérete",
+      "en": "Logo size"
+    },
+    {
+      "key": "minta_szine",
+      "hu": "Minta színe",
+      "en": "Pattern color"
+    },
+    {
+      "key": "modulforma",
+      "hu": "Modulforma",
+      "en": "Module shape"
+    },
+    {
+      "key": "negyzet",
+      "hu": "Négyzet",
+      "en": "Square"
+    },
+    {
+      "key": "png_merete_px",
+      "hu": "PNG mérete (px)",
+      "en": "PNG size (px)"
+    },
+    {
+      "key": "pont",
+      "hu": "Pont",
+      "en": "Dot"
+    },
+    {
+      "key": "pontmeret",
+      "hu": "Pontméret",
+      "en": "Dot size"
+    },
+    {
+      "key": "standard",
+      "hu": "Standard",
+      "en": "Standard"
+    },
+    {
+      "key": "szinek_2",
+      "hu": "Színek",
+      "en": "Colors"
+    },
+    {
+      "key": "szines_kep",
+      "hu": "Színes kép",
+      "en": "Color image"
+    },
+    {
+      "key": "valassz_kepet_addig_a_standard_kod_latszik",
+      "hu": "Válassz képet, addig a standard kód látszik.",
+      "en": "Choose an image; until then the standard code is shown."
+    },
+    {
+      "key": "valassz_logot_addig_a_standard_kod_latszik",
+      "hu": "Válassz logót, addig a standard kód látszik.",
+      "en": "Choose a logo; until then the standard code is shown."
+    },
+    {
+      "key": "ebben_a_bongeszoben_nincs_automatikus_ellenorzes",
+      "hu": "ℹ Ebben a böngészőben nincs automatikus ellenőrzés. Nyomtatás előtt próbáld ki telefonnal.",
+      "en": "ℹ This browser has no automatic check. Test it with a phone before printing."
+    },
+    {
+      "key": "az_automatikus_ellenorzes_nem_tudta_beolvasni_cs",
+      "hu": "⚠ Az automatikus ellenőrzés nem tudta beolvasni. Csökkentsd a logó méretét vagy erősítsd a mintát, és próbáld ki telefonnal.",
+      "en": "⚠ The automatic check could not read it. Reduce the logo size or strengthen the pattern, and test it with a phone."
+    },
+    {
+      "key": "olvashato_automatikusan_ellenorizve",
+      "hu": "✔ Olvasható (automatikusan ellenőrizve).",
+      "en": "✔ Readable (verified automatically)."
+    },
+    {
+      "key": "nincs_2",
+      "hu": "– nincs –",
+      "en": "– none –"
     }
   ]
 }
