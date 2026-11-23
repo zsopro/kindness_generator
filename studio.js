@@ -3,6 +3,7 @@
 import { t, lang, onLang } from './i18n.js';
 import { limitFor, isLocked } from './settings.js';
 import { URLHandler as U } from './url-handler.js';
+import { renderQR, buildQR, loadImageCanvas } from './qr-render.js';
 
 const $ = id => document.getElementById(id);
 const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
@@ -226,17 +227,15 @@ function applyAudio(a) {
     $('mlink').value = a.u; $('mmode').value = 'audio'; $('mjog').checked = !!a.r; $('mlink').dispatchEvent(new Event('input', { bubbles: true })); A.update(); A.flash(t('Arculati hang beállítva.'));
 }
 
-/* ---------- Nyomda: QR-kód és NFC ---------- */
-let qrState = { src: 'cur' };
-const loadQR = () => window.qrcode ? Promise.resolve(true) : new Promise(res => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'; s.onload = () => res(!!window.qrcode); s.onerror = () => res(false); document.head.append(s); });
-function makeQR(text) { for (const lvl of ['M', 'L']) { try { const q = window.qrcode(0, lvl); q.addData(text); q.make(); return q; } catch { } } return null; }
-function qrSVG(q, fg = '#000000', bg = '#ffffff', cell = 8, m = 4) {
-    const n = q.getModuleCount(), sz = (n + m * 2) * cell; let d = '';
-    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${(c + m) * cell} ${(r + m) * cell}h${cell}v${cell}h-${cell}z`;
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${sz} ${sz}"><rect width="100%" height="100%" fill="${bg}"/><path d="${d}" fill="${fg}"/></svg>`;
-}
+/* ---------- Nyomda: QR-kód (standard, A: logó, B: kép) és NFC ---------- */
+const QR_DEF = { fg: '#000000', bg: '#ffffff', px: '1000', shape: 'square', level: 'M', lr: 22, pad: 'round', st: 30, dot: 62, col: false };
+let qrS = { src: 'cur', mode: 'standard', logo: null, photo: null, o: { ...QR_DEF } }, qrTok = 0, qrT = 0;
 const linkOf = src => src === 'cur' ? A.cardURL() : (() => { const p = projects.find(x => x.id === src); return p ? new URL('index.html?' + A.toQuery(A.flatten(p.params)), location.href).href : A.cardURL(); })();
 function download(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+const QR_MODES = [['standard', 'Standard'], ['logo', 'A) Logó a közepén'], ['image', 'B) Kép a mintázatban']];
+const QR_HINT = { standard: 'Hagyományos QR-kód. A legbiztonságosabban olvasható.', logo: 'A logó a kód közepén van, a magas hibajavítás miatt a kód így is olvasható marad. A logó legyen egyszerű és jól látható.', image: 'A kép a kód mögött látszik, a QR pontjai ráülnek. Látványos, de kevésbé biztonságos: mindig próbáld ki telefonnal.' };
+const qrOpts = () => ({ fg: $('pr-fg').value, bg: $('pr-bg').value, px: $('pr-px').value, shape: $('pr-shape').value, level: $('pr-level').value, lr: +$('pr-lr').value, pad: $('pr-pad').value, st: +$('pr-st').value, dot: +$('pr-dot').value, col: $('pr-col').checked });
+const qrBuildOpts = (text, px) => { const c = qrS.o; return { text, mode: qrS.mode, fg: c.fg, bg: c.bg, level: c.level, shape: c.shape, logo: qrS.logo, logoRatio: c.lr / 100, padShape: c.pad, photo: qrS.photo, strength: c.st / 100, dot: c.dot / 100, color: c.col, px }; };
 R.print = () => {
     const v = $('view-print');
     v.innerHTML = `<div class="hero"><h1 class="grad">Üdvözöl a Nyomda</h1></div>
@@ -245,35 +244,79 @@ R.print = () => {
             <div class="step"><small>2. LÉPÉS</small><h3>QR-kód és NFC-link</h3><p class="mut">Egy kattintással elkészül a QR-kód, és kiderül, melyik NFC-chipre fér rá a link.</p></div>
             <div class="step"><small>3. LÉPÉS</small><h3>Nyomtatás vagy írás chipre</h3><p class="mut">Töltsd le a QR-kódot, nyomtasd ki, vagy írd rá a linket az NFC-chipre.</p></div></div>
         <div class="pbox glass"><label>Melyik kártyához?<select id="pr-src"></select></label>
-            <div class="qrwrap"><div><div class="qr" id="pr-qr"></div><div class="row" style="margin-top:10px"><button type="button" class="btn" id="pr-svg">SVG letöltése</button><button type="button" class="btn" id="pr-png">PNG letöltése</button></div>
+            <div class="seg" id="pr-modes" role="tablist"></div><p class="hint" id="pr-mhint"></p>
+            <div class="qrwrap"><div>
+                <div class="qr" id="pr-qr"></div><p class="hint" id="pr-status" role="status"></p>
+                <div class="row"><button type="button" class="btn" id="pr-svg">SVG letöltése</button><button type="button" class="btn" id="pr-png">PNG letöltése</button></div>
                 <div class="row" style="margin-top:6px"><button type="button" class="btn b-pur" id="pr-print">🖨️ Nyomtatás</button><button type="button" class="btn b-grn" id="pr-nfc" hidden>📲 Írás NFC chipre</button></div></div>
-            <div style="flex:1;min-width:260px"><label>Link<textarea id="pr-link" rows="3" readonly></textarea></label><div class="row"><button type="button" class="btn" id="pr-copy">🔗 Link másolása</button></div>
+            <div style="flex:1;min-width:290px">
+                <div class="qform">
+                    <label>Minta színe<input type="color" id="pr-fg" value="#000000"></label>
+                    <label>Háttér színe<input type="color" id="pr-bg" value="#ffffff"></label>
+                    <label>PNG mérete (px)<select id="pr-px"><option>600</option><option>1000</option><option>2000</option></select></label>
+                    <label data-for="standard logo">Modulforma<select id="pr-shape"><option value="square">Négyzet</option><option value="round">Lekerekített</option><option value="dot">Pont</option></select></label>
+                    <label data-for="standard">Hibajavítás<select id="pr-level"><option>L</option><option>M</option><option>Q</option><option>H</option></select></label>
+                    <label data-for="logo">Logó (fájl)<input type="file" id="pr-logo" accept="image/*"></label>
+                    <label data-for="logo">Arculati logó<select id="pr-logosel"></select></label>
+                    <label data-for="logo">Logó mérete<input type="range" id="pr-lr" min="8" max="32"></label>
+                    <label data-for="logo">Háttérpárna<select id="pr-pad"><option value="round">Kör</option><option value="square">Négyzet</option></select></label>
+                    <label data-for="image">Kép (fájl)<input type="file" id="pr-photo" accept="image/*"></label>
+                    <label data-for="image">Arculati fotó<select id="pr-photosel"></select></label>
+                    <label data-for="image">Kép erőssége<input type="range" id="pr-st" min="10" max="50"></label>
+                    <label data-for="image">Pontméret<input type="range" id="pr-dot" min="40" max="78"></label>
+                    <label class="chk" data-for="image"><input type="checkbox" id="pr-col"> Színes kép</label>
+                </div>
+                <label>Link<textarea id="pr-link" rows="3" readonly></textarea></label><div class="row"><button type="button" class="btn" id="pr-copy">🔗 Link másolása</button></div>
                 <h3>NFC-chip kiválasztása</h3><table class="t" id="pr-chips"></table><p class="hint" id="pr-len"></p></div></div></div></div>`;
     const sel = $('pr-src'); sel.add(new Option(t('Aktuális kártya a szerkesztőben'), 'cur'));
-    projects.filter(p => !p.trashed).forEach(p => sel.add(new Option('📄 ' + p.name, p.id))); sel.value = projects.some(p => p.id === qrState.src) ? qrState.src : 'cur';
+    projects.filter(p => !p.trashed).forEach(p => sel.add(new Option('📄 ' + p.name, p.id))); sel.value = projects.some(p => p.id === qrS.src) ? qrS.src : 'cur'; qrS.src = sel.value;
+    const bsel = (id, list) => { const s = $(id); s.add(new Option(t('– nincs –'), '')); list.forEach((x, i) => s.add(new Option(x.n, String(i)))); };
+    bsel('pr-logosel', brand.logos); bsel('pr-photosel', brand.photos);
+    const o = qrS.o; $('pr-fg').value = o.fg; $('pr-bg').value = o.bg; $('pr-px').value = o.px; $('pr-shape').value = o.shape; $('pr-level').value = o.level; $('pr-lr').value = o.lr; $('pr-pad').value = o.pad; $('pr-st').value = o.st; $('pr-dot').value = o.dot; $('pr-col').checked = o.col;
+    const showMode = () => {
+        $('pr-modes').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.m === qrS.mode));
+        v.querySelectorAll('[data-for]').forEach(l => { l.hidden = !l.dataset.for.split(' ').includes(qrS.mode); });
+        $('pr-mhint').textContent = QR_HINT[qrS.mode];
+    };
+    QR_MODES.forEach(([m, l]) => { const b = el('button', 'chip', l); b.type = 'button'; b.dataset.m = m; b.onclick = () => { qrS.mode = m; showMode(); draw(); }; $('pr-modes').append(b); });
+    showMode();
+    const later = () => { qrS.o = qrOpts(); clearTimeout(qrT); qrT = setTimeout(draw, 180); };
+    ['pr-fg', 'pr-bg', 'pr-px', 'pr-shape', 'pr-level', 'pr-lr', 'pr-pad', 'pr-st', 'pr-dot', 'pr-col'].forEach(id => { $(id).addEventListener('input', later); });
+    const imgErr = () => A.flash(t('A képet nem sikerült betölteni. Ha idegen kiszolgálóról való, töltsd fel a fájlt a gépedről.'));
+    const pick = async (kind, src) => { try { qrS[kind] = await loadImageCanvas(src); draw(); } catch { imgErr(); } };
+    $('pr-logo').onchange = e => { if (e.target.files[0]) pick('logo', e.target.files[0]); };
+    $('pr-photo').onchange = e => { if (e.target.files[0]) pick('photo', e.target.files[0]); };
+    $('pr-logosel').onchange = e => { if (e.target.value !== '') pick('logo', brand.logos[+e.target.value].u); };
+    $('pr-photosel').onchange = e => { if (e.target.value !== '') pick('photo', brand.photos[+e.target.value].u); };
     const draw = async () => {
-        qrState.src = sel.value; const link = linkOf(sel.value); $('pr-link').value = link;
-        const bytes = new TextEncoder().encode(link).length, need = bytes - 8 + 1 + 6;      // https:// helyett 1 bájtos előtag + NDEF fejléc (becslés)
+        const my = ++qrTok; qrS.src = sel.value; const link = linkOf(sel.value); $('pr-link').value = link;
+        const bytes = new TextEncoder().encode(link).length, need = bytes - 8 + 1 + 6;           // https:// helyett 1 bájtos előtag + NDEF fejléc (becslés)
         $('pr-chips').innerHTML = '<tr><th>Chip</th><th>Kb. hasznos hely</th><th></th></tr>' + [['NTAG213', 137], ['NTAG215', 492], ['NTAG216', 868]].map(([n, c]) => `<tr><td>${n}</td><td>${c} B</td><td>${need <= c ? '✅' : '❌'}</td></tr>`).join('');
         $('pr-len').textContent = t('A link {x} bájt (kb. {y} bájt az NFC-rekordban). Hosszú linkhez rövidlink ajánlott.', { x: bytes, y: need });
-        const ok = await loadQR(), box = $('pr-qr');
-        if (!ok) { box.style.lineHeight = '1.3'; box.style.color = '#000'; box.textContent = t('A QR-kód létrehozásához internetkapcsolat kell.'); return; }
-        const q = makeQR(link); if (!q) { box.textContent = t('A link túl hosszú a QR-kódhoz. Használj rövidebb linket.'); return; }
-        box.style.lineHeight = ''; box.innerHTML = qrSVG(q); box._q = q;
+        const box = $('pr-qr'), st = $('pr-status'); let mode = qrS.mode, note = '';
+        if (mode === 'logo' && !qrS.logo) { mode = 'standard'; note = t('Válassz logót, addig a standard kód látszik.'); }
+        if (mode === 'image' && !qrS.photo) { mode = 'standard'; note = t('Válassz képet, addig a standard kód látszik.'); }
+        let r;
+        try { r = await buildQR({ ...qrBuildOpts(link, 640), mode }); }
+        catch { try { r = await buildQR({ ...qrBuildOpts(link, 640), mode: 'standard', level: 'L' }); note = t('A link túl hosszú ehhez a módhoz, ezért egyszerű kód készült. Használj rövidebb linket.'); mode = 'standard'; } catch { box.textContent = t('A link túl hosszú a QR-kódhoz. Használj rövidebb linket.'); st.textContent = ''; qrS.last = null; return; } }
+        if (my !== qrTok) return;
+        box.innerHTML = ''; box.append(r.canvas); qrS.last = { r, mode, link };
+        const msg = { ok: '✔ Olvasható (automatikusan ellenőrizve).', fail: '⚠ Az automatikus ellenőrzés nem tudta beolvasni. Csökkentsd a logó méretét vagy erősítsd a mintát, és próbáld ki telefonnal.', unknown: 'ℹ Ebben a böngészőben nincs automatikus ellenőrzés. Nyomtatás előtt próbáld ki telefonnal.' }[r.status];
+        st.textContent = [note, r.adjusted ? t('Az olvashatóságért a program finomította a beállítást.') : '', t(msg)].filter(Boolean).join(' ');
+        if (r.adjusted && my === qrTok) {                                                          // az automatikusan finomított értékek a csúszkákon is látszanak
+            const u = r.used; if (u.logoRatio != null && mode === 'logo') { qrS.o.lr = Math.round(u.logoRatio * 100); $('pr-lr').value = qrS.o.lr; }
+            if (mode === 'image') { qrS.o.st = Math.round(u.strength * 100); qrS.o.dot = Math.round(u.dot * 100); $('pr-st').value = qrS.o.st; $('pr-dot').value = qrS.o.dot; }
+        }
     };
     sel.onchange = draw; draw();
+    const fresh = px => { const L = qrS.last; if (!L) return null; return renderQR({ ...qrBuildOpts(L.link, px), mode: L.mode }); };
     $('pr-copy').onclick = async () => { try { await navigator.clipboard.writeText($('pr-link').value); A.flash(t('Másolva.')); } catch { prompt(t('Másold ki a linket:'), $('pr-link').value); } };
-    $('pr-svg').onclick = () => { const q = $('pr-qr')._q; if (q) download('kartya-qr.svg', new Blob([qrSVG(q)], { type: 'image/svg+xml' })); };
-    $('pr-png').onclick = () => {
-        const q = $('pr-qr')._q; if (!q) return; const n = q.getModuleCount(), cell = 10, m = 4, c = document.createElement('canvas'); c.width = c.height = (n + m * 2) * cell;
-        const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.fillStyle = '#000';
-        for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (q.isDark(r, k)) g.fillRect((k + m) * cell, (r + m) * cell, cell, cell);
-        c.toBlob(b => download('kartya-qr.png', b));
-    };
+    $('pr-svg').onclick = () => { const r = fresh(1000); if (!r) return; if (!r.svg) return A.flash(t('Az SVG nem készíthető ehhez a képhez. Töltsd fel a fájlt a gépedről, vagy használd a PNG-t.')); download('kartya-qr.svg', new Blob([r.svg], { type: 'image/svg+xml' })); };
+    $('pr-png').onclick = () => { const r = fresh(+qrS.o.px || 1000); if (r) r.canvas.toBlob(b => download('kartya-qr.png', b)); };
     $('pr-print').onclick = () => {
-        const q = $('pr-qr')._q; if (!q) return; const w = window.open('', '_blank'); if (!w) return;
+        const r = fresh(1000); if (!r) return; const w = window.open('', '_blank'); if (!w) return;
         const nm = sel.options[sel.selectedIndex].text.replace(/^📄 /, '');
-        w.document.write(`<!doctype html><meta charset="utf-8"><title>${esc(nm)}</title><style>body{font-family:sans-serif;text-align:center;margin:40px}svg{width:280px;height:280px}p{font-size:12px;word-break:break-all;color:#555}</style><h2>${esc(nm)}</h2>${qrSVG(q)}<p>${esc($('pr-link').value)}</p><script>onload=()=>print()<\/script>`); w.document.close();
+        w.document.write(`<!doctype html><meta charset="utf-8"><title>${esc(nm)}</title><style>body{font-family:sans-serif;text-align:center;margin:40px}img{width:300px;height:300px}p{font-size:12px;word-break:break-all;color:#555}</style><h2>${esc(nm)}</h2><img src="${r.canvas.toDataURL('image/png')}" alt=""><p>${esc($('pr-link').value)}</p><script>onload=()=>print()<\/script>`); w.document.close();
     };
     if ('NDEFReader' in window) {                                                        // Web NFC (Android Chrome)
         $('pr-nfc').hidden = false;
